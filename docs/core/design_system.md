@@ -47,8 +47,9 @@
 
 | Weight | 값 | 역할 |
 |--------|-----|------|
-| **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, CTA |
-| **SemiBold** | `600` | 구조를 잡는 뼈대 — 화면 제목, 섹션 헤더, 카드 제목, 버튼 |
+| **Black** | `900` | 화면의 주인공 — AppBar 화면 제목. 한 화면에 딱 하나 |
+| **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, 히어로 제목 |
+| **SemiBold** | `600` | 구조를 잡는 뼈대 — 섹션 헤더, 카드 제목, CTA 버튼 |
 | **Medium** | `500` | 조용한 안내자 — 폼 라벨, 네비게이션, 태그, 뱃지 |
 | **Regular** | `400` | 편안한 읽기 — 본문, 조리 설명, 재료 목록 |
 | **Light** | `300` | 숨은 보조 — 힌트, 플레이스홀더, 비활성 텍스트 |
@@ -67,7 +68,7 @@
 | `headlineLarge` | 24sp | Bold | 1.25 | -0.25 | 레시피 상세 제목 (히어로) |
 | `headlineMedium` | 22sp | SemiBold | 1.25 | 0 | 온보딩 제목, 모달 제목 |
 | `headlineSmall` | 20sp | SemiBold | 1.3 | 0 | 바텀시트 제목, 칼럼 제목 |
-| `titleLarge` | 20sp | SemiBold | 1.3 | 0 | AppBar 화면 제목 |
+| `titleLarge` | 22sp | Black | 1.25 | -0.25 | AppBar 화면 제목 — 화면의 앵커 |
 | `titleMedium` | 17sp | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
 | `titleSmall` | 15sp | Medium | 1.3 | 0.1 | 폼 라벨, 서브 헤더, Phase 라벨 |
 | `bodyLarge` | 16sp | Regular | 1.5 | 0.25 | 조리 설명, 칼럼 본문 (주 읽기용) |
@@ -86,7 +87,7 @@
 
 | 스타일 | 한줄 요약 |
 |--------|----------|
-| `titleLarge` | 모든 AppBar의 화면 제목 |
+| `titleLarge` | 모든 AppBar의 화면 제목 (22sp Black — 화면의 앵커) |
 | `titleMedium` | 카드 제목, 섹션 헤더 |
 | `bodyLarge` | 사용자가 '읽어야 하는' 핵심 본문 |
 | `bodyMedium` | 사용자가 '훑어보는' 보조 정보 |
@@ -116,7 +117,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "WhipUp" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "WhipUp" |
 | 재고 요약 카드 제목 | `titleMedium` | "냉장고에 12개 재료" |
 | 재고 요약 숫자 | `displaySmall` | "12" |
 | 섹션 헤더 | `titleMedium` | "유통기한 임박", "빠른 레시피" |
@@ -131,7 +132,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "냉장고" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "냉장고" |
 | 카테고리 필터 칩 | `labelLarge` | "🥬 채소" |
 | 정렬 드롭다운 | `bodyMedium` | "유통기한순" |
 | IngredientCard 재료명 | `titleSmall` | "소고기" |
@@ -144,7 +145,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "재료 추가" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "재료 추가" |
 | 폼 라벨 | `titleSmall` | "재료명 *" |
 | 입력 텍스트 | `bodyLarge` | 사용자 입력값 |
 | 힌트 텍스트 | `bodyMedium` + Light | "예: 양파" |
@@ -156,7 +157,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "레시피" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "레시피" |
 | 섹션 헤더 | `titleMedium` | "재료 선택" |
 | 체크리스트 재료명 | `bodyMedium` | "☑ 배추 500g" |
 | 옵션 라벨 | `titleSmall` | "recipe_type" |
@@ -171,7 +172,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "소고기 배추 전골" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "소고기 배추 전골" |
 | 히어로 레시피명 | `headlineLarge` | "소고기 배추 전골" |
 | RecipeTypeBadge | `labelSmall` | "SOUP" |
 | 메타 정보 | `bodyMedium` | "30분 · 보통 · 2인분" |
@@ -189,7 +190,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "칼럼" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "칼럼" |
 | 카테고리 필터 칩 | `labelLarge` | "과학" |
 | ColumnCard 이모지 | 시스템 이모지 28sp | "🥕" |
 | ColumnCard 제목 | `titleMedium` | "당근의 재발견" |
@@ -200,7 +201,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "칼럼" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "칼럼" |
 | 칼럼 제목 | `headlineSmall` | "당근의 재발견: 왜 기름과 함께..." |
 | 칼럼 부제 | `titleSmall` + onSurface 60% | "지용성 비타민의 비밀" |
 | 본문 | `bodyLarge` | 칼럼 본문 텍스트 |
@@ -211,7 +212,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "나의 기록" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "나의 기록" |
 | 연속 기록 숫자 | `displaySmall` | "7" |
 | 연속 기록 라벨 | `bodyMedium` | "일 연속 요리!" |
 | 통계 숫자 | `displaySmall` | "12" |
@@ -223,7 +224,7 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
-| AppBar 제목 | `titleLarge` | "설정" |
+| AppBar 제목 | `titleLarge` (22sp Black) | "설정" |
 | 섹션 헤더 | `titleMedium` | "테마" |
 | 옵션 라벨 | `bodyLarge` | "유통기한 알림" |
 | 옵션 보조 설명 | `bodySmall` | "알림 기준일" |
@@ -269,7 +270,8 @@
 - `fontSize: 16` 같은 하드코딩 (반드시 TextTheme의 스타일명으로 참조)
 - 10sp 미만 텍스트 사용 (주방 가독성 최저 기준 위반)
 - 이탤릭체 (한국어에 부적합)
-- `fontWeight: FontWeight.w800` / `w900` (Pretendard에서 지원하지만 브랜드 톤에 과함)
+- `fontWeight: FontWeight.w800` (ExtraBold는 사용하지 않음 — Black(900)과 Bold(700) 사이에 불필요)
+- `FontWeight.w900`(Black)은 `titleLarge` 전용 — 다른 곳에 임의 사용 금지
 - 한 화면에 6개 이상의 서로 다른 스타일 사용 (시각 혼란 — Primary 8종 내에서 해결)
 - 한 카드 안에 3개 이상의 서로 다른 Weight 사용 (계층이 흐려짐)
 

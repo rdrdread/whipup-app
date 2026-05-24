@@ -120,10 +120,19 @@ Artisan(UI) ──→ Architect(Logic) ──→ Bridge(External)
 | `id` | int | Isar 자동 ID |
 | `name` | String | 재료명 |
 | `category` | StockCategory (enum) | 카테고리 |
+| `storageLocation` | StorageLocation (enum) | 보관 위치 |
 | `quantity` | double | 수량 |
 | `unit` | String | 단위 (g/ml/개) |
 | `expiryDate` | DateTime? | 유통기한 |
 | `addedAt` | DateTime | 등록일 |
+
+**StorageLocation enum:**
+
+| 값 | 한글 | 아이콘 | 설명 |
+|----|------|--------|------|
+| `fridge` | 냉장고 | 🧊 | 냉장·냉동 보관 식재료 |
+| `pantry` | 팬트리 | 📦 | 상온 보관 (쌀, 통조림, 건조식품 등) |
+| `drawer` | 서랍 | 🗄️ | 양념장, 소스류, 기타 소모품 |
 
 **StockCategory enum:**
 

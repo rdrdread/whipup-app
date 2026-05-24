@@ -111,8 +111,9 @@ docs/brand-assets/
 
 | Weight 이름 | Weight 값 | 역할 |
 |-------------|----------|------|
+| **Black** | `900` | 화면의 주인공 — AppBar 화면 제목. 한 화면에 딱 하나 |
 | **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, 히어로 |
-| **SemiBold** | `600` | 구조를 잡는 뼈대 — 화면 제목, 섹션 헤더, 카드 제목, CTA 버튼 |
+| **SemiBold** | `600` | 구조를 잡는 뼈대 — 섹션 헤더, 카드 제목, CTA 버튼 |
 | **Medium** | `500` | 조용한 안내자 — 폼 라벨, 네비게이션, 태그, 뱃지 |
 | **Regular** | `400` | 편안한 읽기 — 본문, 조리 설명, 재료 목록 |
 | **Light** | `300` | 숨은 보조 — 힌트, 플레이스홀더, 비활성 텍스트 |
@@ -129,7 +130,7 @@ docs/brand-assets/
 | `headlineLarge` | 24 | Bold | 1.25 | -0.25 | 레시피 상세 히어로 제목 |
 | `headlineMedium` | 22 | SemiBold | 1.25 | 0 | 온보딩 제목, 모달 제목 |
 | `headlineSmall` | 20 | SemiBold | 1.3 | 0 | 바텀시트 제목, 칼럼 상세 제목 |
-| `titleLarge` | 20 | SemiBold | 1.3 | 0 | AppBar 화면 제목 |
+| `titleLarge` | 22 | Black | 1.25 | -0.25 | AppBar 화면 제목 — 화면의 앵커 |
 | `titleMedium` | 17 | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
 | `titleSmall` | 15 | Medium | 1.3 | 0.1 | 폼 라벨, Phase 라벨, 서브 헤더 |
 | `bodyLarge` | 16 | Regular | 1.5 | 0.25 | 조리 설명, 칼럼 본문 (주 읽기용) |
@@ -164,10 +165,10 @@ docs/brand-assets/
 | 기능 | 아이콘 이름 | 비고 |
 |------|-----------|------|
 | 홈 | `home_rounded` | 바텀 네비게이션 |
-| 냉장고 (재고) | `kitchen_rounded` | 바텀 네비게이션 |
+| 재고 | `kitchen_rounded` | 바텀 네비게이션 |
 | 레시피 | `restaurant_menu_rounded` | 바텀 네비게이션 |
-| 칼럼 | `auto_stories_rounded` | 바텀 네비게이션 |
-| 설정 | `settings_rounded` | 바텀 네비게이션 / 앱바 |
+| 마이 | `person_rounded` | 바텀 네비게이션 |
+| 설정 | `settings_rounded` | 마이 페이지 / 앱바 |
 | 재료 추가 | `add_circle_rounded` | FAB |
 | 카메라 | `photo_camera_rounded` | OCR 진입점 |
 | 마이크 | `mic_rounded` | 음성 입력 |
