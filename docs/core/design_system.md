@@ -25,7 +25,7 @@
 
 | Token | 값 | 용도 |
 |-------|-----|------|
-| **Hermes Orange** | `#D75F28` | Primary — CTA 버튼, FAB, 앱 바, 핵심 액센트 |
+| **Flame Orange** | `#F04E23` | Primary — CTA 버튼, FAB, 앱 바, 핵심 액센트 |
 | **Warm Amber** | `#FFC107` | Secondary — 포인트 강조, 뱃지, 보조 액션 |
 | **Clean Off-White** | `#FFF8F0` | Background — 스캐폴드 배경, 전체 기조 |
 
@@ -34,18 +34,273 @@
 
 ### 1.2. Typography
 
-- **Primary Font:** Pretendard (한국어+라틴, OFL 1.1)
-- **Fallback:** Apple SD Gothic Neo (iOS), Roboto (Android)
-- **파일:** `app/assets/fonts/Pretendard-*.otf`
+#### 1.2.1. 서체 기본
 
-> Type Scale 상세(Size, Weight, Line Height, Letter Spacing)는 `brand-assets §3.3` 참조.
+| 속성 | 값 |
+|------|-----|
+| **Primary Font** | Pretendard (한국어+라틴) |
+| **Fallback** | Apple SD Gothic Neo (iOS), Roboto (Android) |
+| **라이선스** | OFL 1.1 (오픈 소스, 상업 사용 가능) |
+| **파일** | `app/assets/fonts/Pretendard-*.otf` |
+
+**사용하는 Weight:**
+
+| Weight | 값 | 역할 |
+|--------|-----|------|
+| **Black** | `900` | 브랜드 앵커 — 홈 화면 "WhipUp" 로고 타이틀에만 사용 |
+| **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, 히어로 제목 |
+| **SemiBold** | `600` | 구조를 잡는 뼈대 — 섹션 헤더, 카드 제목, CTA 버튼 |
+| **Medium** | `500` | 조용한 안내자 — 폼 라벨, 네비게이션, 태그, 뱃지 |
+| **Regular** | `400` | 편안한 읽기 — 본문, 조리 설명, 재료 목록 |
+| **Light** | `300` | 숨은 보조 — 힌트, 플레이스홀더, 비활성 텍스트 |
+
+#### 1.2.2. Type Scale
+
+> **설계 원리:** 주방에서 폰을 손에 들고 보는 **탐색 모드**(~30cm)와
+> 조리대 위에 세워두고 요리하는 **조리 모드**(~80cm)를 모두 만족시켜야 한다.
+> Display 계열은 조리 모드에서 1m 거리에서도 읽히는 크기로 설정한다.
+
+| Style | Size | Weight | Height | Spacing | 용도 |
+|-------|------|--------|--------|---------|------|
+| `displayLarge` | 40sp | Bold | 1.15 | -0.5 | 조리 단계 번호 — 1m 거리 가독성 |
+| `displayMedium` | 32sp | Bold | 1.15 | -0.25 | 타이머 카운트다운, 히어로 숫자 |
+| `displaySmall` | 26sp | SemiBold | 1.2 | 0 | 리워드 숫자, 연속 기록 |
+| `headlineLarge` | 24sp | Bold | 1.25 | -0.25 | 레시피 상세 제목 (히어로) |
+| `headlineMedium` | 22sp | SemiBold | 1.25 | 0 | 온보딩 제목, 모달 제목 |
+| `headlineSmall` | 20sp | SemiBold | 1.3 | 0 | 바텀시트 제목, 칼럼 제목 |
+| `titleLarge` | 22sp | Black | 1.25 | -0.25 | **홈 화면 전용** — "WhipUp" 브랜드 앵커 |
+| `titleLarge` (일반) | 20sp | SemiBold | 1.3 | 0 | 홈 이외 AppBar 화면 제목 |
+| `titleMedium` | 17sp | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
+| `titleSmall` | 15sp | Medium | 1.3 | 0.1 | 폼 라벨, 서브 헤더, Phase 라벨 |
+| `bodyLarge` | 16sp | Regular | 1.5 | 0.25 | 조리 설명, 칼럼 본문 (주 읽기용) |
+| `bodyMedium` | 14sp | Regular | 1.5 | 0.25 | 재료 목록, 일반 본문, 보조 설명 |
+| `bodySmall` | 12sp | Regular | 1.4 | 0.4 | 타임스탬프, 출처, 부가 정보 |
+| `labelLarge` | 14sp | SemiBold | 1.2 | 0.1 | 버튼 텍스트, CTA |
+| `labelMedium` | 12sp | Medium | 1.2 | 0.5 | 바텀 네비 라벨, 탭 텍스트 |
+| `labelSmall` | 11sp | Medium | 1.1 | 0.5 | 태그, 뱃지, recipe_type |
+
+#### 1.2.3. 자주 쓰는 스타일 vs 가끔 쓰는 스타일
+
+화면을 만들 때 아래 **8가지 Primary 스타일**로 90% 이상을 커버한다.
+나머지는 특수 상황에서만 꺼내 쓴다.
+
+**Primary (일상적으로 사용):**
+
+| 스타일 | 한줄 요약 |
+|--------|----------|
+| `titleLarge` | 홈: 22sp Black 브랜드 앵커 / 나머지: 20sp SemiBold |
+| `titleMedium` | 카드 제목, 섹션 헤더 |
+| `bodyLarge` | 사용자가 '읽어야 하는' 핵심 본문 |
+| `bodyMedium` | 사용자가 '훑어보는' 보조 정보 |
+| `labelLarge` | 버튼 위의 텍스트 |
+| `labelSmall` | 뱃지, 태그 |
+| `displayLarge` | 조리 단계 번호 (조리 모드 전용) |
+| `displayMedium` | 타이머 표시 (조리 모드 전용) |
+
+**Supporting (특수 상황에서 사용):**
+
+| 스타일 | 언제 쓰는가 |
+|--------|-----------|
+| `displaySmall` | 리워드 화면의 연속 기록 숫자, 통계 숫자 |
+| `headlineLarge` | 레시피 상세 화면의 레시피명 (한 화면에 하나) |
+| `headlineMedium` | 온보딩 각 페이지의 대제목 |
+| `headlineSmall` | 바텀시트/다이얼로그 제목, 칼럼 상세 제목 |
+| `titleSmall` | 폼 라벨, CookingPhase 라벨, 서브 헤더 |
+| `bodySmall` | 타임스탬프, 등록일, 출처 텍스트, 칼럼 읽기 시간 |
+| `labelMedium` | 바텀 네비게이션 라벨, 탭 바 텍스트 |
+
+#### 1.2.4. 화면별 타이포그래피 매핑
+
+> **규칙:** 같은 역할의 텍스트는 어떤 화면에서든 같은 스타일을 쓴다.
+> 아래 매핑을 벗어나는 예외를 만들지 않는다.
+
+**홈 화면 (`/home`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` **(22sp Black)** | "WhipUp" ← 홈 화면만 예외 |
+| 대시보드 카드 제목 | `titleMedium` | "우리집 냉장고 현황" |
+| 대시보드 보유 숫자 | `displaySmall` | "24" |
+| 대시보드 위치별 수량 | `bodySmall` | "🧊12 ❄️5 📦4 🧂3" |
+| 대시보드 임박 경고 | `bodyMedium` | "유통기한 임박 3개" |
+| 섹션 헤더 | `titleMedium` | "빠른 레시피 추천", "콘텐츠" |
+| 레시피 슬라이더 제목 | `titleSmall` | "소고기 배추 전골" |
+| 레시피 슬라이더 메타 | `bodySmall` | "30분 · 보통" |
+| 콘텐츠 카드 제목 | `titleSmall` | "당근은 왜 기름과?" |
+| 콘텐츠 카드 요약 | `bodySmall` | "지용성 비타민의 비밀" |
+
+**재고 목록 (`/stock`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "냉장고" |
+| 카테고리 필터 칩 | `labelLarge` | "🥬 채소" |
+| 정렬 드롭다운 | `bodyMedium` | "유통기한순" |
+| IngredientCard 재료명 | `titleSmall` | "소고기" |
+| IngredientCard 수량 | `bodyMedium` | "300g" |
+| IngredientCard 유통기한 | `labelSmall` | "D-2" |
+| 빈 상태 메시지 | `bodyLarge` | "냉장고가 텅 비었어요" |
+| 빈 상태 버튼 | `labelLarge` | "재료 추가하기" |
+
+**재고 추가/수정 (`/stock/add`, `/stock/edit/:id`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "재료 추가" |
+| 폼 라벨 | `titleSmall` | "재료명 *" |
+| 입력 텍스트 | `bodyLarge` | 사용자 입력값 |
+| 힌트 텍스트 | `bodyMedium` + Light | "예: 양파" |
+| 드롭다운 선택값 | `bodyMedium` | "🥬 채소" |
+| 유효성 에러 | `bodySmall` + error 색상 | "필수 항목입니다" |
+| 저장 버튼 | `labelLarge` | "저장하기" |
+
+**레시피 추천 (`/recipe`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "레시피" |
+| 섹션 헤더 | `titleMedium` | "재료 선택" |
+| 카테고리 라벨 | `bodySmall` + SemiBold | "🥬 채소" |
+| 재료 칩 (선택됨) | `bodySmall` + Medium | "배추 500g" (primary 배경) |
+| 재료 칩 (해제됨) | `bodySmall` + Medium | "배추 500g" (surfaceVariant 배경) |
+| 모두 선택/해제 | `labelSmall` | "모두 선택", "모두 해제" |
+| 옵션 라벨 | `titleSmall` | "recipe_type" |
+| 옵션 드롭다운 | `bodyMedium` | "전체" |
+| CTA 버튼 | `labelLarge` | "레시피 추천 받기" |
+| 로딩 메시지 | `bodyLarge` | "맛있는 레시피를 찾고 있어요" |
+| RecipeCard 제목 | `titleMedium` | "소고기 배추 전골" |
+| RecipeCard 보조 | `bodySmall` | "30분 · 보통 · 2인분" |
+| RecipeTypeBadge | `labelSmall` | "SOUP" |
+
+**레시피 상세 (`/recipe/:id`) — 조리 모드 진입점**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "소고기 배추 전골" |
+| 히어로 레시피명 | `headlineLarge` | "소고기 배추 전골" |
+| RecipeTypeBadge | `labelSmall` | "SOUP" |
+| 메타 정보 | `bodyMedium` | "30분 · 보통 · 2인분" |
+| 섹션 헤더 | `titleMedium` | "맛 프로필", "재료", "조리 순서" |
+| FlavorRadar 라벨 | `labelSmall` | "감칠맛", "단맛" |
+| 재료 이름 | `bodyMedium` | "소고기 300g" |
+| **단계 번호** | **`displayLarge`** | **"1"** |
+| Phase 라벨 | `titleSmall` + primary | "prep 재료 손질" |
+| 단계 설명 | `bodyLarge` | "배추를 한 잎씩 떼어 흐르는..." |
+| 단계 팁 (The Kick) | `bodyMedium` + Call-out Box | "배추는 심지부터 떼면 깔끔해요" |
+| 타이머 | `displayMedium` | "05:00" |
+| science_note | `bodyMedium` + Call-out Box | "마이야르 반응이..." |
+
+**칼럼 목록 (`/column`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "칼럼" |
+| 카테고리 필터 칩 | `labelLarge` | "과학" |
+| ColumnCard 이모지 | 시스템 이모지 28sp | "🥕" |
+| ColumnCard 제목 | `titleMedium` | "당근의 재발견" |
+| ColumnCard 부제+시간 | `bodySmall` | "지용성 비타민의 비밀 · 3분" |
+| 카테고리 뱃지 | `labelSmall` | "SCIENCE" |
+
+**칼럼 상세 (`/column/:id`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "칼럼" |
+| 칼럼 제목 | `headlineSmall` | "당근의 재발견: 왜 기름과 함께..." |
+| 칼럼 부제 | `titleSmall` + onSurface 60% | "지용성 비타민의 비밀" |
+| 본문 | `bodyLarge` | 칼럼 본문 텍스트 |
+| 출처 칩 | `bodySmall` | "K. Miglio et al., 2008" |
+| 태그 | `labelSmall` | "당근", "베타카로틴" |
+
+**리워드 (`/reward`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "나의 기록" |
+| 연속 기록 숫자 | `displaySmall` | "7" |
+| 연속 기록 라벨 | `bodyMedium` | "일 연속 요리!" |
+| 통계 숫자 | `displaySmall` | "12" |
+| 통계 라벨 | `bodySmall` | "총 요리" |
+| 업적 이름 | `titleSmall` | "첫 요리사" |
+| 업적 설명 | `bodySmall` | "레시피 완료 1회" |
+
+**설정 (`/settings`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "설정" |
+| 섹션 헤더 | `titleMedium` | "테마" |
+| 옵션 라벨 | `bodyLarge` | "유통기한 알림" |
+| 옵션 보조 설명 | `bodySmall` | "알림 기준일" |
+| 버전 정보 | `bodySmall` | "버전 1.0.0" |
+
+**온보딩 (`/onboarding`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| 이모지 일러스트 | 80sp | 🧊→📦→🧂 순환 애니메이션 (2.5초 간격) |
+| 대제목 | `headlineMedium` | "냉장고 속 재료로 근사한 한 끼" |
+| 설명 | `bodyLarge` | "재료를 등록하면 AI가..." |
+| 건너뛰기 | `labelLarge` + onSurface 60% | "건너뛰기" → 기본 구성 + 토스트 → 홈 |
+| 다음/시작 버튼 | `labelLarge` | "시작하기" → 재고함 설정 화면 |
+| 페이지 인디케이터 | — (도트, 텍스트 없음) | |
+
+**재고함 설정 (`/storage-setup`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "재고함 설정" |
+| 안내 메시지 | `bodyLarge` | "사용하는 재고함을 추가해 주세요." |
+| 보조 메시지 | `bodyMedium` + onSurface 60% | "나중에 설정에서 변경할 수 있어요." |
+| 재고함 이름 | `bodyLarge` + SemiBold | "냉장고", "냉동고" |
+| 재고함 설명 | `bodySmall` | "냉장 보관 식재료" |
+| 카운터 숫자 | `titleMedium` + primary | "1" |
+| 완료 버튼 | `labelLarge` | "완료" |
+
+#### 1.2.5. 조리 모드 특별 규칙
+
+> Creed §5 "주방의 소음 속에서도 명확한 전달" 원칙의 구체적 구현.
+
+조리 단계 화면(`/recipe/:id`)에서 사용자가 Step-by-Step 가이드에 진입하면, 텍스트 크기를 일반 탐색 모드보다 한 단계 올려 **조리 모드**로 전환한다.
+
+| 요소 | 탐색 모드 | 조리 모드 | 이유 |
+|------|----------|----------|------|
+| 단계 번호 | `displayLarge` (40sp) | 동일 | 이미 최대 크기 |
+| 타이머 | `displayMedium` (32sp) | 동일 | 이미 원거리 가독 |
+| Phase 라벨 | `titleSmall` (15sp) | `titleMedium` (17sp) | 현재 단계 명칭 강조 |
+| 단계 설명 | `bodyLarge` (16sp) | `titleSmall` (15sp→17sp 비율 유지) | 원거리 가독성 확보 |
+| 이전/다음 버튼 | `labelLarge` (14sp) | `titleSmall` (15sp) + 56dp 영역 | 젖은 손 대응 |
+
+- 조리 모드 전환은 Step-by-Step 뷰 진입 시 자동.
+- Landscape에서는 조리 모드가 기본.
+
+#### 1.2.6. 통일 규칙 및 금지 사항
+
+**반드시 지킬 것:**
+1. **같은 역할 = 같은 스타일:** "섹션 헤더"는 어떤 화면에서든 `titleMedium`.
+2. **TextTheme 경유 필수:** `Text('...', style: Theme.of(context).textTheme.titleMedium)`.
+3. **최소 11sp:** 뱃지/태그의 `labelSmall`(11sp)이 가장 작은 텍스트.
+4. **Weight 5종만 사용:** Bold, SemiBold, Medium, Regular, Light 외 다른 Weight 금지.
+5. **색상 오버라이드 시 Theme 기반:** `style: textTheme.bodyMedium?.copyWith(color: colorScheme.error)`.
+
+**금지 사항:**
+- `fontSize: 16` 같은 하드코딩 (반드시 TextTheme의 스타일명으로 참조)
+- 10sp 미만 텍스트 사용 (주방 가독성 최저 기준 위반)
+- 이탤릭체 (한국어에 부적합)
+- `fontWeight: FontWeight.w800` (ExtraBold는 사용하지 않음)
+- `FontWeight.w900`(Black)은 홈 화면 "WhipUp" 타이틀 전용 — 다른 화면에 사용 금지
+- 한 화면에 6개 이상의 서로 다른 스타일 사용 (시각 혼란 — Primary 8종 내에서 해결)
+- 한 카드 안에 3개 이상의 서로 다른 Weight 사용 (계층이 흐려짐)
 
 ### 1.3. Iconography
 
 - **아이콘 셋:** Material Symbols Rounded
-- **보조:** 식재료 카테고리별 시스템 이모지
+- **보조:** 식재료 카테고리별 이모지 — **Twemoji (Twitter Emoji)** SVG 렌더링
+- **이모지 일관성:** 시스템 이모지 대신 Twemoji를 사용하여 iOS/Android/Web 간 동일한 형태를 보장. 플랫폼별 이모지 디자인 차이를 방지.
+- **Flutter 적용:** `flutter_twemoji` 패키지 또는 Twemoji SVG 에셋 번들 (`app/assets/emoji/`)
+- **커스텀 전환 대비:** 이모지 렌더링을 `EmojiWidget` 단일 컴포넌트로 추상화. 정식 출시 시 커스텀 에셋으로 교체할 때 경로만 변경하면 전환 가능하도록 설계.
 
-> 아이콘 매핑표 및 크기 규격은 `brand-assets §4` 참조.
+> 아이콘 매핑표, 이모지 매핑, 크기 규격은 `brand-assets §4` 참조.
 
 ---
 
@@ -137,7 +392,7 @@
 ### 5.1. Dynamic Font Scaling
 
 - 조리 단계 화면에서는 **텍스트보다 이미지를 강조**하되, 가독성이 필요한 텍스트 정보(분량, 시간)는 이미지 위에 오버레이 하지 않고 **독립적인 영역**을 확보.
-- 분량/시간 정보: `displayMedium` (28sp, Bold) — 한눈에 파악 가능한 크기.
+- 분량/시간 정보: `displayMedium` (32sp, Bold) — 한눈에 파악 가능한 크기.
 - 조리 설명: `bodyLarge` (16sp, Regular) — 충분한 가독성.
 
 ### 5.2. Grid-based Vatting View
@@ -168,6 +423,16 @@
 - Dust Effect: 카드가 파티클로 분해되며 사라짐 (300ms, easeInOutCubic).
 - 던지기 제스처: 위 또는 좌우로 빠른 스와이프 → 속도 임계값 초과 시 Dust Effect 발동.
 - 되돌리기: Snackbar 5초 (Undo).
+
+### 6.2.5. Step Media (조리 단계 미디어)
+
+- 각 조리 단계 텍스트 아래에 해당 단계를 시각적으로 보여주는 **미디어 영역**을 배치.
+- 미디어 타입: YouTube 임베드 클립 (16:9 비율) 또는 이미지 (3:2 비율).
+- 미디어 컨테이너: `border-radius: 12dp`, 화면 너비 - 좌우 `md` * 2 - step-num 영역.
+- 영상 클립: 자동 재생 금지, 음소거 기본, 탭하면 재생. 조리 모드에서는 전체 화면 재생 지원.
+- 이미지: 해당 단계의 완성 상태 또는 핵심 동작을 보여주는 사진.
+- 미디어가 없는 단계는 영역을 표시하지 않음 (조건부 렌더링).
+- 데이터 모델: `RecipeStep`에 `mediaUrl: String?` 및 `mediaType: image | video` 필드 추가 → `product_map.md §2.1` 연동.
 
 ### 6.3. Sound Identity
 
@@ -232,6 +497,13 @@ abstract final class AppSpacing {
 
 ## 8. Common UI Atoms
 
+### 8.0. Recipe Dual-Select
+
+- 레시피 추천 결과에서 최대 **2개의 레시피를 동시 선택**하여 비교할 수 있다.
+- 선택 시 RecipeCard 좌측에 체크박스 표시, 선택된 카드는 `primaryContainer` 배경.
+- 2개 선택 시 하단에 **"선택한 2개 동시에 보기"** CTA 버튼이 슬라이드업으로 나타남.
+- 비교 화면: 2개 레시피를 좌우 또는 상하로 나란히 표시 (재료 겹침 하이라이트).
+
 ### 8.1. Ingredient Card
 
 - 상태(신선도), 수량, 카테고리 이모지를 포함한 일관된 카드 규격.
@@ -248,10 +520,11 @@ abstract final class AppSpacing {
 
 ### 8.3. Primary Button
 
-- **Hermes Orange** (`#D75F28`)를 사용.
+- **Flame Orange** (`#F04E23`)를 사용.
 - 'whipup' 다운 역동적인 라운드 값: **border radius 16dp**.
 - 최소 높이: 48dp, 최소 너비: 화면 너비 - 좌우 `md` * 2 (Full-width 기본).
-- 텍스트: `labelLarge` (14sp, Medium), `onPrimary` 색상.
+- **내부 여백:** 좌우 `lg` (24dp), 상하 `md` (16dp) — 텍스트가 윤곽에 꽉 차지 않도록 충분한 breathing room 확보.
+- 텍스트: `labelLarge` (14sp, SemiBold), `onPrimary` 색상.
 - Press 효과: `instant` (100ms) 살짝 어두워짐 + `lightImpact`.
 
 ### 8.4. Recipe Type Badge
@@ -265,6 +538,13 @@ abstract final class AppSpacing {
 - 좌측 보더: 4dp, `info` 색상 100%.
 - 아이콘: `lightbulb_rounded`, 18dp.
 - 텍스트: `bodyMedium`.
+
+### 8.6. Horizontal Overflow Prevention
+
+- 모든 카드, 리스트, 텍스트 컨테이너는 **화면 너비를 초과하지 않도록** `max-width: 100%` + `overflow: hidden` 적용.
+- 조리 단계(`CookingStepItem`)의 설명 텍스트는 좌우 `md` (16dp) 패딩 내에서 줄바꿈 처리. 가로 스크롤 금지.
+- FlavorRadar, IngredientCheckList 등 내부 콘텐츠는 부모 컨테이너 너비(화면 - 좌우 `md` * 2 = 화면 - 32dp) 내에서 렌더링.
+- 긴 재료명, 레시피명은 `TextOverflow.ellipsis` + `maxLines: 2` 적용.
 
 ---
 

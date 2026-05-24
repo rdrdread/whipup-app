@@ -51,9 +51,8 @@ dependencies:
   speech_to_text: ^7.0.0
 
   # ─── Storage (Isar) ───────────────────────────────────
-  # TODO Phase 1.0: Isar 버전이 freezed analyzer와 충돌 가능 — Feature 브랜치에서 호환 버전 확인 후 추가
-  # isar: ^3.1.0+1
-  # isar_flutter_libs: ^3.1.0+1
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.4
 
   # ─── Security & Monitoring ────────────────────────────
@@ -71,7 +70,7 @@ dev_dependencies:
   freezed: ^2.5.7
   json_serializable: ^6.8.0
   retrofit_generator: ^9.1.5
-  # isar_generator: ^3.1.0+1  # TODO: freezed analyzer 충돌 — Phase 1.0 스토리지 구현 시 호환 버전 적용
+  isar_generator: ^3.1.0+1
 
   # ─── Linting ──────────────────────────────────────────
   riverpod_lint: ^2.3.13
