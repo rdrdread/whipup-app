@@ -67,7 +67,9 @@ Artisan(UI) ──→ Architect(Logic) ──→ Bridge(External)
       "phase": "prep | heat | base | main | season | finish | plate",
       "description": "string",
       "duration_seconds": "integer | null",
-      "tip": "string | null"
+      "tip": "string | null",
+      "media_url": "string | null",
+      "media_type": "image | video | null"
     }
   ],
   "tags": ["string"],
@@ -305,6 +307,24 @@ abstract class ColumnRepository {
 ---
 
 ## 7. External API Contract (Bridge)
+
+### 6.4. 유통기한 자동 추천 플로우
+
+```
+[사용자: 재료명 + 카테고리 입력]
+       │
+       ▼
+[ExpiryRecommendationService]
+       │
+       ├── 1순위: 로컬 유통기한 DB (카테고리별 일반적 유통기한)
+       │         예: 소고기(냉장) → 3~5일, 우유 → 7~10일
+       │
+       └── 2순위: Gemini API (복잡한 재료, Phase 1.1+)
+                    예: "수제 페스토" → 5~7일 추천
+                    ↓
+              [Call-out Box로 추천 기간 표시]
+              [사용자가 "N일 적용" 버튼 탭 → DatePicker 자동 설정]
+```
 
 ### 7.1. Gemini API
 

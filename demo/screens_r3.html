@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhipUp - Screen Demo (rev.3)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0">
+<style>
+:root{--primary:#D75F28;--primary-light:#FDDCC8;--on-primary:#FFF;--secondary:#FFC107;--secondary-light:#FFF0C2;--on-secondary:#3E2723;--background:#FFF8F0;--surface:#FFF8F0;--surface-variant:#F5F0E8;--on-surface:#2C2C2C;--on-surface-60:rgba(44,44,44,.6);--fresh-green:#66BB6A;--warning-amber:#FFA726;--danger-red:#EF5350;--error:#D32F2F;--info:#42A5F5;--info-10:rgba(66,165,245,.1);--badge-main-bg:#E8F5E9;--badge-main-fg:#2E7D32;--badge-soup-bg:#E3F2FD;--badge-soup-fg:#1565C0;--badge-dessert-bg:#FCE4EC;--badge-dessert-fg:#C62828;--badge-snack-bg:#FFF8E1;--badge-snack-fg:#F57F17;--badge-sauce-bg:#F3E5F5;--badge-sauce-fg:#6A1B9A;--radius-card:12px;--radius-btn:16px;--radius-chip:20px;--radius-badge:4px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,'Apple SD Gothic Neo',Roboto,sans-serif;background:#E8E0D8;color:var(--on-surface);min-height:100vh}
+.top-bar{position:sticky;top:0;z-index:100;background:#2C2C2C;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.top-bar h1{font-size:18px;font-weight:600;white-space:nowrap}
+.top-bar .tabs{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.top-bar .tabs::-webkit-scrollbar{display:none}
+.top-bar .tab{padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:none;transition:.2s}
+.top-bar .tab.active,.top-bar .tab:hover{background:var(--primary);color:#fff;font-weight:600}
+.stage{display:flex;justify-content:center;padding:32px 16px 48px}
+.phone{width:375px;min-height:720px;max-height:812px;background:var(--background);border-radius:40px;box-shadow:0 24px 80px rgba(0,0,0,.3),inset 0 0 0 3px #1a1a1a;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.phone .status-bar{height:50px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:12px;font-weight:600;color:var(--on-surface);position:relative}
+.phone .status-bar::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#1a1a1a;border-radius:20px}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+.screen-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.screen-scroll::-webkit-scrollbar{width:3px}
+.screen-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
+/* 1) AppBar: Home=Black 22sp, others=SemiBold 20sp */
+.app-bar{height:56px;display:flex;align-items:center;padding:0 16px;gap:12px}
+.app-bar .title{font-size:20px;font-weight:600;flex:1}
+.app-bar .title.brand{font-size:22px;font-weight:900;letter-spacing:-.25px}
+.app-bar .icon{font-size:24px;color:var(--on-surface);cursor:pointer;opacity:.7}
+.bottom-nav{height:64px;display:flex;border-top:1px solid rgba(0,0,0,.06);background:var(--surface)}
+.bottom-nav .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;opacity:.45;transition:.2s}
+.bottom-nav .nav-item.active{opacity:1;color:var(--primary)}
+.bottom-nav .nav-item .material-symbols-rounded{font-size:24px}
+.bottom-nav .nav-item span{font-size:11px;font-weight:500}
+/* 2) Sub-tabs: flex 1/3 sizing */
+.sub-tabs{display:flex;border-bottom:2px solid rgba(0,0,0,.06);background:#fff;width:100%}
+.sub-tab{flex:1;padding:10px 0;text-align:center;font-size:14px;font-weight:600;color:var(--on-surface-60);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap}
+.sub-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+/* Typography */
+.display-large{font-size:40px;font-weight:700;line-height:1.15;letter-spacing:-.5px}
+.display-medium{font-size:32px;font-weight:700;line-height:1.15;letter-spacing:-.25px}
+.display-small{font-size:26px;font-weight:600;line-height:1.2}
+.headline-large{font-size:24px;font-weight:700;line-height:1.25;letter-spacing:-.25px}
+.headline-medium{font-size:22px;font-weight:600;line-height:1.25}
+.headline-small{font-size:20px;font-weight:600;line-height:1.3}
+.title-large{font-size:20px;font-weight:600;line-height:1.3}
+.title-medium{font-size:17px;font-weight:600;line-height:1.3}
+.title-small{font-size:15px;font-weight:500;line-height:1.3}
+.body-large{font-size:16px;font-weight:400;line-height:1.5}
+.body-medium{font-size:14px;font-weight:400;line-height:1.5}
+.body-small{font-size:12px;font-weight:400;line-height:1.4;letter-spacing:.4px}
+.label-large{font-size:14px;font-weight:600;line-height:1.2}
+.label-medium{font-size:12px;font-weight:500;line-height:1.2;letter-spacing:.5px}
+.label-small{font-size:11px;font-weight:500;line-height:1.1;letter-spacing:.5px}
+/* Components */
+.section-header{padding:20px 16px 8px}
+.card{margin:0 16px 8px;padding:16px;background:#fff;border-radius:var(--radius-card);box-shadow:0 1px 3px rgba(0,0,0,.06);max-width:100%;overflow:hidden}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:var(--radius-chip);background:var(--surface-variant);cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
+.chip.active{background:var(--primary);color:var(--on-primary)}
+.chip-row{display:flex;gap:6px;padding:8px 16px;overflow-x:auto}
+.chip-row::-webkit-scrollbar{display:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--radius-badge);font-size:11px;font-weight:500;letter-spacing:.5px}
+.badge-soup{background:var(--badge-soup-bg);color:var(--badge-soup-fg)}
+.badge-main{background:var(--badge-main-bg);color:var(--badge-main-fg)}
+.badge-science{background:var(--info-10);color:var(--info)}
+.badge-ingredient{background:var(--badge-main-bg);color:var(--badge-main-fg)}
+.badge-safety{background:var(--badge-dessert-bg);color:var(--danger-red)}
+.badge-culture{background:var(--badge-sauce-bg);color:var(--badge-sauce-fg)}
+.badge-seasonal{background:var(--badge-snack-bg);color:var(--badge-snack-fg)}
+/* 5) CTA btn: generous padding */
+.btn-primary{display:flex;align-items:center;justify-content:center;height:52px;margin:16px;padding:0 24px;background:var(--primary);color:var(--on-primary);border:none;border-radius:var(--radius-btn);cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;box-shadow:0 2px 8px rgba(215,95,40,.3)}
+.btn-primary:hover{filter:brightness(.93)}
+.btn-secondary{display:flex;align-items:center;justify-content:center;height:48px;margin:16px;background:transparent;color:var(--primary);border:2px solid var(--primary);border-radius:var(--radius-btn);cursor:pointer;font-size:14px;font-weight:600;font-family:inherit}
+.fab{position:absolute;bottom:76px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(215,95,40,.35);cursor:pointer;border:none;z-index:5}
+.fab .material-symbols-rounded{font-size:28px}
+/* Ingredient Card */
+.ingr-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-left:4px solid transparent;transition:.2s}
+.ingr-card+.ingr-card{border-top:1px solid rgba(0,0,0,.04)}
+.ingr-card .emoji{font-size:28px;width:40px;text-align:center;flex-shrink:0}
+.ingr-card .info{flex:1;min-width:0}
+.ingr-card .name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ingr-card .qty{font-size:14px;color:var(--on-surface-60);margin-top:2px}
+.expiry-badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.expiry-fresh{background:rgba(102,187,106,.12);color:var(--fresh-green)}
+.expiry-warn{background:rgba(255,167,38,.12);color:var(--warning-amber)}
+.expiry-danger{background:rgba(239,83,80,.12);color:var(--danger-red)}
+.ingr-card.warn{border-left-color:var(--warning-amber);box-shadow:inset 0 0 12px rgba(255,167,38,.08)}
+.ingr-card.danger{border-left-color:var(--danger-red);box-shadow:inset 0 0 16px rgba(239,83,80,.1)}
+.ingr-card.new-item{border-left-color:var(--primary)}
+.h-scroll{display:flex;gap:10px;padding:4px 16px 8px;overflow-x:auto}
+.h-scroll::-webkit-scrollbar{display:none}
+.mini-card{min-width:110px;padding:12px;background:#fff;border-radius:var(--radius-card);box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center}
+.mini-card .emoji{font-size:32px;margin-bottom:6px}
+.mini-card .name{font-size:13px;font-weight:500}
+.mini-card .sub{font-size:11px;color:var(--on-surface-60);margin-top:2px}
+/* Form */
+.form-group{padding:0 16px;margin-bottom:16px}
+.form-label{font-size:15px;font-weight:500;margin-bottom:6px;display:block}
+.form-label em{color:var(--primary);font-style:normal}
+.form-input{width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,.12);border-radius:12px;font-size:16px;font-family:inherit;background:#fff;color:var(--on-surface);outline:none;transition:.2s}
+.form-input:focus{border-color:var(--primary)}
+.form-input::placeholder{color:rgba(0,0,0,.3);font-weight:300}
+.form-row{display:flex;gap:12px;padding:0 16px;margin-bottom:16px}
+.form-row .form-group{padding:0;flex:1;margin-bottom:0}
+/* 6) Expiry recommendation callout */
+.expiry-rec{margin:0 16px 16px;padding:12px 14px;background:var(--secondary-light,#FFF0C2);border-left:4px solid var(--secondary);border-radius:0 8px 8px 0;display:flex;gap:8px;align-items:flex-start}
+.expiry-rec .material-symbols-rounded{font-size:18px;color:var(--secondary);margin-top:1px}
+.expiry-rec .rec-body{flex:1}
+.expiry-rec .rec-text{font-size:13px;line-height:1.4;margin-bottom:6px}
+.expiry-rec .rec-btns{display:flex;gap:6px}
+.expiry-rec .rec-btn{padding:4px 12px;border-radius:8px;background:var(--secondary);color:var(--on-secondary);font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit}
+/* Check List */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 16px}
+.check-item .cbox{width:22px;height:22px;border-radius:6px;border:2px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-item .cbox.checked{background:var(--primary);border-color:var(--primary)}
+.check-item .cbox.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+.check-item .label{flex:1;font-size:14px}
+.check-item .label.unchecked{opacity:.5}
+/* 3) Recipe card with selectable checkbox */
+.recipe-card{margin:0 16px 10px;padding:16px;background:#fff;border-radius:var(--radius-card);box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;gap:14px;align-items:flex-start;max-width:100%;overflow:hidden;cursor:pointer;transition:.15s}
+.recipe-card.selected{background:var(--primary-light);box-shadow:0 0 0 2px var(--primary)}
+.recipe-card .rc-check{width:22px;height:22px;border-radius:6px;border:2px solid rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.recipe-card.selected .rc-check{background:var(--primary);border-color:var(--primary)}
+.recipe-card.selected .rc-check::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+.recipe-card .thumb{width:72px;height:72px;border-radius:12px;background:var(--surface-variant);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0}
+.recipe-card .rc-info{flex:1;min-width:0}
+.recipe-card .rc-title{font-size:17px;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recipe-card .rc-meta{font-size:12px;color:var(--on-surface-60);margin-top:4px}
+.dual-cta{margin:0 16px 8px;opacity:0;max-height:0;overflow:hidden;transition:.3s}
+.dual-cta.visible{opacity:1;max-height:60px}
+/* 4) Overflow prevention */
+.step-item{display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.04);max-width:100%;overflow:hidden}
+.step-num{width:48px;height:48px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--primary);flex-shrink:0}
+.step-num.done{background:var(--primary);color:#fff}
+.step-content{flex:1;min-width:0;overflow:hidden}
+.step-phase{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.step-desc{font-size:16px;line-height:1.5;margin-top:4px;word-wrap:break-word}
+.step-timer{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:4px 10px;border-radius:8px;background:var(--surface-variant);font-size:13px;font-weight:500;color:var(--primary)}
+/* 7) Step media */
+.step-media{margin-top:10px;border-radius:12px;overflow:hidden;background:var(--surface-variant);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative}
+.step-media img{width:100%;height:100%;object-fit:cover}
+.step-media .play-btn{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
+.step-media .play-btn .material-symbols-rounded{font-size:28px;color:#fff}
+/* Call-out Box */
+.callout{margin:8px 16px;padding:12px 14px;background:var(--info-10);border-left:4px solid var(--info);border-radius:0 8px 8px 0;display:flex;gap:8px;align-items:flex-start;max-width:100%;overflow:hidden}
+.callout .material-symbols-rounded{font-size:18px;color:var(--info);margin-top:1px;flex-shrink:0}
+.callout p{font-size:14px;line-height:1.5;flex:1;min-width:0}
+/* Flavor */
+.flavor-radar{display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;justify-content:center}
+.flavor-bar{display:flex;flex-direction:column;align-items:center;gap:4px;width:52px}
+.flavor-bar .bar-track{width:8px;height:48px;background:var(--surface-variant);border-radius:4px;position:relative;overflow:hidden}
+.flavor-bar .bar-fill{position:absolute;bottom:0;width:100%;border-radius:4px;background:var(--primary)}
+.flavor-bar .flabel{font-size:11px;font-weight:500;color:var(--on-surface-60)}
+.flavor-bar .fval{font-size:12px;font-weight:600}
+/* Column */
+.column-card{margin:0 16px 10px;padding:16px;background:#fff;border-radius:var(--radius-card);box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;gap:14px;align-items:center;cursor:pointer;max-width:100%;overflow:hidden}
+.column-card .col-emoji{font-size:36px;flex-shrink:0}
+.column-card .col-info{flex:1;min-width:0}
+.column-card .col-title{font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.column-card .col-sub{font-size:12px;color:var(--on-surface-60);margin-top:4px}
+/* Reward */
+.stat-grid{display:flex;gap:10px;padding:0 16px;margin-bottom:16px}
+.stat-box{flex:1;padding:16px;text-align:center;background:#fff;border-radius:var(--radius-card);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-box .snum{font-size:26px;font-weight:600;color:var(--primary)}
+.stat-box .slabel{font-size:12px;color:var(--on-surface-60);margin-top:2px}
+.badge-grid{display:flex;gap:12px;flex-wrap:wrap;padding:0 16px}
+.ach-item{width:72px;text-align:center}
+.ach-item .ach-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 4px;background:var(--primary-light)}
+.ach-item .ach-icon.locked{background:var(--surface-variant);opacity:.4;filter:grayscale(1)}
+.ach-item .ach-name{font-size:11px;font-weight:500;color:var(--on-surface-60)}
+/* Settings */
+.setting-section{padding:16px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.setting-row:last-child{border-bottom:none}
+.setting-row .slabel{font-size:16px}
+.setting-row .sval{font-size:14px;color:var(--on-surface-60)}
+.toggle{width:48px;height:28px;border-radius:14px;background:#ccc;position:relative;cursor:pointer;transition:.2s}
+.toggle.on{background:var(--primary)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
+.theme-selector{display:flex;gap:6px}
+.theme-option{padding:8px 16px;border-radius:var(--radius-chip);border:1.5px solid rgba(0,0,0,.1);font-size:13px;font-weight:500;cursor:pointer;background:transparent}
+.theme-option.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary);font-weight:600}
+.progress-bar{height:6px;background:var(--surface-variant);border-radius:3px;margin:0 16px 16px;overflow:hidden}
+.progress-bar .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.splash-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.splash-icon{width:96px;height:96px;border-radius:24px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:48px;color:#fff;box-shadow:0 8px 32px rgba(215,95,40,.3)}
+.onboard-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:16px}
+.onboard-illust{width:200px;height:200px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:80px;margin-bottom:8px}
+.dot-indicator{display:flex;gap:6px;justify-content:center;margin:16px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.15)}
+.dot.active{background:var(--primary);width:24px;border-radius:4px}
+.divider{height:1px;background:rgba(0,0,0,.06);margin:4px 16px}
+.sort-row{display:flex;gap:8px;padding:6px 16px 10px;font-size:13px;color:var(--on-surface-60)}
+.sort-opt{cursor:pointer;font-weight:500}
+.sort-opt.active{color:var(--primary);font-weight:600}
+.source-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:var(--surface-variant);font-size:12px;color:var(--on-surface-60);margin:4px 4px 4px 0}
+.options-panel{margin:0 16px;padding:14px;background:var(--surface-variant);border-radius:var(--radius-card)}
+.opt-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.opt-label{font-size:15px;font-weight:500}
+.opt-value{padding:4px 12px;border-radius:8px;background:#fff;font-size:14px;color:var(--on-surface);border:1px solid rgba(0,0,0,.08)}
+.streak-card{margin:0 16px 16px;padding:20px;background:linear-gradient(135deg,var(--primary),#E88A5A);border-radius:var(--radius-card);color:#fff;text-align:center}
+.streak-card .streak-num{font-size:40px;font-weight:700}
+.streak-card .streak-label{font-size:14px;opacity:.9;margin-top:4px}
+.streak-card .streak-sub{font-size:12px;opacity:.7;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="top-bar"><h1>WhipUp Screens</h1><div class="tabs" id="tabs"></div></div>
+<div class="stage"><div class="phone">
+<div class="status-bar"><span style="position:relative;z-index:1">9:41</span></div>
+
+<!-- SPLASH -->
+<div class="screen" id="s-splash"><div class="splash-center"><div class="splash-icon">🍳</div><div style="font-size:22px;font-weight:900;color:var(--primary);letter-spacing:-.5px;">WhipUp</div><div class="body-small" style="color:var(--on-surface-60);">뚝딱, 근사한 한 끼</div></div></div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="s-onboarding"><div class="onboard-center"><div class="onboard-illust">🧊</div><div class="headline-medium">냉장고 속 재료로<br>근사한 한 끼</div><div class="body-large" style="color:var(--on-surface-60);margin-top:4px;">재료를 등록하면 AI가<br>최적의 레시피를 추천해 드려요</div><div class="dot-indicator"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div></div><div style="padding:0 16px 24px;display:flex;gap:12px;"><button style="flex:1;height:48px;border-radius:16px;border:none;background:transparent;color:var(--on-surface-60);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">건너뛰기</button><button class="btn-primary" style="flex:2;margin:0;">시작하기</button></div></div>
+
+<!-- HOME — 1) .brand class for Black title -->
+<div class="screen active" id="s-home">
+<div class="app-bar"><div class="title brand" style="color:var(--primary);">WhipUp</div><span class="material-symbols-rounded icon">notifications</span><span class="material-symbols-rounded icon" onclick="show('s-settings')">settings</span></div>
+<div class="screen-scroll">
+<div class="card" style="display:flex;align-items:center;gap:14px;"><div><div class="title-medium">냉장고에 12개 재료</div><div class="body-small" style="color:var(--on-surface-60);margin-top:4px;">🥬3 🥩2 🧀1 🌾2 🧂3 🍎1</div></div><div class="display-small" style="color:var(--primary);margin-left:auto;">12</div></div>
+<div class="section-header title-medium">📌 유통기한 임박</div>
+<div class="h-scroll">
+<div class="mini-card" style="border:1.5px solid var(--warning-amber);"><div class="emoji">🥩</div><div class="name">소고기</div><div class="sub" style="color:var(--warning-amber);font-weight:600;">D-2</div></div>
+<div class="mini-card" style="border:1.5px solid var(--danger-red);"><div class="emoji">🧀</div><div class="name">치즈</div><div class="sub" style="color:var(--danger-red);font-weight:600;">D+1</div></div>
+<div class="mini-card"><div class="emoji">🥬</div><div class="name">배추</div><div class="sub" style="color:var(--fresh-green);font-weight:600;">D-7</div></div>
+<div class="mini-card"><div class="emoji">🍎</div><div class="name">사과</div><div class="sub" style="color:var(--fresh-green);font-weight:600;">D-12</div></div>
+</div>
+<!-- 5) CTA with generous padding -->
+<div class="section-header title-medium">🍳 빠른 레시피</div>
+<div class="card" style="text-align:center;padding:24px 16px;"><div class="body-large">보유 재료로 뭐 만들까?</div><button class="btn-primary" style="margin:14px 0 0;padding:0 32px;">레시피 추천 받기 →</button></div>
+<div class="section-header title-medium">📰 이번 주 칼럼</div>
+<div class="column-card"><div class="col-emoji">🥕</div><div class="col-info"><div class="col-title">당근의 재발견</div><div class="col-sub">지용성 비타민의 비밀 · 3분</div></div><span class="material-symbols-rounded" style="color:var(--on-surface-60);font-size:20px;">chevron_right</span></div>
+</div>
+<div class="bottom-nav"><div class="nav-item active"><span class="material-symbols-rounded">home</span><span>홈</span></div><div class="nav-item" onclick="show('s-stock')"><span class="material-symbols-rounded">kitchen</span><span>재고</span></div><div class="nav-item" onclick="show('s-recipe')"><span class="material-symbols-rounded">restaurant_menu</span><span>레시피</span></div><div class="nav-item" onclick="show('s-my')"><span class="material-symbols-rounded">person</span><span>마이</span></div></div>
+</div>
+
+<!-- STOCK — 2) sub-tabs flex 1/3 -->
+<div class="screen" id="s-stock">
+<div class="app-bar"><div class="title">재고</div><span class="material-symbols-rounded icon">search</span></div>
+<div class="sub-tabs"><div class="sub-tab active">🧊 냉장고</div><div class="sub-tab">📦 팬트리</div><div class="sub-tab">🗄️ 서랍</div></div>
+<div class="screen-scroll">
+<div class="chip-row"><div class="chip active">전체</div><div class="chip">🥬 채소</div><div class="chip">🥩 육류</div><div class="chip">🧀 유제품</div><div class="chip">🌾 곡물</div><div class="chip">🧂 양념</div></div>
+<div class="sort-row"><span class="sort-opt">이름순</span><span>·</span><span class="sort-opt active">유통기한순 ▼</span></div>
+<div style="margin:0 16px;border-radius:var(--radius-card);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+<div class="ingr-card danger"><div class="emoji">🧀</div><div class="info"><div class="name">모짜렐라 치즈</div><div class="qty">150g</div></div><div class="expiry-badge expiry-danger">D+1</div></div>
+<div class="ingr-card warn"><div class="emoji">🥩</div><div class="info"><div class="name">소고기 (등심)</div><div class="qty">300g</div></div><div class="expiry-badge expiry-warn">D-2</div></div>
+<div class="ingr-card new-item"><div class="emoji">🧅</div><div class="info"><div class="name">양파</div><div class="qty">3개</div></div><div class="expiry-badge expiry-fresh">D-14</div></div>
+<div class="ingr-card"><div class="emoji">🥬</div><div class="info"><div class="name">배추</div><div class="qty">500g</div></div><div class="expiry-badge expiry-fresh">D-7</div></div>
+<div class="ingr-card"><div class="emoji">🌾</div><div class="info"><div class="name">쌀</div><div class="qty">2kg</div></div><div class="expiry-badge expiry-fresh">—</div></div>
+<div class="ingr-card"><div class="emoji">🧂</div><div class="info"><div class="name">간장</div><div class="qty">500ml</div></div><div class="expiry-badge expiry-fresh">D-90</div></div>
+</div></div>
+<button class="fab"><span class="material-symbols-rounded">add</span></button>
+<div class="bottom-nav"><div class="nav-item" onclick="show('s-home')"><span class="material-symbols-rounded">home</span><span>홈</span></div><div class="nav-item active"><span class="material-symbols-rounded">kitchen</span><span>재고</span></div><div class="nav-item" onclick="show('s-recipe')"><span class="material-symbols-rounded">restaurant_menu</span><span>레시피</span></div><div class="nav-item" onclick="show('s-my')"><span class="material-symbols-rounded">person</span><span>마이</span></div></div>
+</div>
+
+<!-- STOCK ADD — 6) expiry auto-recommendation -->
+<div class="screen" id="s-stock-add">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;">arrow_back</span><div class="title">재료 추가</div><span class="material-symbols-rounded icon">close</span></div>
+<div class="screen-scroll" style="padding-top:8px;">
+<div class="form-group"><label class="form-label">재료명 <em>*</em></label><input class="form-input" placeholder="예: 양파" value="소고기 (등심)"></div>
+<div class="form-group"><label class="form-label">카테고리 <em>*</em></label><div class="chip-row" style="padding:0;gap:6px;flex-wrap:wrap;"><div class="chip active" style="font-size:13px;">🥩 육류</div><div class="chip" style="font-size:13px;">🥬 채소</div><div class="chip" style="font-size:13px;">🧀 유제품</div><div class="chip" style="font-size:13px;">🌾 곡물</div><div class="chip" style="font-size:13px;">🧂 양념</div></div></div>
+<div class="form-group"><label class="form-label">보관 위치 <em>*</em></label><div class="chip-row" style="padding:0;gap:6px;"><div class="chip active" style="font-size:13px;">🧊 냉장고</div><div class="chip" style="font-size:13px;">📦 팬트리</div><div class="chip" style="font-size:13px;">🗄️ 서랍</div></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">수량 <em>*</em></label><input class="form-input" type="number" value="300"></div><div class="form-group"><label class="form-label">단위 <em>*</em></label><select class="form-input" style="appearance:auto;"><option selected>g</option><option>ml</option><option>개</option><option>kg</option></select></div></div>
+<div class="form-group"><label class="form-label">유통기한 (선택)</label><input class="form-input" type="date" value=""></div>
+<div class="expiry-rec"><span class="material-symbols-rounded">lightbulb</span><div class="rec-body"><div class="rec-text">💡 소고기(냉장)는 보통 <strong>3~5일</strong> 보관할 수 있어요</div><div class="rec-btns"><button class="rec-btn">3일 적용</button><button class="rec-btn">5일 적용</button></div></div></div>
+</div>
+<button class="btn-primary">저장하기</button>
+</div>
+
+<!-- RECIPE — 3) dual-select -->
+<div class="screen" id="s-recipe">
+<div class="app-bar"><div class="title">레시피</div><span class="material-symbols-rounded icon">favorite_border</span></div>
+<div class="screen-scroll">
+<div class="section-header title-medium">📦 재료 선택</div>
+<div class="card" style="padding:8px 0;">
+<div class="check-item"><div class="cbox checked"></div><div class="label">🥬 배추 500g</div></div>
+<div class="check-item"><div class="cbox checked"></div><div class="label">🥩 소고기 300g</div></div>
+<div class="check-item"><div class="cbox"></div><div class="label unchecked">🧀 치즈 150g</div></div>
+<div class="check-item"><div class="cbox checked"></div><div class="label">🧅 양파 3개</div></div>
+</div>
+<div class="section-header title-medium" style="display:flex;align-items:center;gap:6px;">⚙️ 옵션 <span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">expand_more</span></div>
+<div class="options-panel"><div class="opt-row"><span class="opt-label">종류</span><span class="opt-value">전체 ▾</span></div><div class="opt-row"><span class="opt-label">난이도</span><span class="opt-value">제한없음 ▾</span></div><div class="opt-row"><span class="opt-label">인분</span><span class="opt-value">2인분 ▾</span></div></div>
+<button class="btn-primary" style="margin-top:20px;">레시피 추천 받기</button>
+<div class="divider" style="margin:12px 16px;"></div>
+<div class="section-header title-medium" style="display:flex;justify-content:space-between;align-items:center;">🍽️ 추천 결과 <span class="body-small" style="color:var(--on-surface-60);">최대 2개 선택</span></div>
+<div class="recipe-card selected" onclick="toggleSelect(this)"><div class="rc-check"></div><div class="thumb">🫕</div><div class="rc-info"><div style="margin-bottom:4px;"><span class="badge badge-soup">SOUP</span></div><div class="rc-title">소고기 배추 전골</div><div class="rc-meta">🕐 30분 · ⭐ 보통 · 👤 2인분</div></div></div>
+<div class="recipe-card selected" onclick="toggleSelect(this)"><div class="rc-check"></div><div class="thumb">🥘</div><div class="rc-info"><div style="margin-bottom:4px;"><span class="badge badge-main">MAIN</span></div><div class="rc-title">소불고기 배추쌈</div><div class="rc-meta">🕐 25분 · ⭐ 쉬움 · 👤 2인분</div></div></div>
+<div class="recipe-card" onclick="toggleSelect(this)"><div class="rc-check"></div><div class="thumb">🍲</div><div class="rc-info"><div style="margin-bottom:4px;"><span class="badge badge-soup">SOUP</span></div><div class="rc-title">배추된장국</div><div class="rc-meta">🕐 20분 · ⭐ 쉬움 · 👤 2인분</div></div></div>
+<div class="dual-cta visible"><button class="btn-primary" style="margin:0;" onclick="show('s-recipe-detail')">선택한 2개 동시에 보기</button></div>
+<div style="height:8px;"></div>
+</div>
+<div class="bottom-nav"><div class="nav-item" onclick="show('s-home')"><span class="material-symbols-rounded">home</span><span>홈</span></div><div class="nav-item" onclick="show('s-stock')"><span class="material-symbols-rounded">kitchen</span><span>재고</span></div><div class="nav-item active"><span class="material-symbols-rounded">restaurant_menu</span><span>레시피</span></div><div class="nav-item" onclick="show('s-my')"><span class="material-symbols-rounded">person</span><span>마이</span></div></div>
+</div>
+
+<!-- RECIPE DETAIL — 4) overflow fix, 7) step media -->
+<div class="screen" id="s-recipe-detail">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;">arrow_back</span><div class="title">소고기 배추 전골</div><span class="material-symbols-rounded icon" style="color:var(--danger-red);">favorite</span></div>
+<div class="screen-scroll">
+<div style="text-align:center;padding:16px;background:var(--surface-variant);"><div style="font-size:72px;margin-bottom:8px;">🫕</div><span class="badge badge-soup">SOUP</span><div class="headline-large" style="margin-top:8px;">소고기 배추 전골</div><div class="body-medium" style="color:var(--on-surface-60);margin-top:6px;">🕐 30분 · ⭐ 보통 · 👤 2인분</div></div>
+<div class="section-header title-medium">🍽️ 맛 프로필</div>
+<div class="flavor-radar"><div class="flavor-bar"><div class="fval">4</div><div class="bar-track"><div class="bar-fill" style="height:80%;"></div></div><div class="flabel">감칠맛</div></div><div class="flavor-bar"><div class="fval">1</div><div class="bar-track"><div class="bar-fill" style="height:20%;"></div></div><div class="flabel">단맛</div></div><div class="flavor-bar"><div class="fval">1</div><div class="bar-track"><div class="bar-fill" style="height:20%;"></div></div><div class="flabel">신맛</div></div><div class="flavor-bar"><div class="fval">3</div><div class="bar-track"><div class="bar-fill" style="height:60%;"></div></div><div class="flabel">짠맛</div></div><div class="flavor-bar"><div class="fval">2</div><div class="bar-track"><div class="bar-fill" style="height:40%;"></div></div><div class="flabel">매운맛</div></div></div>
+<div class="section-header title-medium">📋 재료</div>
+<div style="padding:0 16px;"><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">소고기 (등심) 300g</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">배추 500g</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">양파 1개</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">간장 3큰술</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox"></div><div class="label unchecked">대파 1대 <span class="body-small" style="color:var(--info);">대체 가능</span></div></div></div>
+<div class="section-header title-medium">👨‍🍳 조리 순서</div>
+<div class="progress-bar"><div class="fill" style="width:28%;"></div></div>
+<!-- Step 1 + image -->
+<div class="step-item"><div class="step-num done">1</div><div class="step-content"><span class="step-phase">PREP</span><div class="step-desc">배추를 한 잎씩 떼어 흐르는 물에 씻고, 소고기는 한입 크기로 썰어 주세요.</div><div class="step-timer"><span class="material-symbols-rounded" style="font-size:16px;">timer</span> 5:00</div><div class="step-media"><img src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=400&h=225&fit=crop" alt="재료 손질"><div class="play-btn" style="display:none;"></div></div></div></div>
+<!-- Step 2 + video -->
+<div class="step-item"><div class="step-num" style="background:var(--primary);color:#fff;box-shadow:0 0 0 3px var(--primary-light);">2</div><div class="step-content"><span class="step-phase">HEAT</span><div class="step-desc">냄비에 참기름을 두르고 중불로 예열합니다.</div><div class="step-media"><div style="width:100%;height:100%;background:linear-gradient(135deg,#333,#555);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;"><div class="play-btn"><span class="material-symbols-rounded">play_arrow</span></div><div style="color:rgba(255,255,255,.6);font-size:11px;margin-top:32px;">📹 참기름 예열 팁 (0:42)</div></div></div></div></div>
+<!-- Step 3 -->
+<div class="step-item"><div class="step-num">3</div><div class="step-content"><span class="step-phase">BASE</span><div class="step-desc">양파를 먼저 넣고 투명해질 때까지 볶아 단맛을 끌어냅니다.</div><div class="step-media"><img src="https://images.unsplash.com/photo-1594046243098-0fceea9d451e?w=400&h=225&fit=crop" alt="양파 볶기"></div></div></div>
+<!-- Step 4 -->
+<div class="step-item"><div class="step-num">4</div><div class="step-content"><span class="step-phase">MAIN</span><div class="step-desc">소고기를 넣고 겉면이 익을 때까지 볶은 뒤, 배추와 물 600ml을 넣습니다.</div><div class="step-timer"><span class="material-symbols-rounded" style="font-size:16px;">timer</span> 15:00</div></div></div>
+<!-- Step 5 -->
+<div class="step-item"><div class="step-num">5</div><div class="step-content"><span class="step-phase">SEASON</span><div class="step-desc">간장 3큰술, 소금, 후추로 간을 맞춥니다.</div></div></div>
+<!-- Step 6 -->
+<div class="step-item"><div class="step-num">6</div><div class="step-content"><span class="step-phase">FINISH</span><div class="step-desc">배추가 충분히 익으면 불을 줄이고 2분간 뜸을 들입니다.</div></div></div>
+<!-- Step 7 + image -->
+<div class="step-item" style="border-bottom:none;"><div class="step-num">7</div><div class="step-content"><span class="step-phase">PLATE</span><div class="step-desc">뚝배기에 옮겨 담고 대파를 송송 썰어 올립니다.</div><div class="step-media"><img src="https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=225&fit=crop" alt="완성 플레이팅"></div></div></div>
+<div class="callout"><span class="material-symbols-rounded">lightbulb</span><p>배추를 오래 끓이면 세포벽이 무너지며 자체 수분이 나와 국물이 더 깊어집니다. 처음부터 물을 너무 많이 넣지 않는 게 포인트!</p></div>
+<div style="height:16px;"></div>
+</div></div>
+
+<!-- COLUMN LIST -->
+<div class="screen" id="s-column">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;" onclick="show('s-my')">arrow_back</span><div class="title">칼럼</div></div>
+<div class="screen-scroll">
+<div class="chip-row"><div class="chip active">전체</div><div class="chip">🔬 과학</div><div class="chip">🥕 재료</div><div class="chip">🌏 문화</div><div class="chip">🛡️ 안전</div><div class="chip">🌱 제철</div></div>
+<div class="column-card" onclick="show('s-column-detail')"><div class="col-emoji">🥕</div><div class="col-info"><div style="margin-bottom:4px;"><span class="badge badge-science">SCIENCE</span></div><div class="col-title">당근의 재발견</div><div class="col-sub">왜 기름과 함께 먹어야 할까? · 3분</div></div></div>
+<div class="column-card"><div class="col-emoji">🥚</div><div class="col-info"><div style="margin-bottom:4px;"><span class="badge badge-science">SCIENCE</span></div><div class="col-title">달걀은 왜 익으면 하얘질까?</div><div class="col-sub">단백질 변성의 과학 · 3분</div></div></div>
+<div class="column-card"><div class="col-emoji">🧄</div><div class="col-info"><div style="margin-bottom:4px;"><span class="badge badge-ingredient">INGREDIENT</span></div><div class="col-title">마늘의 모든 것</div><div class="col-sub">다지기 vs 슬라이스 · 3분</div></div></div>
+<div class="column-card"><div class="col-emoji">🧊</div><div class="col-info"><div style="margin-bottom:4px;"><span class="badge badge-safety">SAFETY</span></div><div class="col-title">실온 해동 vs 냉장 해동</div><div class="col-sub">정답은 의외로 간단해요 · 2분</div></div></div>
+</div></div>
+
+<!-- COLUMN DETAIL -->
+<div class="screen" id="s-column-detail">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;">arrow_back</span><div class="title">칼럼</div><span class="material-symbols-rounded icon">share</span></div>
+<div class="screen-scroll">
+<div style="text-align:center;padding:24px 16px 16px;"><div style="font-size:56px;margin-bottom:12px;">🥕</div><span class="badge badge-science">SCIENCE</span><div class="headline-small" style="margin-top:10px;">당근의 재발견:<br>왜 기름과 함께 먹어야 할까?</div><div class="title-small" style="color:var(--on-surface-60);margin-top:6px;">지용성 비타민의 비밀</div><div class="body-small" style="color:var(--on-surface-60);margin-top:8px;">2025.01.06 · 3분</div></div>
+<div class="divider"></div>
+<div style="padding:20px 16px;"><p class="body-large" style="margin-bottom:16px;">당근을 생으로 아삭하게 먹는 것도 맛있지만, 사실 우리 몸이 당근의 핵심 영양소를 제대로 흡수하려면 작은 비밀이 하나 필요합니다.</p><p class="body-large" style="margin-bottom:16px;">당근의 주황색을 만드는 베타카로틴은 <strong>지용성</strong>이에요. 말 그대로 기름에 녹는 성질이죠. 그래서 올리브유에 살짝 볶거나, 참기름 한 방울과 함께 먹으면 흡수율이 크게 올라갑니다.</p></div>
+<div class="callout"><span class="material-symbols-rounded">lightbulb</span><p>연구에 따르면 당근을 기름과 함께 조리하면 베타카로틴 흡수율이 생으로 먹을 때보다 최대 6.5배까지 높아질 수 있어요.</p></div>
+<div style="padding:16px;"><p class="body-large" style="margin-bottom:16px;">다음에 당근을 먹을 때, 볶음 요리에 넣거나 샐러드 드레싱에 올리브유를 넉넉히 써보면 어떨까요?</p><p class="body-large" style="color:var(--primary);">오늘의 요리가 더 즐거워지길! 🧡</p></div>
+<div class="divider"></div>
+<div style="padding:12px 16px;"><div class="title-small" style="margin-bottom:8px;">출처</div><div class="source-chip">📄 K. Miglio et al., 2008</div><div class="source-chip">📄 J. Agric. Food Chem.</div></div>
+<div style="padding:4px 16px 16px;display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-ingredient">당근</span><span class="badge badge-ingredient">베타카로틴</span><span class="badge badge-science">조리과학</span></div>
+</div></div>
+
+<!-- MY PAGE -->
+<div class="screen" id="s-my">
+<div class="app-bar"><div class="title">마이</div><span class="material-symbols-rounded icon" onclick="show('s-settings')">settings</span></div>
+<div class="screen-scroll">
+<div class="streak-card"><div class="streak-num">7</div><div class="streak-label">🔥 일 연속 요리!</div><div class="streak-sub">최장 기록: 14일</div></div>
+<div class="stat-grid"><div class="stat-box"><div class="snum">12</div><div class="slabel">총 요리</div></div><div class="stat-box"><div class="snum">35</div><div class="slabel">등록 재료</div></div><div class="stat-box"><div class="snum">4</div><div class="slabel">시도 종류</div></div></div>
+<div style="margin:0 16px;border-radius:var(--radius-card);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+<div class="setting-row" style="padding:14px 16px;cursor:pointer;background:#fff;" onclick="show('s-reward')"><span style="display:flex;align-items:center;gap:10px;"><span class="material-symbols-rounded" style="font-size:22px;color:var(--primary);">emoji_events</span><span class="body-large">나의 기록</span></span><span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">chevron_right</span></div>
+<div class="setting-row" style="padding:14px 16px;cursor:pointer;background:#fff;" onclick="show('s-column')"><span style="display:flex;align-items:center;gap:10px;"><span class="material-symbols-rounded" style="font-size:22px;color:var(--primary);">auto_stories</span><span class="body-large">칼럼</span></span><span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">chevron_right</span></div>
+<div class="setting-row" style="padding:14px 16px;cursor:pointer;background:#fff;" onclick="show('s-settings')"><span style="display:flex;align-items:center;gap:10px;"><span class="material-symbols-rounded" style="font-size:22px;color:var(--on-surface-60);">settings</span><span class="body-large">설정</span></span><span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">chevron_right</span></div>
+</div><div style="height:16px;"></div></div>
+<div class="bottom-nav"><div class="nav-item" onclick="show('s-home')"><span class="material-symbols-rounded">home</span><span>홈</span></div><div class="nav-item" onclick="show('s-stock')"><span class="material-symbols-rounded">kitchen</span><span>재고</span></div><div class="nav-item" onclick="show('s-recipe')"><span class="material-symbols-rounded">restaurant_menu</span><span>레시피</span></div><div class="nav-item active"><span class="material-symbols-rounded">person</span><span>마이</span></div></div>
+</div>
+
+<!-- REWARD -->
+<div class="screen" id="s-reward">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;" onclick="show('s-my')">arrow_back</span><div class="title">나의 기록</div></div>
+<div class="screen-scroll">
+<div class="streak-card"><div class="streak-num">7</div><div class="streak-label">🔥 일 연속 요리!</div><div class="streak-sub">최장 기록: 14일</div></div>
+<div class="section-header title-medium">📊 활동 통계</div>
+<div class="stat-grid"><div class="stat-box"><div class="snum">12</div><div class="slabel">총 요리</div></div><div class="stat-box"><div class="snum">35</div><div class="slabel">등록 재료</div></div><div class="stat-box"><div class="snum">4</div><div class="slabel">시도한 종류</div></div></div>
+<div class="section-header title-medium">🏆 업적</div>
+<div class="badge-grid"><div class="ach-item"><div class="ach-icon">🥬</div><div class="ach-name">첫 재료</div></div><div class="ach-item"><div class="ach-icon">👨‍🍳</div><div class="ach-name">첫 요리사</div></div><div class="ach-item"><div class="ach-icon">🍳</div><div class="ach-name">요리 입문</div></div><div class="ach-item"><div class="ach-icon">⭐</div><div class="ach-name">3일 연속</div></div><div class="ach-item"><div class="ach-icon">🌟</div><div class="ach-name">7일 연속</div></div><div class="ach-item"><div class="ach-icon locked">🏆</div><div class="ach-name">30일 연속</div></div><div class="ach-item"><div class="ach-icon locked">🔥</div><div class="ach-name">요리 매니아</div></div><div class="ach-item"><div class="ach-icon locked">🌱</div><div class="ach-name">제로웨이스트</div></div></div>
+<div style="height:24px;"></div></div></div>
+
+<!-- CAMERA OCR -->
+<div class="screen" id="s-camera">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;">arrow_back</span><div class="title">영수증 스캔</div></div>
+<div class="screen-scroll">
+<div style="height:260px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><div style="width:220px;height:180px;border:2px dashed rgba(255,255,255,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-rounded" style="font-size:48px;color:rgba(255,255,255,.5);">receipt_long</span></div><div class="body-medium" style="color:rgba(255,255,255,.6);">영수증을 프레임에 맞춰주세요</div></div>
+<div class="section-header title-medium">📋 인식된 재료</div>
+<div style="margin:0 16px;border-radius:var(--radius-card);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);"><div class="ingr-card new-item"><div class="emoji">🥬</div><div class="info"><div class="name">시금치</div><div class="qty">300g</div></div><span class="material-symbols-rounded" style="color:var(--fresh-green);font-size:20px;">check_circle</span></div><div class="ingr-card new-item"><div class="emoji">🥩</div><div class="info"><div class="name">돼지고기 (목살)</div><div class="qty">500g</div></div><span class="material-symbols-rounded" style="color:var(--fresh-green);font-size:20px;">check_circle</span></div><div class="ingr-card"><div class="emoji">🍽️</div><div class="info"><div class="name" style="color:var(--warning-amber);">키친타올 (2롤)</div><div class="qty" style="color:var(--on-surface-60);">식재료 아님</div></div><span class="material-symbols-rounded" style="color:var(--on-surface-60);font-size:20px;">remove_circle_outline</span></div></div>
+<button class="btn-primary" style="margin-top:16px;">2개 재료 추가하기</button>
+</div></div>
+
+<!-- VOICE INPUT -->
+<div class="screen" id="s-voice">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;">arrow_back</span><div class="title">음성 입력</div></div>
+<div class="screen-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;">
+<div style="width:120px;height:120px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 0 0 16px rgba(215,95,40,.08),0 0 0 32px rgba(215,95,40,.04);"><span class="material-symbols-rounded" style="font-size:48px;color:var(--primary);">mic</span></div>
+<div class="body-large" style="text-align:center;margin-bottom:8px;">"소고기 300g, 양파 2개,<br>대파 한 단"</div>
+<div class="body-small" style="color:var(--on-surface-60);">듣고 있어요...</div>
+<div style="width:100%;margin-top:32px;"><div class="section-header title-medium" style="padding:12px 0;">인식된 재료</div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">🥩 소고기 300g</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">🧅 양파 2개</div></div><div class="check-item" style="padding:8px 0;"><div class="cbox checked"></div><div class="label">🥬 대파 1단</div></div></div>
+<button class="btn-primary" style="width:100%;margin-top:16px;">3개 재료 추가하기</button>
+</div></div>
+
+<!-- SETTINGS -->
+<div class="screen" id="s-settings">
+<div class="app-bar"><span class="material-symbols-rounded icon" style="font-size:20px;" onclick="show('s-my')">arrow_back</span><div class="title">설정</div></div>
+<div class="screen-scroll">
+<div class="setting-section"><div class="title-medium" style="margin-bottom:12px;">테마</div><div class="theme-selector"><button class="theme-option">시스템</button><button class="theme-option active">라이트</button><button class="theme-option">다크</button><button class="theme-option">🌙 심야</button></div></div>
+<div class="divider" style="margin:0 16px;"></div>
+<div class="setting-section"><div class="title-medium" style="margin-bottom:4px;">알림</div><div class="setting-row"><span class="slabel">유통기한 알림</span><div class="toggle on"></div></div><div class="setting-row"><span class="slabel">알림 기준일</span><span class="sval">3일 전 ▾</span></div><div class="setting-row"><span class="slabel">칼럼 알림</span><div class="toggle on"></div></div></div>
+<div class="divider" style="margin:0 16px;"></div>
+<div class="setting-section"><div class="title-medium" style="margin-bottom:4px;">앱 정보</div><div class="setting-row"><span class="slabel">버전</span><span class="sval">1.0.0</span></div><div class="setting-row"><span class="slabel">오픈소스 라이선스</span><span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">chevron_right</span></div><div class="setting-row"><span class="slabel">개인정보 처리방침</span><span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-60);">chevron_right</span></div></div>
+</div></div>
+
+</div></div>
+
+<script>
+const screens=[{id:'s-splash',label:'스플래시'},{id:'s-onboarding',label:'온보딩'},{id:'s-home',label:'홈'},{id:'s-stock',label:'재고 목록'},{id:'s-stock-add',label:'재고 추가'},{id:'s-recipe',label:'레시피 추천'},{id:'s-recipe-detail',label:'레시피 상세'},{id:'s-camera',label:'카메라 OCR'},{id:'s-voice',label:'음성 입력'},{id:'s-my',label:'마이'},{id:'s-reward',label:'나의 기록'},{id:'s-column',label:'칼럼 목록'},{id:'s-column-detail',label:'칼럼 상세'},{id:'s-settings',label:'설정'}];
+const tabsEl=document.getElementById('tabs');
+screens.forEach(s=>{const b=document.createElement('button');b.className='tab'+(s.id==='s-home'?' active':'');b.textContent=s.label;b.onclick=()=>show(s.id);tabsEl.appendChild(b);});
+function show(id){document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));const i=screens.findIndex(s=>s.id===id);if(i>=0)tabsEl.children[i].classList.add('active');}
+function toggleSelect(el){el.classList.toggle('selected');const sel=document.querySelectorAll('.recipe-card.selected').length;document.querySelector('.dual-cta').classList.toggle('visible',sel===2);}
+</script>
+</body>
+</html>

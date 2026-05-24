@@ -111,7 +111,7 @@ docs/brand-assets/
 
 | Weight 이름 | Weight 값 | 역할 |
 |-------------|----------|------|
-| **Black** | `900` | 화면의 주인공 — AppBar 화면 제목. 한 화면에 딱 하나 |
+| **Black** | `900` | 브랜드 앵커 — 홈 화면 "WhipUp" 로고 타이틀에만 사용 |
 | **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, 히어로 |
 | **SemiBold** | `600` | 구조를 잡는 뼈대 — 섹션 헤더, 카드 제목, CTA 버튼 |
 | **Medium** | `500` | 조용한 안내자 — 폼 라벨, 네비게이션, 태그, 뱃지 |
@@ -130,7 +130,8 @@ docs/brand-assets/
 | `headlineLarge` | 24 | Bold | 1.25 | -0.25 | 레시피 상세 히어로 제목 |
 | `headlineMedium` | 22 | SemiBold | 1.25 | 0 | 온보딩 제목, 모달 제목 |
 | `headlineSmall` | 20 | SemiBold | 1.3 | 0 | 바텀시트 제목, 칼럼 상세 제목 |
-| `titleLarge` | 22 | Black | 1.25 | -0.25 | AppBar 화면 제목 — 화면의 앵커 |
+| `titleLarge` (홈) | 22 | Black | 1.25 | -0.25 | 홈 화면 "WhipUp" 브랜드 앵커 (홈 전용) |
+| `titleLarge` (일반) | 20 | SemiBold | 1.3 | 0 | 홈 이외 AppBar 화면 제목 |
 | `titleMedium` | 17 | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
 | `titleSmall` | 15 | Medium | 1.3 | 0.1 | 폼 라벨, Phase 라벨, 서브 헤더 |
 | `bodyLarge` | 16 | Regular | 1.5 | 0.25 | 조리 설명, 칼럼 본문 (주 읽기용) |
