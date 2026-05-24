@@ -1,20 +1,260 @@
-# Brand Assets
+# Brand Assets & Corporate Identity
 
-WhipUp 브랜드 에셋 디렉토리.
+> **최종 참조 문서:** 폰트, 색상, 아이콘, 로고 등 시각적 디테일에 대한 Single Source of Truth.
+> 모든 에이전트는 시각 요소 결정 시 이 문서를 최우선 참조한다.
 
-## 디렉토리 구조
+---
+
+## 1. Logo & App Icon
+
+### 1.1. 앱 아이콘 사양
+
+| 속성 | 값 |
+|------|-----|
+| **형태** | Rounded Square (iOS Superellipse / Android Adaptive) |
+| **배경색** | `#4CAF50` (Primary Green) |
+| **전경** | 화이트 미니멀 냄비 + 증기 아이콘 |
+| **최소 크기** | 48x48dp (아이콘이 뭉개지지 않는 최소 크기) |
+
+### 1.2. 로고 타입
+
+| 속성 | 값 |
+|------|-----|
+| **영문** | **WhipUp** (W와 U만 대문자, CamelCase) |
+| **한글** | 윕업 |
+| **조합** | 아이콘 + 텍스트 수평 배치 (기본), 수직 배치 (제한 공간) |
+| **최소 여백** | 아이콘 높이의 50% 이상 사방 확보 |
+| **금지 사항** | 로고 색상 임의 변경, 비율 변형, 그림자 추가 |
+
+### 1.3. 파일 규격
 
 ```
 docs/brand-assets/
-├── logo/          # 앱 아이콘, 로고 SVG/PNG
-├── colors/        # 브랜드 컬러 팔레트 파일
-├── typography/    # 폰트 가이드라인
-└── illustrations/ # 온보딩, 빈 상태 일러스트
+├── logo/
+│   ├── whipup_icon.svg          # 벡터 원본 (마스터)
+│   ├── whipup_icon_1024.png     # iOS App Store (1024x1024)
+│   ├── whipup_icon_512.png      # Android Play Store (512x512)
+│   ├── whipup_logo_horizontal.svg
+│   └── whipup_logo_vertical.svg
+├── colors/
+│   └── palette.md               # 이 문서 Section 2 참조
+├── typography/
+│   └── font_guide.md            # 이 문서 Section 3 참조
+└── illustrations/
+    ├── onboarding/              # 온보딩 일러스트
+    └── empty_states/            # 빈 상태 일러스트
 ```
 
-## 에셋 사용 규칙
+---
 
-- 앱 내 에셋은 `app/assets/`로 복사하여 사용
-- 원본 파일은 이 디렉토리에서 관리
-- 이미지 최적화: PNG는 8-bit, WebP 권장
-- Lottie JSON은 `app/assets/lottie/`에 배치
+## 2. Color Palette
+
+> FlexColorScheme 기반. 모든 색상값은 이 문서가 정본이며, `design_system.md`의 Color 섹션은 이 문서를 참조한다.
+
+### 2.1. Core Brand Colors
+
+| Token | Hex (Light) | Hex (Dark) | 용도 |
+|-------|-------------|------------|------|
+| `primary` | `#4CAF50` | `#81C784` | CTA 버튼, 주요 액션, 앱 바 |
+| `onPrimary` | `#FFFFFF` | `#1B5E20` | primary 위 텍스트/아이콘 |
+| `primaryContainer` | `#C8E6C9` | `#2E7D32` | 선택된 상태, 칩 배경 |
+| `secondary` | `#D4A373` | `#E0C097` | 포인트 강조, 뱃지, 보조 CTA |
+| `onSecondary` | `#FFFFFF` | `#3E2723` | secondary 위 텍스트/아이콘 |
+| `secondaryContainer` | `#FAEBD7` | `#5D4037` | 강조 카드 배경 |
+
+### 2.2. Surface & Background
+
+| Token | Hex (Light) | Hex (Dark) | 용도 |
+|-------|-------------|------------|------|
+| `surface` | `#FFF8F0` | `#1E1E1E` | 카드, 바텀시트, 다이얼로그 |
+| `onSurface` | `#2C2C2C` | `#E8E8E8` | surface 위 본문 텍스트 |
+| `surfaceVariant` | `#F5F0E8` | `#2A2A2A` | 구분이 필요한 보조 영역 |
+| `background` | `#FFFDF8` | `#121212` | 스캐폴드 배경 |
+| `onBackground` | `#1C1C1C` | `#F0F0F0` | 배경 위 텍스트 |
+
+### 2.3. Semantic Colors (기능 색상)
+
+| Token | Hex (Light) | Hex (Dark) | 용도 |
+|-------|-------------|------------|------|
+| `freshGreen` | `#66BB6A` | `#A5D6A7` | 신선도 양호 표시 |
+| `warningAmber` | `#FFA726` | `#FFB74D` | 유통기한 임박 (3일 이내) |
+| `dangerRed` | `#EF5350` | `#E57373` | 유통기한 초과, 삭제 확인 |
+| `error` | `#D32F2F` | `#EF9A9A` | 시스템 에러, 폼 검증 실패 |
+| `info` | `#42A5F5` | `#90CAF9` | 안내, 팁 메시지 |
+
+### 2.4. Recipe Type Badge Colors
+
+| recipe_type | 배경색 (Light) | 텍스트색 |
+|-------------|---------------|---------|
+| `main` | `#E8F5E9` | `#2E7D32` |
+| `side` | `#FFF3E0` | `#E65100` |
+| `soup` | `#E3F2FD` | `#1565C0` |
+| `dessert` | `#FCE4EC` | `#C62828` |
+| `snack` | `#FFF8E1` | `#F57F17` |
+| `drink` | `#E0F7FA` | `#00838F` |
+| `sauce` | `#F3E5F5` | `#6A1B9A` |
+
+---
+
+## 3. Typography
+
+### 3.1. 서체 시스템
+
+| 속성 | 값 |
+|------|-----|
+| **Primary Font** | **Pretendard** (한국어 + 라틴) |
+| **Fallback** | Apple SD Gothic Neo (iOS), Roboto (Android) |
+| **라이선스** | OFL 1.1 (오픈 소스, 상업 사용 가능) |
+| **파일 위치** | `app/assets/fonts/Pretendard-*.otf` |
+
+### 3.2. Font Weight 매핑
+
+| Weight 이름 | Weight 값 | 용도 |
+|-------------|----------|------|
+| **Bold** | `700` | 화면 제목, 강조 텍스트, CTA 버튼 |
+| **SemiBold** | `600` | 섹션 헤더, 재료명, 레시피 카드 제목 |
+| **Medium** | `500` | 네비게이션 라벨, 탭 텍스트 |
+| **Regular** | `400` | 본문, 조리 단계 설명, 일반 텍스트 |
+| **Light** | `300` | 보조 설명, 힌트 텍스트, 캡션 |
+
+### 3.3. Type Scale (Material 3 기준)
+
+| Style | Size (sp) | Weight | Line Height | Letter Spacing | 용도 |
+|-------|-----------|--------|-------------|----------------|------|
+| `displayLarge` | 34 | Bold | 1.2 | -0.5 | 히어로 텍스트, 이모지 강조 |
+| `displayMedium` | 28 | Bold | 1.2 | -0.25 | 메인 숫자 (재고 수량 등) |
+| `titleLarge` | 22 | SemiBold | 1.3 | 0 | 화면 제목, 레시피명 |
+| `titleMedium` | 18 | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
+| `titleSmall` | 15 | Medium | 1.3 | 0.1 | 서브 헤더 |
+| `bodyLarge` | 16 | Regular | 1.5 | 0.25 | 조리 단계 설명 |
+| `bodyMedium` | 14 | Regular | 1.5 | 0.25 | 일반 본문, 재료 목록 |
+| `bodySmall` | 12 | Regular | 1.4 | 0.4 | 부가 정보, 타임스탬프 |
+| `labelLarge` | 14 | Medium | 1.2 | 0.1 | 버튼 텍스트 |
+| `labelMedium` | 12 | Medium | 1.2 | 0.5 | 탭 라벨, 네비게이션 |
+| `labelSmall` | 11 | Medium | 1.1 | 0.5 | 태그, 뱃지, recipe_type 라벨 |
+
+### 3.4. 폰트 사용 금지 사항
+
+- 시스템 기본 폰트를 직접 지정하지 않음 (항상 Pretendard 사용)
+- 10sp 미만의 텍스트 사용 금지 (주방 가독성)
+- 이탤릭체 사용 금지 (한국어에 부적합)
+- 전체 대문자(ALL CAPS) 영문은 라벨/뱃지에만 허용
+
+---
+
+## 4. Iconography
+
+### 4.1. 아이콘 시스템
+
+| 속성 | 값 |
+|------|-----|
+| **아이콘 셋** | Material Symbols Rounded |
+| **기본 스타일** | `Rounded`, Weight 400, Optical Size 24 |
+| **패키지** | `material_symbols_icons` (Flutter pub) |
+| **보조** | 식재료 카테고리별 이모지 (시스템 이모지 사용) |
+
+### 4.2. 핵심 아이콘 매핑
+
+| 기능 | 아이콘 이름 | 비고 |
+|------|-----------|------|
+| 홈 | `home_rounded` | 바텀 네비게이션 |
+| 냉장고 (재고) | `kitchen_rounded` | 바텀 네비게이션 |
+| 레시피 | `restaurant_menu_rounded` | 바텀 네비게이션 |
+| 칼럼 | `auto_stories_rounded` | 바텀 네비게이션 |
+| 설정 | `settings_rounded` | 바텀 네비게이션 / 앱바 |
+| 재료 추가 | `add_circle_rounded` | FAB |
+| 카메라 | `photo_camera_rounded` | OCR 진입점 |
+| 마이크 | `mic_rounded` | 음성 입력 |
+| 검색 | `search_rounded` | 검색 바 |
+| 삭제 | `delete_rounded` | 스와이프 액션 |
+| 즐겨찾기 | `favorite_rounded` | 레시피 저장 |
+| 타이머 | `timer_rounded` | 조리 단계 |
+| 알림 | `notifications_rounded` | 유통기한 알림 |
+
+### 4.3. 아이콘 크기 규격
+
+| 사용처 | 크기 (dp) |
+|--------|----------|
+| 바텀 네비게이션 | 24 |
+| 앱 바 액션 | 24 |
+| FAB 내부 | 28 |
+| 리스트 아이템 Leading | 24 |
+| 빈 상태 중앙 | 64 |
+| 인라인 텍스트 옆 | 18 |
+
+### 4.4. 식재료 카테고리 이모지
+
+| 카테고리 | 이모지 | 영문 키 |
+|---------|--------|---------|
+| 채소 | 🥬 | `vegetable` |
+| 과일 | 🍎 | `fruit` |
+| 육류 | 🥩 | `meat` |
+| 해산물 | 🐟 | `seafood` |
+| 유제품 | 🧀 | `dairy` |
+| 곡물 | 🌾 | `grain` |
+| 양념/소스 | 🧂 | `seasoning` |
+| 음료 | 🥤 | `beverage` |
+| 냉동식품 | 🧊 | `frozen` |
+| 기타 | 🍽️ | `other` |
+
+---
+
+## 5. Illustration & Empty State
+
+### 5.1. 일러스트 스타일 가이드
+
+| 속성 | 값 |
+|------|-----|
+| **스타일** | Flat illustration, 부드러운 라운딩 |
+| **색상** | Brand Palette 내 색상만 사용 |
+| **선 굵기** | 2~3px (SVG 기준) |
+| **무드** | 따뜻함, 친근함, 유머러스 (잔소리 금지) |
+| **포맷** | SVG (원본), Lottie JSON (애니메이션) |
+
+### 5.2. 필수 일러스트 목록
+
+| 상황 | 파일명 | 설명 |
+|------|--------|------|
+| 빈 냉장고 | `empty_fridge` | 재고 0개 상태 |
+| 첫 레시피 | `first_recipe` | 레시피 탭 첫 진입 |
+| 로딩 | `cooking_loading` | AI 레시피 생성 대기 |
+| 성공 | `recipe_complete` | 레시피 추천 완료 도파민 |
+| 에러 | `oops_spill` | 네트워크/시스템 에러 |
+| 온보딩 1 | `onboard_welcome` | 환영 화면 |
+| 온보딩 2 | `onboard_fridge` | 냉장고 등록 안내 |
+| 온보딩 3 | `onboard_recipe` | 레시피 추천 안내 |
+
+---
+
+## 6. Motion & Animation
+
+### 6.1. 전환 속도 토큰
+
+| 토큰 | Duration | Curve | 용도 |
+|------|----------|-------|------|
+| `instant` | 100ms | `easeOut` | 탭 피드백, 색상 변경 |
+| `fast` | 200ms | `easeInOut` | 페이드, 스케일 전환 |
+| `normal` | 300ms | `easeInOutCubic` | 페이지 전환, 바텀시트 |
+| `slow` | 500ms | `easeInOutCubic` | 온보딩, 히어로 애니메이션 |
+
+### 6.2. Lottie 애니메이션 사양
+
+| 항목 | 규격 |
+|------|------|
+| **프레임 레이트** | 30fps |
+| **최대 파일 크기** | 100KB |
+| **색상** | Brand Palette 내 색상만 |
+| **반복** | 로딩: 무한 반복, 성공: 1회 재생 |
+| **파일 경로** | `app/assets/lottie/` |
+
+---
+
+## 7. 에셋 관리 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| **원본 관리** | 모든 원본은 `docs/brand-assets/` 하위에서 관리 |
+| **앱 배포용** | `app/assets/`로 복사하여 사용 (원본 수정 금지) |
+| **이미지 최적화** | PNG 8-bit, WebP 권장, 2x/3x 해상도 제공 |
+| **네이밍** | `snake_case`, 기능 접두사 (`ic_`, `img_`, `bg_`) |
+| **변경 이력** | 에셋 변경 시 커밋 메시지에 `[brand]` 접두사 |

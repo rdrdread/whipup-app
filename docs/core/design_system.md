@@ -17,37 +17,42 @@
 
 ## 2. Color Palette
 
-> FlexColorScheme의 `FlexScheme.green`을 베이스로 한다.
+> **정본:** `docs/brand-assets/README.md §2`에 모든 색상 Hex 값이 정의되어 있다.
+> FlexColorScheme의 `FlexScheme.green`을 베이스로 하며, 정확한 Hex 코드는 brand-assets를 참조한다.
 
 | Token | Light | Dark | 용도 |
 |-------|-------|------|------|
-| `primary` | 녹색 계열 | 연한 녹색 | CTA, 주요 액션 |
-| `secondary` | 따뜻한 황토 | 연한 황토 | 포인트, 강조 |
-| `surface` | 크림 화이트 | 다크 그레이 | 카드, 바텀시트 |
-| `error` | 코럴 레드 | 연한 레드 | 경고, 오류 |
+| `primary` | `#4CAF50` | `#81C784` | CTA, 주요 액션 |
+| `secondary` | `#D4A373` | `#E0C097` | 포인트, 강조 |
+| `surface` | `#FFF8F0` | `#1E1E1E` | 카드, 바텀시트 |
+| `error` | `#D32F2F` | `#EF9A9A` | 경고, 오류 |
 
-### 2.1. Custom Semantic Colors (TODO)
-```dart
-// lib/theme/app_colors.dart 에 추가 예정
-// - freshGreen: 신선도 표시
-// - warningAmber: 유통기한 임박
-// - dangerRed: 유통기한 초과
-```
+### 2.1. Custom Semantic Colors
+> 상세 정의: `brand-assets §2.3` (freshGreen, warningAmber, dangerRed, info)
+> Recipe Type Badge 색상: `brand-assets §2.4`
 
 ---
 
 ## 3. Typography
 
-| 스타일 | 용도 | 비고 |
-|--------|------|------|
-| `displayLarge` | 이모지, 히어로 텍스트 | |
-| `titleLarge` | 화면 제목, 레시피명 | |
-| `titleMedium` | 섹션 헤더 | |
-| `bodyLarge` | 조리 단계 설명 | |
-| `bodyMedium` | 일반 본문 | |
-| `labelSmall` | 태그, 뱃지 | |
+> **정본:** `docs/brand-assets/README.md §3`에 전체 Type Scale (Size, Weight, Line Height, Letter Spacing)이 정의되어 있다.
 
-> **폰트:** Pretendard (한국어 최적화). `assets/fonts/` 추가 후 `app_theme.dart`에서 활성화.
+| 스타일 | Size | Weight | 용도 |
+|--------|------|--------|------|
+| `displayLarge` | 34sp | Bold | 이모지, 히어로 텍스트 |
+| `displayMedium` | 28sp | Bold | 메인 숫자 (재고 수량) |
+| `titleLarge` | 22sp | SemiBold | 화면 제목, 레시피명 |
+| `titleMedium` | 18sp | SemiBold | 섹션 헤더 |
+| `titleSmall` | 15sp | Medium | 서브 헤더 |
+| `bodyLarge` | 16sp | Regular | 조리 단계 설명 |
+| `bodyMedium` | 14sp | Regular | 일반 본문 |
+| `bodySmall` | 12sp | Regular | 부가 정보, 타임스탬프 |
+| `labelLarge` | 14sp | Medium | 버튼 텍스트 |
+| `labelMedium` | 12sp | Medium | 탭 라벨, 네비게이션 |
+| `labelSmall` | 11sp | Medium | 태그, 뱃지 |
+
+> **폰트:** Pretendard (한국어 최적화, OFL 1.1 라이선스). `app/assets/fonts/Pretendard-*.otf` 배치.
+> **Font Weight 상세:** `brand-assets §3.2` 참조. **폰트 사용 금지사항:** `brand-assets §3.4` 참조.
 
 ---
 
