@@ -122,9 +122,11 @@ Artisan(UI) ──→ Architect(Logic) ──→ Bridge(External)
 | `id` | int | Isar 자동 ID |
 | `name` | String | 재료명 |
 | `category` | StockCategory (enum) | 카테고리 |
+| `subCategory` | String? | 서브 카테고리 (예: 소고기, 돼지고기) |
+| `part` | String? | 부위/종류 (예: 목살, 삼겹살) |
 | `storageLocation` | StorageLocation (enum) | 보관 위치 |
 | `quantity` | double | 수량 |
-| `unit` | String | 단위 (g/ml/개) |
+| `unit` | String | 단위 (g/ml/개) — 재료별 기본 단위 자동 설정 |
 | `expiryDate` | DateTime? | 유통기한 |
 | `addedAt` | DateTime | 등록일 |
 
@@ -132,9 +134,10 @@ Artisan(UI) ──→ Architect(Logic) ──→ Bridge(External)
 
 | 값 | 한글 | 아이콘 | 설명 |
 |----|------|--------|------|
-| `fridge` | 냉장고 | 🧊 | 냉장·냉동 보관 식재료 |
+| `fridge` | 냉장고 | 🧊 | 냉장 보관 식재료 |
+| `freezer` | 냉동고 | ❄️ | 냉동 보관 식재료 |
 | `pantry` | 팬트리 | 📦 | 상온 보관 (쌀, 통조림, 건조식품 등) |
-| `drawer` | 서랍 | 🗄️ | 양념장, 소스류, 기타 소모품 |
+| `drawer` | 양념 서랍장 | 🧂 | 양념, 소스, 오일류 |
 
 **StockCategory enum:**
 
@@ -152,6 +155,21 @@ Artisan(UI) ──→ Architect(Logic) ──→ Bridge(External)
 | `other` | 기타 | 🍽️ |
 
 > 이모지 매핑은 `brand-assets §4.4`와 동기화.
+> 이모지 렌더링은 Twemoji를 사용하여 플랫폼(iOS/Android/Web) 간 동일한 형태를 보장.
+
+**StockCategory 서브 카테고리 예시:**
+
+| 카테고리 | 서브 카테고리 | 부위/종류 예시 | 기본 단위 |
+|---------|-------------|--------------|----------|
+| `meat` 육류 | 소고기 | 등심, 안심, 갈비, 채끝 | g |
+| `meat` 육류 | 돼지고기 | 목살, 삼겹살, 갈비, 안심, 등심, 앞다리 | g |
+| `meat` 육류 | 닭고기 | 가슴살, 다리, 통닭, 날개 | g |
+| `seafood` 해산물 | 생선 | 고등어, 연어, 참치, 광어 | g |
+| `seafood` 해산물 | 조개류 | 바지락, 홍합, 전복 | g |
+| `vegetable` 채소 | 잎채소 | 배추, 시금치, 상추, 깻잎 | g |
+| `vegetable` 채소 | 뿌리채소 | 당근, 감자, 무, 양파 | 개 |
+| `fruit` 과일 | 국산과일 | 사과, 배, 감, 딸기 | 개 |
+| `dairy` 유제품 | — | 우유, 치즈, 요거트, 버터 | g/ml |
 
 ### 3.2. Recipe (레시피)
 

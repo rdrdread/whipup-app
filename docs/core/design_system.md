@@ -119,15 +119,15 @@
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
 | AppBar 제목 | `titleLarge` **(22sp Black)** | "WhipUp" ← 홈 화면만 예외 |
-| 재고 요약 카드 제목 | `titleMedium` | "냉장고에 12개 재료" |
-| 재고 요약 숫자 | `displaySmall` | "12" |
-| 섹션 헤더 | `titleMedium` | "유통기한 임박", "빠른 레시피" |
-| 재료 카드 이름 | `titleSmall` | "배추" |
-| 재료 카드 수량 | `bodyMedium` | "500g" |
-| 유통기한 뱃지 | `labelSmall` | "D-3" |
-| CTA 버튼 | `labelLarge` | "레시피 추천 받기" |
-| 칼럼 카드 제목 | `titleMedium` | "당근의 재발견" |
-| 칼럼 카드 부제 | `bodySmall` | "지용성 비타민의 비밀 · 3분" |
+| 대시보드 카드 제목 | `titleMedium` | "우리집 냉장고 현황" |
+| 대시보드 보유 숫자 | `displaySmall` | "24" |
+| 대시보드 위치별 수량 | `bodySmall` | "🧊12 ❄️5 📦4 🧂3" |
+| 대시보드 임박 경고 | `bodyMedium` | "유통기한 임박 3개" |
+| 섹션 헤더 | `titleMedium` | "빠른 레시피 추천", "콘텐츠" |
+| 레시피 슬라이더 제목 | `titleSmall` | "소고기 배추 전골" |
+| 레시피 슬라이더 메타 | `bodySmall` | "30분 · 보통" |
+| 콘텐츠 카드 제목 | `titleSmall` | "당근은 왜 기름과?" |
+| 콘텐츠 카드 요약 | `bodySmall` | "지용성 비타민의 비밀" |
 
 **재고 목록 (`/stock`)**
 
@@ -160,7 +160,10 @@
 |------|--------|------|
 | AppBar 제목 | `titleLarge` (20sp SemiBold) | "레시피" |
 | 섹션 헤더 | `titleMedium` | "재료 선택" |
-| 체크리스트 재료명 | `bodyMedium` | "☑ 배추 500g" |
+| 카테고리 라벨 | `bodySmall` + SemiBold | "🥬 채소" |
+| 재료 칩 (선택됨) | `bodySmall` + Medium | "배추 500g" (primary 배경) |
+| 재료 칩 (해제됨) | `bodySmall` + Medium | "배추 500g" (surfaceVariant 배경) |
+| 모두 선택/해제 | `labelSmall` | "모두 선택", "모두 해제" |
 | 옵션 라벨 | `titleSmall` | "recipe_type" |
 | 옵션 드롭다운 | `bodyMedium` | "전체" |
 | CTA 버튼 | `labelLarge` | "레시피 추천 받기" |
@@ -235,11 +238,24 @@
 
 | 요소 | 스타일 | 예시 |
 |------|--------|------|
+| 이모지 일러스트 | 80sp | 🧊→📦→🧂 순환 애니메이션 (2.5초 간격) |
 | 대제목 | `headlineMedium` | "냉장고 속 재료로 근사한 한 끼" |
 | 설명 | `bodyLarge` | "재료를 등록하면 AI가..." |
-| 건너뛰기 | `labelLarge` + onSurface 60% | "건너뛰기" |
-| 다음/시작 버튼 | `labelLarge` | "시작하기" |
+| 건너뛰기 | `labelLarge` + onSurface 60% | "건너뛰기" → 기본 구성 + 토스트 → 홈 |
+| 다음/시작 버튼 | `labelLarge` | "시작하기" → 재고함 설정 화면 |
 | 페이지 인디케이터 | — (도트, 텍스트 없음) | |
+
+**재고함 설정 (`/storage-setup`)**
+
+| 요소 | 스타일 | 예시 |
+|------|--------|------|
+| AppBar 제목 | `titleLarge` (20sp SemiBold) | "재고함 설정" |
+| 안내 메시지 | `bodyLarge` | "사용하는 재고함을 추가해 주세요." |
+| 보조 메시지 | `bodyMedium` + onSurface 60% | "나중에 설정에서 변경할 수 있어요." |
+| 재고함 이름 | `bodyLarge` + SemiBold | "냉장고", "냉동고" |
+| 재고함 설명 | `bodySmall` | "냉장 보관 식재료" |
+| 카운터 숫자 | `titleMedium` + primary | "1" |
+| 완료 버튼 | `labelLarge` | "완료" |
 
 #### 1.2.5. 조리 모드 특별 규칙
 
@@ -279,9 +295,11 @@
 ### 1.3. Iconography
 
 - **아이콘 셋:** Material Symbols Rounded
-- **보조:** 식재료 카테고리별 시스템 이모지
+- **보조:** 식재료 카테고리별 이모지 — **Twemoji (Twitter Emoji)** SVG 렌더링
+- **이모지 일관성:** 시스템 이모지 대신 Twemoji를 사용하여 iOS/Android/Web 간 동일한 형태를 보장. 플랫폼별 이모지 디자인 차이를 방지.
+- **Flutter 적용:** `flutter_twemoji` 패키지 또는 Twemoji SVG 에셋 번들 (`app/assets/emoji/`)
 
-> 아이콘 매핑표 및 크기 규격은 `brand-assets §4` 참조.
+> 아이콘 매핑표, 이모지 매핑, 크기 규격은 `brand-assets §4` 참조.
 
 ---
 

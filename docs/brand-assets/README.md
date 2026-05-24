@@ -159,7 +159,9 @@ docs/brand-assets/
 | **아이콘 셋** | Material Symbols Rounded |
 | **기본 스타일** | `Rounded`, Weight 400, Optical Size 24 |
 | **패키지** | `material_symbols_icons` (Flutter pub) |
-| **보조** | 식재료 카테고리별 이모지 (시스템 이모지 사용) |
+| **보조** | 식재료 카테고리별 이모지 (**Twemoji** — 플랫폼 무관 동일 렌더링) |
+| **이모지 렌더링** | Twemoji (Twitter Emoji) SVG — iOS/Android/Web 동일 형태 보장 |
+| **Flutter 패키지** | `flutter_twemoji` 또는 Twemoji SVG 에셋 직접 번들 |
 
 ### 4.2. 핵심 아이콘 매핑
 
@@ -192,6 +194,10 @@ docs/brand-assets/
 
 ### 4.4. 식재료 카테고리 이모지
 
+> **렌더링 방식:** Twemoji (Twitter Emoji) SVG 사용. 시스템 이모지 대신 Twemoji를 적용하여 iOS/Android/Web 모든 플랫폼에서 동일한 형태로 표시.
+> **이유:** 시스템 이모지는 iOS(Apple Emoji), Android(Noto Emoji), Windows(Segoe Emoji) 등 플랫폼별로 디자인이 상이하여 브랜드 일관성이 떨어짐.
+> **Flutter 적용:** `flutter_twemoji` 패키지 또는 Twemoji SVG 에셋을 `app/assets/emoji/` 에 번들하여 사용.
+
 | 카테고리 | 이모지 | 영문 키 |
 |---------|--------|---------|
 | 채소 | 🥬 | `vegetable` |
@@ -204,6 +210,27 @@ docs/brand-assets/
 | 음료 | 🥤 | `beverage` |
 | 냉동식품 | 🧊 | `frozen` |
 | 기타 | 🍽️ | `other` |
+
+### 4.5. 보관 위치 이모지
+
+| 보관 위치 | 이모지 | 영문 키 |
+|----------|--------|---------|
+| 냉장고 | 🧊 | `fridge` |
+| 냉동고 | ❄️ | `freezer` |
+| 팬트리 | 📦 | `pantry` |
+| 양념 서랍장 | 🧂 | `drawer` |
+
+### 4.6. 컬러 대안 (비비드 오렌지)
+
+> Hermes Orange(`#D75F28`)가 일부 Android 디바이스에서 채도가 낮게 렌더링될 수 있음. 아래 대안 검토 후 확정.
+
+| 이름 | Hex | 특성 |
+|------|-----|------|
+| **Hermes Orange** (현재) | `#D75F28` | 따뜻하고 깊은 오렌지 |
+| Deep Orange | `#FF5722` | Material Design 표준, 높은 채도 |
+| Flame | `#F04E23` | 붉은 기운의 비비드 오렌지 |
+| Electric Orange | `#FF6B35` | 밝고 경쾌한 비비드 오렌지 |
+| Vivid Persimmon | `#E8530E` | 감 색상, 깊으면서 선명 |
 
 ---
 
