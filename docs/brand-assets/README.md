@@ -109,28 +109,34 @@ docs/brand-assets/
 
 ### 3.2. Font Weight 매핑
 
-| Weight 이름 | Weight 값 | 용도 |
+| Weight 이름 | Weight 값 | 역할 |
 |-------------|----------|------|
-| **Bold** | `700` | 화면 제목, 강조 텍스트, CTA 버튼 |
-| **SemiBold** | `600` | 섹션 헤더, 재료명, 레시피 카드 제목 |
-| **Medium** | `500` | 네비게이션 라벨, 탭 텍스트 |
-| **Regular** | `400` | 본문, 조리 단계 설명, 일반 텍스트 |
-| **Light** | `300` | 보조 설명, 힌트 텍스트, 캡션 |
+| **Bold** | `700` | 시선을 끄는 핵심 정보 — 단계 번호, 타이머, 히어로 |
+| **SemiBold** | `600` | 구조를 잡는 뼈대 — 화면 제목, 섹션 헤더, 카드 제목, CTA 버튼 |
+| **Medium** | `500` | 조용한 안내자 — 폼 라벨, 네비게이션, 태그, 뱃지 |
+| **Regular** | `400` | 편안한 읽기 — 본문, 조리 설명, 재료 목록 |
+| **Light** | `300` | 숨은 보조 — 힌트, 플레이스홀더, 비활성 텍스트 |
 
 ### 3.3. Type Scale (Material 3 기준)
 
+> 상세 적용 규칙과 화면별 매핑은 `design_system.md §1.2` 참조.
+
 | Style | Size (sp) | Weight | Line Height | Letter Spacing | 용도 |
 |-------|-----------|--------|-------------|----------------|------|
-| `displayLarge` | 34 | Bold | 1.2 | -0.5 | 히어로 텍스트, 이모지 강조 |
-| `displayMedium` | 28 | Bold | 1.2 | -0.25 | 메인 숫자 (재고 수량 등) |
-| `titleLarge` | 22 | SemiBold | 1.3 | 0 | 화면 제목, 레시피명 |
-| `titleMedium` | 18 | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
-| `titleSmall` | 15 | Medium | 1.3 | 0.1 | 서브 헤더 |
-| `bodyLarge` | 16 | Regular | 1.5 | 0.25 | 조리 단계 설명 |
-| `bodyMedium` | 14 | Regular | 1.5 | 0.25 | 일반 본문, 재료 목록 |
-| `bodySmall` | 12 | Regular | 1.4 | 0.4 | 부가 정보, 타임스탬프 |
-| `labelLarge` | 14 | Medium | 1.2 | 0.1 | 버튼 텍스트 |
-| `labelMedium` | 12 | Medium | 1.2 | 0.5 | 탭 라벨, 네비게이션 |
+| `displayLarge` | 40 | Bold | 1.15 | -0.5 | 조리 단계 번호 (1m 거리 가독) |
+| `displayMedium` | 32 | Bold | 1.15 | -0.25 | 타이머 카운트다운, 히어로 숫자 |
+| `displaySmall` | 26 | SemiBold | 1.2 | 0 | 리워드 숫자, 통계, 재고 요약 |
+| `headlineLarge` | 24 | Bold | 1.25 | -0.25 | 레시피 상세 히어로 제목 |
+| `headlineMedium` | 22 | SemiBold | 1.25 | 0 | 온보딩 제목, 모달 제목 |
+| `headlineSmall` | 20 | SemiBold | 1.3 | 0 | 바텀시트 제목, 칼럼 상세 제목 |
+| `titleLarge` | 20 | SemiBold | 1.3 | 0 | AppBar 화면 제목 |
+| `titleMedium` | 17 | SemiBold | 1.3 | 0.1 | 섹션 헤더, 카드 제목 |
+| `titleSmall` | 15 | Medium | 1.3 | 0.1 | 폼 라벨, Phase 라벨, 서브 헤더 |
+| `bodyLarge` | 16 | Regular | 1.5 | 0.25 | 조리 설명, 칼럼 본문 (주 읽기용) |
+| `bodyMedium` | 14 | Regular | 1.5 | 0.25 | 재료 목록, 일반 본문, 보조 설명 |
+| `bodySmall` | 12 | Regular | 1.4 | 0.4 | 타임스탬프, 출처, 부가 정보 |
+| `labelLarge` | 14 | SemiBold | 1.2 | 0.1 | 버튼 텍스트, CTA |
+| `labelMedium` | 12 | Medium | 1.2 | 0.5 | 바텀 네비 라벨, 탭 텍스트 |
 | `labelSmall` | 11 | Medium | 1.1 | 0.5 | 태그, 뱃지, recipe_type 라벨 |
 
 ### 3.4. 폰트 사용 금지 사항
