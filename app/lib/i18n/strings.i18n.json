@@ -1,0 +1,28 @@
+{
+  "@@locale": "ko",
+  "appName": "WhipUp",
+  "common": {
+    "confirm": "확인",
+    "cancel": "취소",
+    "retry": "다시 시도",
+    "loading": "불러오는 중...",
+    "error": "오류가 발생했어요",
+    "empty": "결과가 없어요"
+  },
+  "home": {
+    "title": "오늘 뭐 해먹지? 🍳",
+    "subtitle": "냉장고 속 재료를 알려주세요"
+  },
+  "stock": {
+    "title": "내 재료",
+    "addIngredient": "재료 추가",
+    "empty": "아직 등록된 재료가 없어요 🥕"
+  },
+  "recipe": {
+    "title": "추천 레시피",
+    "generate": "레시피 만들기",
+    "cookingTime": "{minutes}분",
+    "servings": "{count}인분",
+    "steps": "조리 순서"
+  }
+}

@@ -1,0 +1,51 @@
+# ─── Flutter / Dart ────────────────────────────────────
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/build/
+app/pubspec.lock
+*.g.dart
+*.freezed.dart
+
+# ─── IDE ───────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# ─── Android ───────────────────────────────────────────
+app/android/.gradle/
+app/android/captures/
+app/android/gradlew
+app/android/gradlew.bat
+app/android/local.properties
+app/android/key.properties
+app/android/app/google-services.json
+
+# ─── iOS ───────────────────────────────────────────────
+app/ios/Flutter/flutter_export_environment.sh
+app/ios/Pods/
+app/ios/*.xcworkspace
+app/ios/.symlinks/
+
+# ─── Backend (Python) ──────────────────────────────────
+backend/__pycache__/
+backend/.venv/
+backend/venv/
+backend/.env
+backend/*.pyc
+backend/*.pyo
+
+# ─── Environment / Secrets ─────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ─── OS ────────────────────────────────────────────────
+Thumbs.db
+desktop.ini
