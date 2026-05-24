@@ -12,7 +12,7 @@
 | 속성 | 값 |
 |------|-----|
 | **형태** | Rounded Square (iOS Superellipse / Android Adaptive) |
-| **배경색** | `#4CAF50` (Primary Green) |
+| **배경색** | `#D75F28` (Hermes Orange) |
 | **전경** | 화이트 미니멀 냄비 + 증기 아이콘 |
 | **최소 크기** | 48x48dp (아이콘이 뭉개지지 않는 최소 크기) |
 
@@ -55,32 +55,32 @@ docs/brand-assets/
 
 | Token | Hex (Light) | Hex (Dark) | 용도 |
 |-------|-------------|------------|------|
-| `primary` | `#4CAF50` | `#81C784` | CTA 버튼, 주요 액션, 앱 바 |
-| `onPrimary` | `#FFFFFF` | `#1B5E20` | primary 위 텍스트/아이콘 |
-| `primaryContainer` | `#C8E6C9` | `#2E7D32` | 선택된 상태, 칩 배경 |
-| `secondary` | `#D4A373` | `#E0C097` | 포인트 강조, 뱃지, 보조 CTA |
-| `onSecondary` | `#FFFFFF` | `#3E2723` | secondary 위 텍스트/아이콘 |
-| `secondaryContainer` | `#FAEBD7` | `#5D4037` | 강조 카드 배경 |
+| `primary` (Hermes Orange) | `#D75F28` | `#E8845A` | CTA 버튼, 주요 액션, 앱 바, FAB |
+| `onPrimary` | `#FFFFFF` | `#3E1A08` | primary 위 텍스트/아이콘 |
+| `primaryContainer` | `#FDDCC8` | `#8B3A14` | 선택된 상태, 칩 배경 |
+| `secondary` (Warm Amber) | `#FFC107` | `#FFD54F` | 포인트 강조, 뱃지, 보조 CTA |
+| `onSecondary` | `#3E2723` | `#3E2723` | secondary 위 텍스트/아이콘 |
+| `secondaryContainer` | `#FFF0C2` | `#7B5800` | 강조 카드 배경 |
 
 ### 2.2. Surface & Background
 
-| Token | Hex (Light) | Hex (Dark) | 용도 |
-|-------|-------------|------------|------|
-| `surface` | `#FFF8F0` | `#1E1E1E` | 카드, 바텀시트, 다이얼로그 |
-| `onSurface` | `#2C2C2C` | `#E8E8E8` | surface 위 본문 텍스트 |
-| `surfaceVariant` | `#F5F0E8` | `#2A2A2A` | 구분이 필요한 보조 영역 |
-| `background` | `#FFFDF8` | `#121212` | 스캐폴드 배경 |
-| `onBackground` | `#1C1C1C` | `#F0F0F0` | 배경 위 텍스트 |
+| Token | Hex (Light) | Hex (Dark) | Midnight Kitchen | 용도 |
+|-------|-------------|------------|-----------------|------|
+| `surface` | `#FFF8F0` | `#1E1E1E` | `#141210` | 카드, 바텀시트, 다이얼로그 |
+| `onSurface` | `#2C2C2C` | `#E8E8E8` | `#D4C8BC` | surface 위 본문 텍스트 |
+| `surfaceVariant` | `#F5F0E8` | `#2A2A2A` | `#1C1916` | 구분이 필요한 보조 영역 |
+| `background` | `#FFF8F0` | `#121212` | `#0E0C0A` | 스캐폴드 배경 (Clean Off-White) |
+| `onBackground` | `#1C1C1C` | `#F0F0F0` | `#C8BEB4` | 배경 위 텍스트 |
 
 ### 2.3. Semantic Colors (기능 색상)
 
 | Token | Hex (Light) | Hex (Dark) | 용도 |
 |-------|-------------|------------|------|
 | `freshGreen` | `#66BB6A` | `#A5D6A7` | 신선도 양호 표시 |
-| `warningAmber` | `#FFA726` | `#FFB74D` | 유통기한 임박 (3일 이내) |
-| `dangerRed` | `#EF5350` | `#E57373` | 유통기한 초과, 삭제 확인 |
+| `warningAmber` | `#FFA726` | `#FFB74D` | 유통기한 임박 (3일 이내), Burning 효과 |
+| `dangerRed` | `#EF5350` | `#E57373` | 유통기한 초과, 삭제 확인, Burning 강화 |
 | `error` | `#D32F2F` | `#EF9A9A` | 시스템 에러, 폼 검증 실패 |
-| `info` | `#42A5F5` | `#90CAF9` | 안내, 팁 메시지 |
+| `info` | `#42A5F5` | `#90CAF9` | 안내, 팁 메시지, Call-out Box (The Kick) |
 
 ### 2.4. Recipe Type Badge Colors
 
@@ -244,8 +244,9 @@ docs/brand-assets/
 | **프레임 레이트** | 30fps |
 | **최대 파일 크기** | 100KB |
 | **색상** | Brand Palette 내 색상만 |
-| **반복** | 로딩: 무한 반복, 성공: 1회 재생 |
+| **반복** | 로딩: 무한 반복, 성공: 1회 재생, Burning: 무한 반복 |
 | **파일 경로** | `app/assets/lottie/` |
+| **사운드 경로** | `app/assets/sounds/` |
 
 ---
 
@@ -257,4 +258,13 @@ docs/brand-assets/
 | **앱 배포용** | `app/assets/`로 복사하여 사용 (원본 수정 금지) |
 | **이미지 최적화** | PNG 8-bit, WebP 권장, 2x/3x 해상도 제공 |
 | **네이밍** | `snake_case`, 기능 접두사 (`ic_`, `img_`, `bg_`) |
+| **사운드 포맷** | WAV (원본), MP3 (앱 번들용), 3초 이내 |
 | **변경 이력** | 에셋 변경 시 커밋 메시지에 `[brand]` 접두사 |
+
+### 7.1. 사운드 에셋 목록
+
+| 이벤트 | 파일명 | 특성 |
+|--------|--------|------|
+| 타이머 완료 | `timer_done.wav` | 맑은 벨, 따뜻한 톤 |
+| 레시피 완성 | `recipe_complete.wav` | 경쾌한 성공 효과음 |
+| 유통기한 경보 | `expiry_alert.wav` | 부드러운 경고음 |

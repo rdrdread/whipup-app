@@ -1,96 +1,213 @@
-# Design System
+# Design System: Visual Standard
 
 > **참조 에이전트:** Artisan (정본)
-> 이 문서는 Artisan 에이전트의 성경이다. UI 구현 전 반드시 참조.
-> 시각 디테일(색상 Hex, 폰트 규격, 아이콘 매핑)의 정본은 `brand-assets/README.md`이며, 이 문서는 "어떻게 적용하는가"에 집중한다.
+> Artisan 에이전트가 참조할 시각적 표준과 인터랙션 규칙.
+> 색상 Hex, 폰트 규격, 아이콘 매핑 등 시각 디테일의 정본은 `brand-assets/README.md`이다.
 
 ---
 
-## 1. Brand Identity
+## 0. Creed
 
-| 속성 | 값 |
-|------|-----|
-| **브랜드명** | WhipUp (윕업) |
-| **핵심 감성** | 따뜻함 · 즐거움 · 창의성 |
-| **금지 어조** | 잔소리, 강요, 복잡함 |
-| **주방 맥락** | 젖은 손, 작은 화면, 소음 속 사용 |
+에이전트는 모든 UI Component를 설계할 때 아래의 신조를 준수해야 한다.
+특히 **'데이터는 보이지 않게, 즐거움은 눈에 띄게'** 원칙에 따라, 복잡한 설정창보다는 직관적인 제스처를 우선 순위에 둬야 한다.
 
----
-
-## 2. Color System
-
-> **정본:** `brand-assets/README.md §2`에 모든 Hex 값이 정의되어 있다.
-> 이 섹션은 색상의 **적용 규칙**을 기술한다.
-
-### 2.1. Core Colors 적용
-
-| Token | 용도 | 적용 위치 |
-|-------|------|----------|
-| `primary` | 주요 액션, 긍정적 피드백 | CTA 버튼, FAB, AppBar, 선택 상태 |
-| `secondary` | 보조 강조, 포인트 | 뱃지, 보조 버튼, 카드 하이라이트 |
-| `surface` | 컨테이너 배경 | 카드, 바텀시트, 다이얼로그 |
-| `error` | 부정적 피드백 | 폼 에러, 시스템 장애 |
-
-### 2.2. Semantic Colors 적용
-
-| Token | 적용 규칙 |
-|-------|----------|
-| `freshGreen` | 유통기한 3일 초과 남은 재고 |
-| `warningAmber` | 유통기한 3일 이내 재고 |
-| `dangerRed` | 유통기한 초과 재고, 삭제 확인 |
-| `info` | 팁, 안내 메시지, science_note |
-
-### 2.3. Recipe Type Badge
-
-- 각 `recipe_type`에 고유 배경색+텍스트색 → `brand-assets §2.4` 참조
-- 뱃지는 `labelSmall` 스타일 + `AppSpacing.xs` 패딩 + 4dp border radius
-
-### 2.4. FlexColorScheme 설정
-
-```dart
-// app_theme.dart
-// Light: FlexScheme.green 기반, seedColor brand-assets §2.1 primary
-// Dark: FlexScheme.green 기반, seedColor brand-assets §2.1 primary (dark)
-// fontFamily: 'Pretendard'
-// useMaterial3: true
-// Semantic Colors → ThemeExtension으로 확장
-```
+1. **데이터는 보이지 않게, 즐거움은 눈에 띄게** — 복잡한 계산, AI 분석 과정 등은 조용히 처리하고 유저는 직관적인 카드와 눈을 즐겁게 하는 애니메이션만 볼 수 있도록 설계.
+2. **레시피는 정답이 아니라, 영감을 위한 악보일 뿐** — 재료의 대체 가능성이나 변주를 제안하여 유저의 창의성을 자극하는 방향으로 설계. 하지만 너무 근본없는 레시피는 화성학을 고려하지 않은 악보와도 같으니 주의할 것.
+3. **가벼운 인터랙션을 지향** — 복잡한 탭이나 텍스트 입력 대신 던지기, 자석처럼 붙이기 등 최소한의 힘과 인지 부하가 드는 인터랙션을 구현.
+4. **모든 기능은 주방의 동선을 닮도록** — 준비된 재료의 배치(미장플라스)부터 완성까지 앱의 화면 흐름이 실제 요리사의 움직임 및 요리 순서와 일치하도록 설계.
+5. **주방의 소음 속에서도 명확한 전달이 되도록** — 주방의 어수선한 환경을 가정하고 폰트 크기, 고대비 UI, 햅틱, 사운드 알림 등 다각적인 피드백을 통해 유저가 정보를 놓치지 않도록 설계.
 
 ---
 
-## 3. Typography
+## 1. Brand Theme
 
-> **정본:** `brand-assets/README.md §3`에 전체 Type Scale이 정의되어 있다.
-> 이 섹션은 타이포그래피의 **적용 규칙**을 기술한다.
+### 1.1. Colors
 
-### 3.1. 서체
+| Token | 값 | 용도 |
+|-------|-----|------|
+| **Hermes Orange** | `#D75F28` | Primary — CTA 버튼, FAB, 앱 바, 핵심 액센트 |
+| **Warm Amber** | `#FFC107` | Secondary — 포인트 강조, 뱃지, 보조 액션 |
+| **Clean Off-White** | `#FFF8F0` | Background — 스캐폴드 배경, 전체 기조 |
 
-- **Primary:** Pretendard (한국어+라틴, OFL 1.1)
+> 전체 Color Palette (Core, Semantic, Badge별 Light/Dark Hex)는 `brand-assets §2` 참조.
+> 하드코딩 금지 — 반드시 `Theme.of(context)` 또는 FlexColorScheme 시멘틱 컬러 사용.
+
+### 1.2. Typography
+
+- **Primary Font:** Pretendard (한국어+라틴, OFL 1.1)
 - **Fallback:** Apple SD Gothic Neo (iOS), Roboto (Android)
 - **파일:** `app/assets/fonts/Pretendard-*.otf`
 
-### 3.2. 적용 규칙
+> Type Scale 상세(Size, Weight, Line Height, Letter Spacing)는 `brand-assets §3.3` 참조.
 
-| 상황 | TextStyle | 비고 |
-|------|-----------|------|
-| 화면 제목 | `titleLarge` (22sp, SemiBold) | AppBar title |
-| 섹션 헤더 | `titleMedium` (18sp, SemiBold) | 카드 내 그룹 헤더 |
-| 조리 단계 | `bodyLarge` (16sp, Regular) | 충분한 가독성 확보 |
-| 일반 본문 | `bodyMedium` (14sp, Regular) | 기본 텍스트 |
-| 버튼 | `labelLarge` (14sp, Medium) | CTA, 텍스트 버튼 |
-| 태그/뱃지 | `labelSmall` (11sp, Medium) | recipe_type, 카테고리 |
-| 히어로 숫자 | `displayMedium` (28sp, Bold) | 재고 수량, 타이머 |
+### 1.3. Iconography
 
-### 3.3. 금지 사항
+- **아이콘 셋:** Material Symbols Rounded
+- **보조:** 식재료 카테고리별 시스템 이모지
 
-- 10sp 미만 텍스트 사용 금지 (주방 가독성)
-- 이탤릭체 금지 (한국어 부적합)
-- 시스템 폰트 직접 지정 금지 (항상 TextTheme 경유)
-- ALL CAPS 영문은 라벨/뱃지에만 허용
+> 아이콘 매핑표 및 크기 규격은 `brand-assets §4` 참조.
 
 ---
 
-## 4. Spacing & Sizing
+## 2. Interaction Rules
+
+### 2.1. Input Strategy
+
+- 텍스트 입력 최소화 — **'필터형 칩'** 중심의 선택형 인터랙션 지향.
+- 카테고리, recipe_type, 난이도 등은 모두 칩/드롭다운으로 선택.
+- 재료명만 텍스트 입력 허용 (자동완성 지원).
+
+### 2.2. Haptic & Animation
+
+| 시나리오 | 햅틱 | 비고 |
+|----------|------|------|
+| 재료 추가 성공 | `lightImpact` | 칩 선택/해제에도 적용 |
+| 레시피 생성 완료 | `mediumImpact` | Lottie 보상 애니메이션 동반 |
+| 즐겨찾기 토글 | `lightImpact` | |
+| 스와이프 삭제 | `heavyImpact` | |
+| 타이머 완료 | `heavyImpact` | 커스텀 사운드 동반 |
+| 에러 발생 | `heavyImpact` | |
+
+- Lottie 기반 보상 애니메이션 및 햅틱 피드백 **필수 적용**.
+- Lottie 사양: 30fps, 100KB 이하, Brand Palette 색상만.
+
+### 2.3. Magnetic Snapping
+
+- 카드를 컨테이너로 이동 시 **자석처럼 붙는 효과** 적용.
+- 재료 카드 → 레시피 재료 슬롯으로 드래그 시, 근접하면 스냅 애니메이션 발동.
+- 스냅 시 `lightImpact` 햅틱.
+
+### 2.4. Visual Cues
+
+| 상태 | 이펙트 | 적용 대상 |
+|------|--------|----------|
+| 유통기한 임박 (3일 이내) | **Burning 효과** — 카드 테두리에 미세한 불꽃/글로우 | IngredientCard |
+| 유통기한 초과 | dangerRed 배경 + Burning 강화 | IngredientCard |
+| 신규 입고 재료 (24h 이내) | **테두리 강조** — primary 색상 펄스 애니메이션 | IngredientCard |
+| AI 레시피 생성 중 | cooking Lottie 로딩 | RecipeScreen |
+
+---
+
+## 3. States UI
+
+### 3.1. Empty State
+
+- **비주얼:** '텅 빈 냉장고' 일러스트 (`empty_fridge` Lottie)
+- **메시지:** 따뜻한 톤 ("냉장고가 텅 비었어요. 장 보고 온 영수증을 찍어볼까요?")
+- **액션 버튼:** 영수증 스캔(Phase 1.2), 직접 추가(Phase 1.0) 강조.
+- **금지:** "재고가 없습니다" 같은 기계적 문구 사용 금지.
+
+### 3.2. Loading State
+
+- 프로젝트 테마를 반영한 **스켈레톤 UI** 적용.
+- AI 레시피 생성은 cooking Lottie 애니메이션 (무한 반복).
+- 스켈레톤 색상: `surfaceVariant` 기반 shimmer 효과.
+
+### 3.3. Error State
+
+- **비주얼:** 'oops_spill' Lottie (무언가 엎질러진 이미지)
+- **메시지:** 따뜻한 톤 ("앗, 뭔가 엎질렀어요. 다시 시도해 볼까요?")
+- **액션:** [다시 시도] 버튼, 필요시 [오프라인 모드] 안내.
+
+---
+
+## 4. Context-Aware Interaction
+
+### 4.1. Hands-Free Accessibility
+
+- 요리 중에는 화면 터치가 어려움.
+- 모든 조리 가이드 단계에는 음성 명령(다음, 이전) 외에도 시각적으로 멀리서도 잘 보이는 **'High-Contrast Step-Indicator'** 를 적용.
+- Step-Indicator: 현재 단계를 크고 굵은 숫자(`displayLarge`)로 표시, 완료 단계는 primary 색상으로 채움.
+
+### 4.2. Touch-Target Optimization
+
+- 모든 버튼과 인터랙션 영역은 젖은 손이나 장갑 낀 손으로도 조작하기 쉽도록 **최소 48x48dp** 이상의 터치 영역을 확보.
+- 조리 가이드 화면에서는 [이전]/[다음] 버튼을 더 크게 확대 (최소 56x56dp).
+
+### 4.3. Screen Awake Policy
+
+- 조리 가이드(Step-by-Step) 화면 진입 시, 사용자의 별도 설정 없이도 시스템 화면 꺼짐을 자동으로 방지 (**Wakelock**).
+- 조리 가이드 화면에서 벗어나면 Wakelock 자동 해제.
+- `wakelock` Flutter 패키지 활용.
+
+---
+
+## 5. Visual Hierarchy & Information Architecture
+
+### 5.1. Dynamic Font Scaling
+
+- 조리 단계 화면에서는 **텍스트보다 이미지를 강조**하되, 가독성이 필요한 텍스트 정보(분량, 시간)는 이미지 위에 오버레이 하지 않고 **독립적인 영역**을 확보.
+- 분량/시간 정보: `displayMedium` (28sp, Bold) — 한눈에 파악 가능한 크기.
+- 조리 설명: `bodyLarge` (16sp, Regular) — 충분한 가독성.
+
+### 5.2. Grid-based Vatting View
+
+- 조리 전 '손질(Prep)' 단계에서는 필요한 재료가 한눈에 들어오도록 **'Grid-based Vatting View'** 를 제공.
+- 2~3열 그리드, 각 셀에 재료 이모지 + 이름 + 분량.
+- 보유 재료: 체크 표시 + 원래 색상 / 미보유 재료: 흐리게 + "대체 가능" 힌트.
+
+### 5.3. The Kick (Highlight)
+
+- 조리 원리 설명(science_note, tip)은 일반 텍스트와 명확히 구분되는 **'Call-out Box'** 로 표현.
+- Call-out Box 스타일: `info` 색상 배경 + 좌측 4dp 보더 + 전구 아이콘 (`lightbulb_rounded`).
+- 사용자가 놓치지 않게 시각적 포인트를 주되, 본문 흐름을 끊지 않는 인라인 카드 형태.
+
+---
+
+## 6. Micro-Interactions for Motivation
+
+### 6.1. Progressive Rewards
+
+- 조리 단계를 완료할 때마다 상단 진행 바에 미세한 **불꽃 애니메이션**이나 색상 변화를 주어 성취감을 고취.
+- 진행 바: Hermes Orange 그라데이션, 단계 완료 시 `fast` (200ms) 스케일 펄스.
+- 전체 완료 시: `success` Lottie + `mediumImpact` 햅틱.
+
+### 6.2. Ingredient Vanishing Effect
+
+- 재료 소진 제스처(화면 밖으로 던지기) 시, 단순 삭제가 아니라 **'먼지가 되어 사라지는(Dust Effect)'** 애니메이션을 적용하여 '해치웠다'는 쾌감을 극대화.
+- Dust Effect: 카드가 파티클로 분해되며 사라짐 (300ms, easeInOutCubic).
+- 던지기 제스처: 위 또는 좌우로 빠른 스와이프 → 속도 임계값 초과 시 Dust Effect 발동.
+- 되돌리기: Snackbar 5초 (Undo).
+
+### 6.3. Sound Identity
+
+- 중요한 알림(타이머 완료, 유통기한 경보) 시에는 브랜드 테마와 어울리는 **경쾌하고 따뜻한 톤의 커스텀 사운드** 를 사용.
+- 사운드 파일: `app/assets/sounds/` 에 배치.
+- 볼륨: 시스템 알림 볼륨에 연동.
+
+| 이벤트 | 사운드 특성 | 파일 |
+|--------|-----------|------|
+| 타이머 완료 | 맑은 벨 소리, 따뜻한 톤 | `timer_done.wav` |
+| 레시피 완성 | 경쾌한 성공 효과음 | `recipe_complete.wav` |
+| 유통기한 경보 | 부드러운 경고음 | `expiry_alert.wav` |
+
+---
+
+## 7. Responsive & Layout Rules
+
+### 7.1. Breakpoints
+
+| 카테고리 | 너비 | 레이아웃 |
+|---------|------|----------|
+| 소형 폰 | < 360dp | 1열 리스트, 축소 카드 |
+| 일반 폰 | 360~414dp | **기본 디자인 기준** (Portrait) |
+| 대형 폰 | 414~600dp | 레시피 카드 2열 그리드 |
+| 태블릿 | > 600dp | 2패널 레이아웃 (목록 + 상세) |
+
+### 7.2. Landscape Optimization
+
+- 주방에서 태블릿을 가로로 거치하고 요리하는 사용자를 위해, 모든 조리 가이드는 **가로 모드(Landscape) 전용 레이아웃**을 반드시 포함.
+- Landscape 레이아웃: 좌측에 재료 목록/Vatting View, 우측에 현재 조리 단계.
+- Step-Indicator는 가로 모드에서도 대형 폰트로 표시.
+
+### 7.3. Midnight Kitchen Mode
+
+- 밤늦은 시간 야식을 만들거나 어두운 조명 아래에서 요리하는 사용자를 위해, 눈의 피로를 낮추는 **'Midnight Kitchen Mode'** 를 지원.
+- 일반 Dark Mode보다 더 낮은 명도 + 따뜻한 색온도(blue light 감소).
+- 테마 설정: 시스템 / 라이트 / 다크 / **Midnight Kitchen** 4종.
+- Midnight Kitchen 전용 색상은 `brand-assets §2` 에서 정의.
+
+### 7.4. Spacing & Grid
 
 ```dart
 // 8pt 그리드 시스템
@@ -110,118 +227,75 @@ abstract final class AppSpacing {
 | 리스트 아이템 간격 | `sm` (8) |
 | 섹션 사이 간격 | `lg` (24) |
 | 화면 좌우 여백 | `md` (16) |
-| 아이콘-텍스트 간격 | `sm` (8) |
-| 칩 내부 패딩 | `xs` (4) 수직, `sm` (8) 수평 |
 
 ---
 
-## 5. Interaction Principles
+## 8. Common UI Atoms
 
-### 5.1. 주방 친화적 UI 원칙
+### 8.1. Ingredient Card
 
-| 규칙 | 기준 | 이유 |
-|------|------|------|
-| **터치 영역** | 최소 48x48dp | 젖은 손 고려 |
-| **텍스트 크기** | 최소 14sp | 조리 중 가독성 |
-| **색 대비** | WCAG AA 이상 | 주방 조명 변수 |
-| **애니메이션** | 200~350ms | 빠른 응답감 |
+- 상태(신선도), 수량, 카테고리 이모지를 포함한 일관된 카드 규격.
+- Burning 효과 (유통기한 임박), 테두리 강조 (신규 입고) 적용.
+- 스와이프 삭제 → Dust Effect 또는 일반 슬라이드.
+- 스타일 상세 → `design_system.md §2.4` Visual Cues 참조.
 
-### 5.2. 햅틱 피드백
+### 8.2. Action Chip
 
-| 시나리오 | 햅틱 타입 |
-|----------|----------|
-| 재료 추가 성공 | `HapticFeedback.lightImpact()` |
-| 레시피 생성 완료 | `HapticFeedback.mediumImpact()` |
-| 즐겨찾기 토글 | `HapticFeedback.lightImpact()` |
-| 스와이프 삭제 실행 | `HapticFeedback.heavyImpact()` |
-| 오류 발생 | `HapticFeedback.heavyImpact()` |
+- 선택/취소 시의 모션: `fast` (200ms) Scale up/down.
+- 선택 상태: primary 색상 배경 + `onPrimary` 텍스트.
+- 미선택 상태: `surfaceVariant` 배경 + `onSurface` 텍스트.
+- 선택 시 `lightImpact` 햅틱.
 
-### 5.3. 전환 속도 토큰
+### 8.3. Primary Button
 
-| 토큰 | Duration | Curve | 용도 |
-|------|----------|-------|------|
-| `instant` | 100ms | `easeOut` | 탭 피드백, 색상 변경 |
-| `fast` | 200ms | `easeInOut` | 페이드, 스케일, 탭 전환 |
-| `normal` | 300ms | `easeInOutCubic` | 페이지 전환, 바텀시트 |
-| `slow` | 500ms | `easeInOutCubic` | 온보딩, 히어로 애니메이션 |
+- **Hermes Orange** (`#D75F28`)를 사용.
+- 'whipup' 다운 역동적인 라운드 값: **border radius 16dp**.
+- 최소 높이: 48dp, 최소 너비: 화면 너비 - 좌우 `md` * 2 (Full-width 기본).
+- 텍스트: `labelLarge` (14sp, Medium), `onPrimary` 색상.
+- Press 효과: `instant` (100ms) 살짝 어두워짐 + `lightImpact`.
 
-### 5.4. Lottie 애니메이션
+### 8.4. Recipe Type Badge
 
-| 상황 | 파일 | 재생 |
-|------|------|------|
-| 레시피 로딩 | `assets/lottie/cooking.json` | 무한 반복 |
-| 빈 재고 | `assets/lottie/empty_fridge.json` | 무한 반복 |
-| 성공 | `assets/lottie/success.json` | 1회 재생 |
+- 각 `recipe_type`에 고유 배경색+텍스트색 → `brand-assets §2.4` 참조.
+- 스타일: `labelSmall` + `xs` 수직 / `sm` 수평 패딩 + 4dp border radius.
 
-> 사양: 30fps, 100KB 이하, Brand Palette 색상만. 상세 → `brand-assets §6.2`
+### 8.5. Call-out Box (The Kick)
+
+- 배경: `info` 색상 10% opacity.
+- 좌측 보더: 4dp, `info` 색상 100%.
+- 아이콘: `lightbulb_rounded`, 18dp.
+- 텍스트: `bodyMedium`.
 
 ---
 
-## 6. Component Guidelines
+## 9. Developer Experience
 
-> 위젯의 **시각적 규칙**을 정의한다. 레이아웃 배치와 화면 구성은 `screen_layout.md` 참조.
+### 9.1. Widget Splitting
 
-### 6.1. 재료 카드 (IngredientCard)
+- 하나의 파일에 모든 UI를 작성하지 말 것.
+- `widgets/` 폴더 내에 기능 단위로 위젯을 잘게 분리하여 가독성과 재사용성을 높여야 함.
+- 한 위젯 파일의 최대 권장 라인: 200줄.
 
-- Leading: 카테고리 이모지 (`brand-assets §4.4`)
-- Title: 재료명 (`titleSmall`)
-- Subtitle: 수량 + 단위 (`bodyMedium`)
-- Trailing: 유통기한 상태 뱃지 (Semantic Color 적용)
-- 스와이프: 왼쪽 → 삭제 (`dangerRed` 배경, `HapticFeedback.heavyImpact`)
+### 9.2. Lottie Pre-loading
 
-### 6.2. 레시피 카드 (RecipeCard)
+- 보상 애니메이션은 실제 트리거 시점에 지연이 없도록 미리 로드하거나 캐싱 전략을 고려하여 코드를 작성할 것.
+- `Lottie.asset()` 대신 `LottieBuilder`의 `frameBuilder` 활용 또는 Provider에서 사전 로드.
 
-- 썸네일: 이미지 또는 대표 이모지 (64dp)
-- RecipeTypeBadge: 좌상단, `brand-assets §2.4` 색상
-- Title: 레시피명 (`titleMedium`)
-- Info Row: 조리시간 (`timer_rounded` + 분) + 난이도 인디케이터
-- 탭: 레시피 상세 화면으로 이동
+### 9.3. Strict Theme Binding
 
-### 6.3. 조리 단계 위젯 (CookingStepItem)
+- `Colors.orange` 같은 하드코딩 대신 반드시 `Theme.of(context).colorScheme.primary` 또는 FlexColorScheme에 정의된 시멘틱 컬러를 참조할 것.
+- 커스텀 시멘틱 컬러는 `ThemeExtension`으로 정의 (`lib/theme/app_colors.dart`).
 
-- 단계 번호: `displayMedium`, `primary` 색상, 원형 배경
-- Phase 라벨: `labelSmall`, `primaryContainer` 배경
-- 설명: `bodyLarge` (가독성 최우선)
-- 타이머 버튼: `duration_seconds`가 있을 경우만 표시 (`timer_rounded`)
-- Tip 영역: `info` 색상 배경, `bodySmall`
+### 9.4. Animation Constants
 
-### 6.4. 칼럼 카드 (ColumnCard)
+- 모든 Duration/Curve 값은 상수로 정의하여 일관성 유지.
 
-- Leading: `thumbnailEmoji` (`displayLarge`)
-- Title: 제목 (`titleMedium`)
-- Subtitle: 부제 (`bodySmall`)
-- Footer: 카테고리 칩 + 읽기 시간
-
-### 6.5. 공용 위젯
-
-| 위젯 | 역할 |
-|------|------|
-| `WhipUpButton` | Primary / Secondary / Text 3종 버튼 |
-| `ExpiryBadge` | 유통기한 상태 표시 (fresh/warning/danger) |
-| `CategoryChip` | 카테고리 필터 칩 (이모지 포함) |
-| `ErrorStateWidget` | 에러 Lottie + 메시지 + 재시도 버튼 |
-| `EmptyStateWidget` | 빈 상태 Lottie + 안내 메시지 |
-
----
-
-## 7. Accessibility
-
-| 규칙 | 기준 |
-|------|------|
-| 모든 아이콘/이미지에 `semanticLabel` | 필수 |
-| 색상만으로 정보 전달 | 금지 (아이콘/텍스트 병행) |
-| 최소 터치 영역 | 48x48dp |
-| 다국어 | slang 패키지, 한국어 우선 |
-
----
-
-## 8. Theme File Structure (Artisan)
-
-```
-app/lib/theme/
-├── app_theme.dart          # ThemeData (Light/Dark) + FlexColorScheme
-├── app_colors.dart         # Semantic Colors → ThemeExtension
-├── app_typography.dart     # Type Scale 커스텀 (brand-assets §3.3 기준)
-├── app_spacing.dart        # 8pt Grid 상수
-└── app_shadows.dart        # Elevation 토큰
+```dart
+// lib/theme/app_motion.dart
+abstract final class AppMotion {
+  static const instant = Duration(milliseconds: 100);  // easeOut
+  static const fast    = Duration(milliseconds: 200);  // easeInOut
+  static const normal  = Duration(milliseconds: 300);  // easeInOutCubic
+  static const slow    = Duration(milliseconds: 500);  // easeInOutCubic
+}
 ```
