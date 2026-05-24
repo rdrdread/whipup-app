@@ -25,7 +25,7 @@
 
 | Token | 값 | 용도 |
 |-------|-----|------|
-| **Hermes Orange** | `#D75F28` | Primary — CTA 버튼, FAB, 앱 바, 핵심 액센트 |
+| **Flame Orange** | `#F04E23` | Primary — CTA 버튼, FAB, 앱 바, 핵심 액센트 |
 | **Warm Amber** | `#FFC107` | Secondary — 포인트 강조, 뱃지, 보조 액션 |
 | **Clean Off-White** | `#FFF8F0` | Background — 스캐폴드 배경, 전체 기조 |
 
@@ -298,6 +298,7 @@
 - **보조:** 식재료 카테고리별 이모지 — **Twemoji (Twitter Emoji)** SVG 렌더링
 - **이모지 일관성:** 시스템 이모지 대신 Twemoji를 사용하여 iOS/Android/Web 간 동일한 형태를 보장. 플랫폼별 이모지 디자인 차이를 방지.
 - **Flutter 적용:** `flutter_twemoji` 패키지 또는 Twemoji SVG 에셋 번들 (`app/assets/emoji/`)
+- **커스텀 전환 대비:** 이모지 렌더링을 `EmojiWidget` 단일 컴포넌트로 추상화. 정식 출시 시 커스텀 에셋으로 교체할 때 경로만 변경하면 전환 가능하도록 설계.
 
 > 아이콘 매핑표, 이모지 매핑, 크기 규격은 `brand-assets §4` 참조.
 
@@ -519,7 +520,7 @@ abstract final class AppSpacing {
 
 ### 8.3. Primary Button
 
-- **Hermes Orange** (`#D75F28`)를 사용.
+- **Flame Orange** (`#F04E23`)를 사용.
 - 'whipup' 다운 역동적인 라운드 값: **border radius 16dp**.
 - 최소 높이: 48dp, 최소 너비: 화면 너비 - 좌우 `md` * 2 (Full-width 기본).
 - **내부 여백:** 좌우 `lg` (24dp), 상하 `md` (16dp) — 텍스트가 윤곽에 꽉 차지 않도록 충분한 breathing room 확보.

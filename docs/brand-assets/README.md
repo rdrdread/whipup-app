@@ -12,7 +12,7 @@
 | 속성 | 값 |
 |------|-----|
 | **형태** | Rounded Square (iOS Superellipse / Android Adaptive) |
-| **배경색** | `#D75F28` (Hermes Orange) |
+| **배경색** | `#F04E23` (Flame Orange) |
 | **전경** | 화이트 미니멀 냄비 + 증기 아이콘 |
 | **최소 크기** | 48x48dp (아이콘이 뭉개지지 않는 최소 크기) |
 
@@ -55,9 +55,9 @@ docs/brand-assets/
 
 | Token | Hex (Light) | Hex (Dark) | 용도 |
 |-------|-------------|------------|------|
-| `primary` (Hermes Orange) | `#D75F28` | `#E8845A` | CTA 버튼, 주요 액션, 앱 바, FAB |
+| `primary` (Flame Orange) | `#F04E23` | `#F47A5C` | CTA 버튼, 주요 액션, 앱 바, FAB |
 | `onPrimary` | `#FFFFFF` | `#3E1A08` | primary 위 텍스트/아이콘 |
-| `primaryContainer` | `#FDDCC8` | `#8B3A14` | 선택된 상태, 칩 배경 |
+| `primaryContainer` | `#FDD0C0` | `#8B3A14` | 선택된 상태, 칩 배경 |
 | `secondary` (Warm Amber) | `#FFC107` | `#FFD54F` | 포인트 강조, 뱃지, 보조 CTA |
 | `onSecondary` | `#3E2723` | `#3E2723` | secondary 위 텍스트/아이콘 |
 | `secondaryContainer` | `#FFF0C2` | `#7B5800` | 강조 카드 배경 |
@@ -197,6 +197,7 @@ docs/brand-assets/
 > **렌더링 방식:** Twemoji (Twitter Emoji) SVG 사용. 시스템 이모지 대신 Twemoji를 적용하여 iOS/Android/Web 모든 플랫폼에서 동일한 형태로 표시.
 > **이유:** 시스템 이모지는 iOS(Apple Emoji), Android(Noto Emoji), Windows(Segoe Emoji) 등 플랫폼별로 디자인이 상이하여 브랜드 일관성이 떨어짐.
 > **Flutter 적용:** `flutter_twemoji` 패키지 또는 Twemoji SVG 에셋을 `app/assets/emoji/` 에 번들하여 사용.
+> **향후 계획:** 정식 출시 시 Twemoji를 WhipUp 커스텀 이모지로 교체 예정. 교체가 용이하도록 이모지 렌더링을 `EmojiWidget` 단일 컴포넌트로 추상화하여 에셋 경로만 변경하면 전환 가능하도록 설계.
 
 | 카테고리 | 이모지 | 영문 키 |
 |---------|--------|---------|
@@ -220,17 +221,11 @@ docs/brand-assets/
 | 팬트리 | 📦 | `pantry` |
 | 양념 서랍장 | 🧂 | `drawer` |
 
-### 4.6. 컬러 대안 (비비드 오렌지)
+### 4.6. 컬러 변경 이력
 
-> Hermes Orange(`#D75F28`)가 일부 Android 디바이스에서 채도가 낮게 렌더링될 수 있음. 아래 대안 검토 후 확정.
-
-| 이름 | Hex | 특성 |
-|------|-----|------|
-| **Hermes Orange** (현재) | `#D75F28` | 따뜻하고 깊은 오렌지 |
-| Deep Orange | `#FF5722` | Material Design 표준, 높은 채도 |
-| Flame | `#F04E23` | 붉은 기운의 비비드 오렌지 |
-| Electric Orange | `#FF6B35` | 밝고 경쾌한 비비드 오렌지 |
-| Vivid Persimmon | `#E8530E` | 감 색상, 깊으면서 선명 |
+| 일자 | 변경 전 | 변경 후 | 사유 |
+|------|--------|--------|------|
+| 2025.05.24 | Hermes Orange `#D75F28` | **Flame Orange `#F04E23`** | Android 디바이스에서 채도 저하 현상. 더 비비드한 오렌지로 변경 |
 
 ---
 
