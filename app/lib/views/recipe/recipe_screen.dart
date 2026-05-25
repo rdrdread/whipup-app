@@ -73,10 +73,8 @@ class RecipeScreen extends ConsumerWidget {
 class _IngredientSelectionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final stockAsync = ref.watch(filteredStockProvider);
-    final selectedItems = ref.watch(selectedIngredientsProvider);
 
     return stockAsync.when(
       data: (allItems) {
@@ -128,49 +126,48 @@ class _IngredientSelectionView extends ConsumerWidget {
         final grouped = _groupByCategory(allItems);
 
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.zero,
           children: [
             // ─── 선택 헤더 ──────────────────────────────────────────
-            Row(
-              children: [
-                Text(
-                  '📦 재료 선택',
-                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: selectedItems.length == allItems.length
-                      ? () => ref
-                          .read(selectedIngredientsProvider.notifier)
-                          .clearAll()
-                      : () => ref
-                          .read(selectedIngredientsProvider.notifier)
-                          .selectAll(allItems),
-                  style: TextButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: Row(
+                children: [
+                  Text(
+                    '📦 재료 선택',
+                    style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                   ),
-                  child: Text(
-                    selectedItems.length == allItems.length ? '모두 해제' : '모두 선택',
-                    style: tt.labelSmall?.copyWith(color: cs.primary),
+                  const Spacer(),
+                  _SelectButton(
+                    label: '모두 선택',
+                    onTap: () => ref
+                        .read(selectedIngredientsProvider.notifier)
+                        .selectAll(allItems),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  _SelectButton(
+                    label: '모두 해제',
+                    onTap: () => ref
+                        .read(selectedIngredientsProvider.notifier)
+                        .clearAll(),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
 
-            // ─── 카테고리별 재료 칩 ─────────────────────────────────
+            // ─── 카테고리별 재료 칩 (가로 스크롤) ──────────────────
             ...grouped.entries.map((entry) => _CategorySection(
                   category: entry.key,
                   items: entry.value,
                 )),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // ─── 옵션 (접이식) ───────────────────────────────────────
-            const _RecipeOptionsPanel(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: const _RecipeOptionsPanel(),
+            ),
 
             const SizedBox(height: 80),
           ],
@@ -210,20 +207,31 @@ class _CategorySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          category,
-          style: tt.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: cs.onSurfaceVariant,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            category,
+            style: tt.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: cs.onSurfaceVariant,
+            ),
           ),
         ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: items.map((item) => _IngredientChip(item: item)).toList(),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: 38,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            children: items
+                .map((item) => Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: _IngredientChip(item: item),
+                    ))
+                .toList(),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -446,6 +454,42 @@ class _OptionRow extends StatelessWidget {
           const SizedBox(width: 4),
           Icon(Icons.expand_more_rounded, size: 18, color: cs.primary),
         ],
+      ),
+    );
+  }
+}
+
+// ─── 선택 버튼 ──────────────────────────────────────────────────────────────────
+
+class _SelectButton extends StatelessWidget {
+  const _SelectButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.12),
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Color(0x992C2C2C),
+          ),
+        ),
       ),
     );
   }
