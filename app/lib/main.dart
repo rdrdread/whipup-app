@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whipup/providers/app_settings_providers.dart';
 import 'package:whipup/router/app_router.dart';
 import 'package:whipup/theme/app_theme.dart';
 
@@ -29,17 +30,21 @@ void main() async {
 ///
 /// [ProviderScope]를 통해 Riverpod 상태를 주입하며,
 /// [GoRouter]를 사용한 선언적 라우팅을 구성한다.
-class WhipUpApp extends StatelessWidget {
+/// [ThemeModeNotifier]를 통해 테마 모드를 동적으로 제어한다.
+class WhipUpApp extends ConsumerWidget {
   const WhipUpApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeModeAsync = ref.watch(themeModeProvider);
+    final themeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
+
     return MaterialApp.router(
       title: 'WhipUp',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: appRouter,
     );
   }
