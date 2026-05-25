@@ -176,7 +176,7 @@ class CookingStepItem extends StatelessWidget {
   }
 
   String _formatDuration(int seconds) {
-    if (seconds < 60) return '${seconds}초';
+    if (seconds < 60) return '$seconds초';
     final minutes = seconds ~/ 60;
     final remaining = seconds % 60;
     if (remaining == 0) return '$minutes분';

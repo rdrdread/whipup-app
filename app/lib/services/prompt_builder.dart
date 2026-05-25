@@ -39,7 +39,7 @@ class PromptBuilder {
 $ingredientList
 
 ## 조건:
-- 인분 수: ${servings}인분
+- 인분 수: $servings인분
 - $typeConstraint
 - $difficultyConstraint
 - 7단계 조리 구조(prep→heat→base→main→season→finish→plate)를 반드시 포함할 것

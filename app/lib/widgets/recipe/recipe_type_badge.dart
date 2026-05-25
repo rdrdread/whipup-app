@@ -35,7 +35,6 @@ class RecipeTypeBadge extends StatelessWidget {
   }
 
   (Color, Color) _colors(BuildContext context, RecipeType type) {
-    final cs = Theme.of(context).colorScheme;
     return switch (type) {
       RecipeType.main => (const Color(0xFFFFEBEE), const Color(0xFFE53935)),
       RecipeType.soup => (const Color(0xFFE3F2FD), const Color(0xFF1E88E5)),

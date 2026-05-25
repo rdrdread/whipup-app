@@ -63,7 +63,7 @@ class ReceiptParser {
     final unit = quantityMatch?.group(2);
 
     // 재료명 정제
-    var name = cleaned
+    final name = cleaned
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(RegExp(r'[^\가-힣a-zA-Z\s]'), '')
         .trim();

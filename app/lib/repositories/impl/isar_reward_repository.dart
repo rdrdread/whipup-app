@@ -13,6 +13,7 @@ import 'isar_reward_stats.dart';
 ///
 /// 업적 달성 상태와 활동 통계를 Isar에 영속화한다.
 class IsarRewardRepository implements RewardRepository {
+  // ignore: prefer_initializing_formals
   IsarRewardRepository({
     required Isar isar,
     required RewardTriggerService triggerService,

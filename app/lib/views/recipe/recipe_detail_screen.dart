@@ -99,14 +99,13 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
               final repo =
                   await ref.read(recipeRepositoryProvider.future);
               await repo.toggleFavorite(recipe.id);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('즐겨찾기에 추가되었습니다!'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('즐겨찾기에 추가되었습니다!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
             },
           ),
         ],
@@ -242,7 +241,7 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
               width: double.infinity,
               height: 52,
               child: FilledButton(
-                onPressed: () => _onRecipeCompleted(context),
+                onPressed: _onRecipeCompleted,
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -286,26 +285,24 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
     );
   }
 
-  Future<void> _onRecipeCompleted(BuildContext context) async {
+  Future<void> _onRecipeCompleted() async {
     HapticFeedback.mediumImpact();
     setState(() => _isCompleted = true);
 
     // 레시피 완료 이벤트 → Reward 처리
-    final newAchievements = await handleRecipeCompleted(
+    await handleRecipeCompleted(
       ref,
       widget.recipe.id,
       widget.recipe.recipeType.name,
     );
 
     // 새로 달성된 업적 팝업 표시
-    if (mounted) {
-      final pending = ref.read(newlyUnlockedAchievementsProvider);
-      for (final achievement in pending) {
-        if (mounted) {
-          await AchievementUnlockDialog.show(context, achievement);
-        }
-      }
-      ref.read(newlyUnlockedAchievementsProvider.notifier).clear();
+    if (!mounted) return;
+    final pending = ref.read(newlyUnlockedAchievementsProvider);
+    for (final achievement in pending) {
+      if (!mounted) break;
+      await AchievementUnlockDialog.show(context, achievement);
     }
+    ref.read(newlyUnlockedAchievementsProvider.notifier).clear();
   }
 }

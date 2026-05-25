@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:whipup/models/ocr_result.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_item.dart';
-import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/ocr_service.dart';
 import 'package:whipup/services/receipt_parser.dart';

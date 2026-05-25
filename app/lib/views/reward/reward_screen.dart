@@ -51,7 +51,6 @@ class _RewardScreenState extends ConsumerState<RewardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final statsAsync = ref.watch(rewardStatsProvider);
     final achievementsAsync = ref.watch(achievementsProvider);

@@ -10,6 +10,7 @@ import 'package:whipup/core/result.dart';
 ///
 /// 설정: `docs/core/product_map.md §7.1`
 class GeminiService {
+  // ignore: prefer_initializing_formals
   GeminiService({
     required Dio dio,
     required FlutterSecureStorage storage,

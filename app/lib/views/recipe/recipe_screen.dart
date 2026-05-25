@@ -7,7 +7,6 @@ import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/widgets/recipe/recipe_card.dart';
-import 'package:whipup/widgets/stock/empty_state_widget.dart';
 
 /// 레시피 추천 화면 (Phase 1.1).
 ///
@@ -18,7 +17,6 @@ class RecipeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final generatorState = ref.watch(recipeGeneratorProvider);
     final selectedItems = ref.watch(selectedIngredientsProvider);
@@ -79,7 +77,6 @@ class _IngredientSelectionView extends ConsumerWidget {
     final tt = Theme.of(context).textTheme;
     final stockAsync = ref.watch(filteredStockProvider);
     final selectedItems = ref.watch(selectedIngredientsProvider);
-    final options = ref.watch(recipeOptionsProvider);
 
     return stockAsync.when(
       data: (allItems) {
@@ -599,7 +596,6 @@ class _RecipeResultView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recipe = ref.watch(recipeGeneratorProvider).asData?.value;
     final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
 
     if (recipe == null) return const SizedBox.shrink();
 

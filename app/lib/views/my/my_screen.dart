@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/providers/reward_providers.dart';
@@ -72,7 +72,7 @@ class MyScreen extends ConsumerWidget {
                           '냉장고 속 재료로 즐거운 요리!',
                           style: tt.bodySmall,
                         ),
-                        error: (_, __) => const SizedBox.shrink(),
+                        error: (e, _) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
@@ -112,7 +112,7 @@ class MyScreen extends ConsumerWidget {
               ),
             ),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (e, _) => const SizedBox.shrink(),
           ),
 
           const SizedBox(height: 16),

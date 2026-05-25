@@ -55,9 +55,11 @@ class VoiceInputService {
             onResult(result.recognizedWords);
           }
         },
-        localeId: locale,
-        listenMode: ListenMode.dictation,
-        partialResults: true,
+        listenOptions: SpeechListenOptions(
+          localeId: locale,
+          listenMode: ListenMode.dictation,
+          partialResults: true,
+        ),
       );
       return const Result.success(null);
     } catch (e) {

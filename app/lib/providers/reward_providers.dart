@@ -17,8 +17,8 @@ part 'reward_providers.g.dart';
 @Riverpod(keepAlive: true)
 Future<RewardRepository> rewardRepository(Ref ref) async {
   final isar = await ref.watch(isarDbProvider.future);
-  final trigger = RewardTriggerService(
-    repository: const _LazyRewardRepository(),
+  const trigger = RewardTriggerService(
+    repository: _LazyRewardRepository(),
   );
   return IsarRewardRepository(isar: isar, triggerService: trigger);
 }
