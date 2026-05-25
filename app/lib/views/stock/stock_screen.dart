@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,7 +39,7 @@ class _StockScreenState extends ConsumerState<StockScreen>
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         ref
-            .read(stockFilterNotifierProvider.notifier)
+            .read(stockFilterProvider.notifier)
             .setStorageLocation(_tabs[_tabController.index]);
       }
     });
@@ -147,7 +147,7 @@ class _StockTabContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filter = ref.watch(stockFilterNotifierProvider);
+    final filter = ref.watch(stockFilterProvider);
     final isCurrentTab = filter.storageLocation == storageLocation;
 
     final effectiveFilter = StockFilter(
@@ -164,12 +164,12 @@ class _StockTabContent extends ConsumerWidget {
           selectedCategory: isCurrentTab ? filter.category : null,
           onCategoryTap: isCurrentTab
               ? (cat) => ref
-                  .read(stockFilterNotifierProvider.notifier)
+                  .read(stockFilterProvider.notifier)
                   .toggleCategory(cat!)
               : (_) {},
           onAllTap: isCurrentTab
               ? () => ref
-                  .read(stockFilterNotifierProvider.notifier)
+                  .read(stockFilterProvider.notifier)
                   .clearCategory()
               : () {},
         ),
@@ -180,7 +180,7 @@ class _StockTabContent extends ConsumerWidget {
           ascending: isCurrentTab ? filter.sortAscending : false,
           onSortChanged: isCurrentTab
               ? (sort) => ref
-                  .read(stockFilterNotifierProvider.notifier)
+                  .read(stockFilterProvider.notifier)
                   .setSortBy(sort)
               : (_) {},
         ),

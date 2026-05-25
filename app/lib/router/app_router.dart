@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whipup/views/camera/camera_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
+import 'package:whipup/views/recipe/recipe_detail_screen.dart';
 import 'package:whipup/views/recipe/recipe_screen.dart';
+import 'package:whipup/views/reward/reward_screen.dart';
 import 'package:whipup/views/stock/stock_add_screen.dart';
 import 'package:whipup/views/stock/stock_screen.dart';
+import 'package:whipup/views/voice/voice_screen.dart';
 
 /// WhipUp 앱 라우터.
 ///
@@ -39,14 +43,12 @@ final appRouter = GoRouter(
       ],
     ),
 
-    // ─── 전체 화면 (Shell 외부) ───────────────────────────────────────────
+    // ─── 재고 관련 ───────────────────────────────────────────────────────
     GoRoute(
       path: '/stock/add',
       builder: (context, state) {
         final location = state.uri.queryParameters['location'];
-        return StockAddScreen(
-          initialStorageLocationName: location,
-        );
+        return StockAddScreen(initialStorageLocationName: location);
       },
     ),
     GoRoute(
@@ -55,6 +57,41 @@ final appRouter = GoRouter(
         final id = int.tryParse(state.pathParameters['id'] ?? '');
         return StockAddScreen(itemId: id);
       },
+    ),
+
+    // ─── 레시피 관련 (Phase 1.1) ─────────────────────────────────────────
+    GoRoute(
+      path: '/recipe/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return RecipeDetailScreen(recipeId: id);
+      },
+    ),
+    GoRoute(
+      path: '/recipe/favorites',
+      builder: (context, state) => const RecipeScreen(),
+    ),
+
+    // ─── 카메라 OCR (Phase 1.2) ──────────────────────────────────────────
+    GoRoute(
+      path: '/camera',
+      builder: (context, state) => const CameraScreen(),
+    ),
+
+    // ─── 음성 입력 (Phase 1.3) ───────────────────────────────────────────
+    GoRoute(
+      path: '/voice',
+      builder: (context, state) => const VoiceScreen(),
+    ),
+
+    // ─── 마이 하위 화면 ──────────────────────────────────────────────────
+    GoRoute(
+      path: '/my/reward',
+      builder: (context, state) => const RewardScreen(),
+    ),
+    GoRoute(
+      path: '/my/settings',
+      builder: (context, state) => const _SettingsPlaceholder(),
     ),
   ],
 );
@@ -106,7 +143,7 @@ class _MainShell extends StatelessWidget {
     if (location.startsWith('/stock')) return 1;
     if (location.startsWith('/recipe')) return 2;
     if (location.startsWith('/my')) return 3;
-    return 0; // /home
+    return 0;
   }
 
   void _onTabTapped(BuildContext context, int index) {
@@ -121,5 +158,19 @@ class _MainShell extends StatelessWidget {
       case 3:
         context.go('/my');
     }
+  }
+}
+
+// ─── 설정 플레이스홀더 ─────────────────────────────────────────────────────────
+
+class _SettingsPlaceholder extends StatelessWidget {
+  const _SettingsPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('설정')),
+      body: const Center(child: Text('설정 화면 - 준비 중')),
+    );
   }
 }

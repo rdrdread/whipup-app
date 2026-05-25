@@ -1,8 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  plugins:
-    - custom_lint
+  # plugins:
+  #   - custom_lint  # analyzer_plugin 버전 충돌로 임시 비활성화
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"

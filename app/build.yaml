@@ -1,0 +1,33 @@
+# build_runner가 isar_*.dart를 처리하지 않도록 제외
+# isar_*.g.dart는 tools/isar_codegen에서 별도 생성
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          exclude:
+            - lib/repositories/impl/isar_stock_item.dart
+            - lib/repositories/impl/isar_cached_recipe.dart
+            - lib/repositories/impl/isar_achievement.dart
+            - lib/repositories/impl/isar_reward_stats.dart
+      json_serializable:
+        generate_for:
+          exclude:
+            - lib/repositories/impl/isar_stock_item.dart
+            - lib/repositories/impl/isar_cached_recipe.dart
+            - lib/repositories/impl/isar_achievement.dart
+            - lib/repositories/impl/isar_reward_stats.dart
+      riverpod_generator:
+        generate_for:
+          exclude:
+            - lib/repositories/impl/isar_stock_item.dart
+            - lib/repositories/impl/isar_cached_recipe.dart
+            - lib/repositories/impl/isar_achievement.dart
+            - lib/repositories/impl/isar_reward_stats.dart
+      source_gen|combining_builder:
+        generate_for:
+          exclude:
+            - lib/repositories/impl/isar_stock_item.dart
+            - lib/repositories/impl/isar_cached_recipe.dart
+            - lib/repositories/impl/isar_achievement.dart
+            - lib/repositories/impl/isar_reward_stats.dart

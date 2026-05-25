@@ -7,6 +7,8 @@ app/build/
 app/pubspec.lock
 *.g.dart
 *.freezed.dart
+# Isar 스키마 파일은 isar_generator 없이도 빌드되도록 예외 처리
+!app/lib/repositories/impl/isar_stock_item.g.dart
 
 # ─── IDE ───────────────────────────────────────────────
 .idea/

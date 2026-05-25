@@ -72,8 +72,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
   }
 
   Future<void> _loadExistingItem() async {
-    final repositoryAsync = ref.read(stockRepositoryProvider);
-    final repository = await repositoryAsync.future;
+    final repository = await ref.read(stockRepositoryProvider.future);
     final result = await repository.getById(widget.itemId!);
     result.when(
       success: (item) {
@@ -185,8 +184,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final repositoryAsync = ref.read(stockRepositoryProvider);
-      final repository = await repositoryAsync.future;
+      final repository = await ref.read(stockRepositoryProvider.future);
 
       final item = StockItem(
         id: _existingItem?.id ?? 0,

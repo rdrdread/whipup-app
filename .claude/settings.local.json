@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(gh repo view rdrdread/whipup --json name,url,description,defaultBranchRef 2>&1)",
+      "PowerShell(gh repo *)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(Set-Content *)",
+      "PowerShell(Select-String *)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\rdrdr\\\\whipup\\\\app\\\\lib\" -Recurse -Filter \"*.dart\")",
+      "Bash(Select-Object FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(python3 *)"
+    ]
+  }
+}

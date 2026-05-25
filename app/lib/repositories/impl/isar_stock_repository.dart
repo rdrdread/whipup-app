@@ -112,16 +112,20 @@ class IsarStockRepository implements StockRepository {
   /// 필터 조건을 적용한 Isar 쿼리를 빌드한다.
   QueryBuilder<IsarStockItem, IsarStockItem, QAfterFilterCondition>
       _buildQuery(StockFilter filter) {
-    var query = _isar.isarStockItems.where().filter();
+    // 항상 QAfterFilterCondition을 반환하기 위해 base 조건으로 시작
+    var query = _isar.isarStockItems
+        .where()
+        .filter()
+        .addedAtGreaterThan(DateTime.fromMillisecondsSinceEpoch(0));
 
     // 보관 위치 필터
     if (filter.storageLocation != null) {
-      query = query.storageLocationEqualTo(filter.storageLocation!.name);
+      query = query.and().storageLocationEqualTo(filter.storageLocation!.name);
     }
 
     // 카테고리 필터
     if (filter.category != null) {
-      query = query.categoryEqualTo(filter.category!.name);
+      query = query.and().categoryEqualTo(filter.category!.name);
     }
 
     return query;

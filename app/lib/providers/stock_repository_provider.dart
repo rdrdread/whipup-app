@@ -12,7 +12,7 @@ part 'stock_repository_provider.g.dart';
 ///
 /// 의존성 역전: [StockRepository] 인터페이스에만 의존함.
 @Riverpod(keepAlive: true)
-Future<StockRepository> stockRepository(StockRepositoryRef ref) async {
+Future<StockRepository> stockRepository(Ref ref) async {
   final isar = await ref.watch(isarDbProvider.future);
   return IsarStockRepository(isar);
 }

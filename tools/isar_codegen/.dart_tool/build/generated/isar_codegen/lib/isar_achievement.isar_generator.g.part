@@ -1,0 +1,928 @@
+// **************************************************************************
+// IsarCollectionGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+extension GetIsarAchievementCollection on Isar {
+  IsarCollection<IsarAchievement> get isarAchievements => this.collection();
+}
+
+const IsarAchievementSchema = CollectionSchema(
+  name: r'IsarAchievement',
+  id: 5164514003510116796,
+  properties: {
+    r'achievementId': PropertySchema(
+      id: 0,
+      name: r'achievementId',
+      type: IsarType.string,
+    ),
+    r'unlockedAt': PropertySchema(
+      id: 1,
+      name: r'unlockedAt',
+      type: IsarType.dateTime,
+    )
+  },
+  estimateSize: _isarAchievementEstimateSize,
+  serialize: _isarAchievementSerialize,
+  deserialize: _isarAchievementDeserialize,
+  deserializeProp: _isarAchievementDeserializeProp,
+  idName: r'id',
+  indexes: {
+    r'achievementId': IndexSchema(
+      id: 547487615361511857,
+      name: r'achievementId',
+      unique: true,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'achievementId',
+          type: IndexType.value,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'unlockedAt': IndexSchema(
+      id: -2486051207984852976,
+      name: r'unlockedAt',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'unlockedAt',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
+  links: {},
+  embeddedSchemas: {},
+  getId: _isarAchievementGetId,
+  getLinks: _isarAchievementGetLinks,
+  attach: _isarAchievementAttach,
+  version: '3.1.0+1',
+);
+
+int _isarAchievementEstimateSize(
+  IsarAchievement object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.achievementId.length * 3;
+  return bytesCount;
+}
+
+void _isarAchievementSerialize(
+  IsarAchievement object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeString(offsets[0], object.achievementId);
+  writer.writeDateTime(offsets[1], object.unlockedAt);
+}
+
+IsarAchievement _isarAchievementDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = IsarAchievement();
+  object.achievementId = reader.readString(offsets[0]);
+  object.id = id;
+  object.unlockedAt = reader.readDateTimeOrNull(offsets[1]);
+  return object;
+}
+
+P _isarAchievementDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readString(offset)) as P;
+    case 1:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+Id _isarAchievementGetId(IsarAchievement object) {
+  return object.id;
+}
+
+List<IsarLinkBase<dynamic>> _isarAchievementGetLinks(IsarAchievement object) {
+  return [];
+}
+
+void _isarAchievementAttach(
+    IsarCollection<dynamic> col, Id id, IsarAchievement object) {
+  object.id = id;
+}
+
+extension IsarAchievementByIndex on IsarCollection<IsarAchievement> {
+  Future<IsarAchievement?> getByAchievementId(String achievementId) {
+    return getByIndex(r'achievementId', [achievementId]);
+  }
+
+  IsarAchievement? getByAchievementIdSync(String achievementId) {
+    return getByIndexSync(r'achievementId', [achievementId]);
+  }
+
+  Future<bool> deleteByAchievementId(String achievementId) {
+    return deleteByIndex(r'achievementId', [achievementId]);
+  }
+
+  bool deleteByAchievementIdSync(String achievementId) {
+    return deleteByIndexSync(r'achievementId', [achievementId]);
+  }
+
+  Future<List<IsarAchievement?>> getAllByAchievementId(
+      List<String> achievementIdValues) {
+    final values = achievementIdValues.map((e) => [e]).toList();
+    return getAllByIndex(r'achievementId', values);
+  }
+
+  List<IsarAchievement?> getAllByAchievementIdSync(
+      List<String> achievementIdValues) {
+    final values = achievementIdValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'achievementId', values);
+  }
+
+  Future<int> deleteAllByAchievementId(List<String> achievementIdValues) {
+    final values = achievementIdValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'achievementId', values);
+  }
+
+  int deleteAllByAchievementIdSync(List<String> achievementIdValues) {
+    final values = achievementIdValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'achievementId', values);
+  }
+
+  Future<Id> putByAchievementId(IsarAchievement object) {
+    return putByIndex(r'achievementId', object);
+  }
+
+  Id putByAchievementIdSync(IsarAchievement object, {bool saveLinks = true}) {
+    return putByIndexSync(r'achievementId', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByAchievementId(List<IsarAchievement> objects) {
+    return putAllByIndex(r'achievementId', objects);
+  }
+
+  List<Id> putAllByAchievementIdSync(List<IsarAchievement> objects,
+      {bool saveLinks = true}) {
+    return putAllByIndexSync(r'achievementId', objects, saveLinks: saveLinks);
+  }
+}
+
+extension IsarAchievementQueryWhereSort
+    on QueryBuilder<IsarAchievement, IsarAchievement, QWhere> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhere> anyId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhere>
+      anyAchievementId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'achievementId'),
+      );
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhere> anyUnlockedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'unlockedAt'),
+      );
+    });
+  }
+}
+
+extension IsarAchievementQueryWhere
+    on QueryBuilder<IsarAchievement, IsarAchievement, QWhereClause> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause> idEqualTo(
+      Id id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: id,
+        upper: id,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      idNotEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      idGreaterThan(Id id, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
+      );
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause> idLessThan(
+      Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
+      );
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: lowerId,
+        includeLower: includeLower,
+        upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdEqualTo(String achievementId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'achievementId',
+        value: [achievementId],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdNotEqualTo(String achievementId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'achievementId',
+              lower: [],
+              upper: [achievementId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'achievementId',
+              lower: [achievementId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'achievementId',
+              lower: [achievementId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'achievementId',
+              lower: [],
+              upper: [achievementId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdGreaterThan(
+    String achievementId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'achievementId',
+        lower: [achievementId],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdLessThan(
+    String achievementId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'achievementId',
+        lower: [],
+        upper: [achievementId],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdBetween(
+    String lowerAchievementId,
+    String upperAchievementId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'achievementId',
+        lower: [lowerAchievementId],
+        includeLower: includeLower,
+        upper: [upperAchievementId],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdStartsWith(String AchievementIdPrefix) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'achievementId',
+        lower: [AchievementIdPrefix],
+        upper: ['$AchievementIdPrefix\u{FFFFF}'],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'achievementId',
+        value: [''],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      achievementIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'achievementId',
+              upper: [''],
+            ))
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'achievementId',
+              lower: [''],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'achievementId',
+              lower: [''],
+            ))
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'achievementId',
+              upper: [''],
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'unlockedAt',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'unlockedAt',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtEqualTo(DateTime? unlockedAt) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'unlockedAt',
+        value: [unlockedAt],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtNotEqualTo(DateTime? unlockedAt) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'unlockedAt',
+              lower: [],
+              upper: [unlockedAt],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'unlockedAt',
+              lower: [unlockedAt],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'unlockedAt',
+              lower: [unlockedAt],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'unlockedAt',
+              lower: [],
+              upper: [unlockedAt],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtGreaterThan(
+    DateTime? unlockedAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'unlockedAt',
+        lower: [unlockedAt],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtLessThan(
+    DateTime? unlockedAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'unlockedAt',
+        lower: [],
+        upper: [unlockedAt],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterWhereClause>
+      unlockedAtBetween(
+    DateTime? lowerUnlockedAt,
+    DateTime? upperUnlockedAt, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'unlockedAt',
+        lower: [lowerUnlockedAt],
+        includeLower: includeLower,
+        upper: [upperUnlockedAt],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension IsarAchievementQueryFilter
+    on QueryBuilder<IsarAchievement, IsarAchievement, QFilterCondition> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'achievementId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'achievementId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'achievementId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'achievementId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      achievementIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'achievementId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      idEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      idGreaterThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      idLessThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      idBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'unlockedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'unlockedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unlockedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unlockedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unlockedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterFilterCondition>
+      unlockedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unlockedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension IsarAchievementQueryObject
+    on QueryBuilder<IsarAchievement, IsarAchievement, QFilterCondition> {}
+
+extension IsarAchievementQueryLinks
+    on QueryBuilder<IsarAchievement, IsarAchievement, QFilterCondition> {}
+
+extension IsarAchievementQuerySortBy
+    on QueryBuilder<IsarAchievement, IsarAchievement, QSortBy> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      sortByAchievementId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'achievementId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      sortByAchievementIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'achievementId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      sortByUnlockedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unlockedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      sortByUnlockedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unlockedAt', Sort.desc);
+    });
+  }
+}
+
+extension IsarAchievementQuerySortThenBy
+    on QueryBuilder<IsarAchievement, IsarAchievement, QSortThenBy> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      thenByAchievementId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'achievementId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      thenByAchievementIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'achievementId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy> thenById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy> thenByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      thenByUnlockedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unlockedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QAfterSortBy>
+      thenByUnlockedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unlockedAt', Sort.desc);
+    });
+  }
+}
+
+extension IsarAchievementQueryWhereDistinct
+    on QueryBuilder<IsarAchievement, IsarAchievement, QDistinct> {
+  QueryBuilder<IsarAchievement, IsarAchievement, QDistinct>
+      distinctByAchievementId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'achievementId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<IsarAchievement, IsarAchievement, QDistinct>
+      distinctByUnlockedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unlockedAt');
+    });
+  }
+}
+
+extension IsarAchievementQueryProperty
+    on QueryBuilder<IsarAchievement, IsarAchievement, QQueryProperty> {
+  QueryBuilder<IsarAchievement, int, QQueryOperations> idProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<IsarAchievement, String, QQueryOperations>
+      achievementIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'achievementId');
+    });
+  }
+
+  QueryBuilder<IsarAchievement, DateTime?, QQueryOperations>
+      unlockedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unlockedAt');
+    });
+  }
+}

@@ -8,7 +8,7 @@ part 'stock_filter.freezed.dart';
 /// `stockFilterNotifierProvider`가 이 모델을 상태로 관리한다.
 /// 필터 정의: `docs/features/inventory_management.md §4.3`
 @freezed
-class StockFilter with _$StockFilter {
+abstract class StockFilter with _$StockFilter {
   const factory StockFilter({
     /// 카테고리 필터. null이면 전체 표시.
     StockCategory? category,

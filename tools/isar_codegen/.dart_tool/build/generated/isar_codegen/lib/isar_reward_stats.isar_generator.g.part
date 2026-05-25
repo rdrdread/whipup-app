@@ -1,0 +1,1203 @@
+// **************************************************************************
+// IsarCollectionGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+extension GetIsarRewardStatsCollection on Isar {
+  IsarCollection<IsarRewardStats> get isarRewardStats => this.collection();
+}
+
+const IsarRewardStatsSchema = CollectionSchema(
+  name: r'IsarRewardStats',
+  id: -7540833507347353750,
+  properties: {
+    r'currentStreak': PropertySchema(
+      id: 0,
+      name: r'currentStreak',
+      type: IsarType.long,
+    ),
+    r'lastActivityDate': PropertySchema(
+      id: 1,
+      name: r'lastActivityDate',
+      type: IsarType.dateTime,
+    ),
+    r'longestStreak': PropertySchema(
+      id: 2,
+      name: r'longestStreak',
+      type: IsarType.long,
+    ),
+    r'totalRecipesCompleted': PropertySchema(
+      id: 3,
+      name: r'totalRecipesCompleted',
+      type: IsarType.long,
+    ),
+    r'totalStocksAdded': PropertySchema(
+      id: 4,
+      name: r'totalStocksAdded',
+      type: IsarType.long,
+    ),
+    r'uniqueRecipeTypeValues': PropertySchema(
+      id: 5,
+      name: r'uniqueRecipeTypeValues',
+      type: IsarType.stringList,
+    )
+  },
+  estimateSize: _isarRewardStatsEstimateSize,
+  serialize: _isarRewardStatsSerialize,
+  deserialize: _isarRewardStatsDeserialize,
+  deserializeProp: _isarRewardStatsDeserializeProp,
+  idName: r'id',
+  indexes: {
+    r'lastActivityDate': IndexSchema(
+      id: -1446924324031450609,
+      name: r'lastActivityDate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'lastActivityDate',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
+  links: {},
+  embeddedSchemas: {},
+  getId: _isarRewardStatsGetId,
+  getLinks: _isarRewardStatsGetLinks,
+  attach: _isarRewardStatsAttach,
+  version: '3.1.0+1',
+);
+
+int _isarRewardStatsEstimateSize(
+  IsarRewardStats object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.uniqueRecipeTypeValues.length * 3;
+  {
+    for (var i = 0; i < object.uniqueRecipeTypeValues.length; i++) {
+      final value = object.uniqueRecipeTypeValues[i];
+      bytesCount += value.length * 3;
+    }
+  }
+  return bytesCount;
+}
+
+void _isarRewardStatsSerialize(
+  IsarRewardStats object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeLong(offsets[0], object.currentStreak);
+  writer.writeDateTime(offsets[1], object.lastActivityDate);
+  writer.writeLong(offsets[2], object.longestStreak);
+  writer.writeLong(offsets[3], object.totalRecipesCompleted);
+  writer.writeLong(offsets[4], object.totalStocksAdded);
+  writer.writeStringList(offsets[5], object.uniqueRecipeTypeValues);
+}
+
+IsarRewardStats _isarRewardStatsDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = IsarRewardStats();
+  object.currentStreak = reader.readLong(offsets[0]);
+  object.id = id;
+  object.lastActivityDate = reader.readDateTimeOrNull(offsets[1]);
+  object.longestStreak = reader.readLong(offsets[2]);
+  object.totalRecipesCompleted = reader.readLong(offsets[3]);
+  object.totalStocksAdded = reader.readLong(offsets[4]);
+  object.uniqueRecipeTypeValues = reader.readStringList(offsets[5]) ?? [];
+  return object;
+}
+
+P _isarRewardStatsDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readLong(offset)) as P;
+    case 1:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 2:
+      return (reader.readLong(offset)) as P;
+    case 3:
+      return (reader.readLong(offset)) as P;
+    case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
+      return (reader.readStringList(offset) ?? []) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+Id _isarRewardStatsGetId(IsarRewardStats object) {
+  return object.id;
+}
+
+List<IsarLinkBase<dynamic>> _isarRewardStatsGetLinks(IsarRewardStats object) {
+  return [];
+}
+
+void _isarRewardStatsAttach(
+    IsarCollection<dynamic> col, Id id, IsarRewardStats object) {
+  object.id = id;
+}
+
+extension IsarRewardStatsQueryWhereSort
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QWhere> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhere> anyId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhere>
+      anyLastActivityDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'lastActivityDate'),
+      );
+    });
+  }
+}
+
+extension IsarRewardStatsQueryWhere
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QWhereClause> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause> idEqualTo(
+      Id id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: id,
+        upper: id,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      idNotEqualTo(Id id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
+            .addWhereClause(
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      idGreaterThan(Id id, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause> idLessThan(
+      Id id,
+      {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IdWhereClause.between(
+        lower: lowerId,
+        includeLower: includeLower,
+        upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'lastActivityDate',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'lastActivityDate',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateEqualTo(DateTime? lastActivityDate) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'lastActivityDate',
+        value: [lastActivityDate],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateNotEqualTo(DateTime? lastActivityDate) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'lastActivityDate',
+              lower: [],
+              upper: [lastActivityDate],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'lastActivityDate',
+              lower: [lastActivityDate],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'lastActivityDate',
+              lower: [lastActivityDate],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'lastActivityDate',
+              lower: [],
+              upper: [lastActivityDate],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateGreaterThan(
+    DateTime? lastActivityDate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'lastActivityDate',
+        lower: [lastActivityDate],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateLessThan(
+    DateTime? lastActivityDate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'lastActivityDate',
+        lower: [],
+        upper: [lastActivityDate],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterWhereClause>
+      lastActivityDateBetween(
+    DateTime? lowerLastActivityDate,
+    DateTime? upperLastActivityDate, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'lastActivityDate',
+        lower: [lowerLastActivityDate],
+        includeLower: includeLower,
+        upper: [upperLastActivityDate],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension IsarRewardStatsQueryFilter
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QFilterCondition> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      currentStreakEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'currentStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      currentStreakGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'currentStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      currentStreakLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'currentStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      currentStreakBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'currentStreak',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      idEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      idGreaterThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      idLessThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      idBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastActivityDate',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastActivityDate',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastActivityDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastActivityDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastActivityDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      lastActivityDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastActivityDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      longestStreakEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'longestStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      longestStreakGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'longestStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      longestStreakLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'longestStreak',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      longestStreakBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'longestStreak',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalRecipesCompletedEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalRecipesCompleted',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalRecipesCompletedGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalRecipesCompleted',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalRecipesCompletedLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalRecipesCompleted',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalRecipesCompletedBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalRecipesCompleted',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalStocksAddedEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalStocksAdded',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalStocksAddedGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalStocksAdded',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalStocksAddedLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalStocksAdded',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      totalStocksAddedBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalStocksAdded',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'uniqueRecipeTypeValues',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'uniqueRecipeTypeValues',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'uniqueRecipeTypeValues',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'uniqueRecipeTypeValues',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'uniqueRecipeTypeValues',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterFilterCondition>
+      uniqueRecipeTypeValuesLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'uniqueRecipeTypeValues',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+}
+
+extension IsarRewardStatsQueryObject
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QFilterCondition> {}
+
+extension IsarRewardStatsQueryLinks
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QFilterCondition> {}
+
+extension IsarRewardStatsQuerySortBy
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QSortBy> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByCurrentStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByLastActivityDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastActivityDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByLastActivityDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastActivityDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByLongestStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByTotalRecipesCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalRecipesCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByTotalRecipesCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalRecipesCompleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByTotalStocksAdded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalStocksAdded', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      sortByTotalStocksAddedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalStocksAdded', Sort.desc);
+    });
+  }
+}
+
+extension IsarRewardStatsQuerySortThenBy
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QSortThenBy> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByCurrentStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy> thenById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy> thenByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByLastActivityDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastActivityDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByLastActivityDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastActivityDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByLongestStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByTotalRecipesCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalRecipesCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByTotalRecipesCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalRecipesCompleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByTotalStocksAdded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalStocksAdded', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QAfterSortBy>
+      thenByTotalStocksAddedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalStocksAdded', Sort.desc);
+    });
+  }
+}
+
+extension IsarRewardStatsQueryWhereDistinct
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct> {
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'currentStreak');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByLastActivityDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastActivityDate');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'longestStreak');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByTotalRecipesCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalRecipesCompleted');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByTotalStocksAdded() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalStocksAdded');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, IsarRewardStats, QDistinct>
+      distinctByUniqueRecipeTypeValues() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'uniqueRecipeTypeValues');
+    });
+  }
+}
+
+extension IsarRewardStatsQueryProperty
+    on QueryBuilder<IsarRewardStats, IsarRewardStats, QQueryProperty> {
+  QueryBuilder<IsarRewardStats, int, QQueryOperations> idProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, int, QQueryOperations> currentStreakProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'currentStreak');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, DateTime?, QQueryOperations>
+      lastActivityDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastActivityDate');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, int, QQueryOperations> longestStreakProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'longestStreak');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, int, QQueryOperations>
+      totalRecipesCompletedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalRecipesCompleted');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, int, QQueryOperations>
+      totalStocksAddedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalStocksAdded');
+    });
+  }
+
+  QueryBuilder<IsarRewardStats, List<String>, QQueryOperations>
+      uniqueRecipeTypeValuesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'uniqueRecipeTypeValues');
+    });
+  }
+}

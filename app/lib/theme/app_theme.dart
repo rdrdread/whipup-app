@@ -1,4 +1,4 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+﻿import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 /// WhipUp 앱 테마.
@@ -62,7 +62,7 @@ abstract final class AppTheme {
           chipRadius: 8.0,
           // 입력 필드
           inputDecoratorRadius: 12.0,
-          inputDecoratorFilled: true,
+          inputDecoratorIsFilled: true,
           // 다이얼로그
           dialogRadius: 20.0,
           // BottomSheet
@@ -120,7 +120,7 @@ abstract final class AppTheme {
           fabRadius: 16.0,
           chipRadius: 8.0,
           inputDecoratorRadius: 12.0,
-          inputDecoratorFilled: true,
+          inputDecoratorIsFilled: true,
           dialogRadius: 20.0,
           bottomSheetRadius: 20.0,
           snackBarRadius: 8,

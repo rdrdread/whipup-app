@@ -55,9 +55,9 @@ class StockFilterNotifier extends _$StockFilterNotifier {
 /// 보관 위치 탭 + 카테고리 필터 + 정렬 조건이 반영된다.
 /// Isar 변경 감지로 UI가 자동 갱신된다.
 @riverpod
-Stream<List<StockItem>> filteredStock(FilteredStockRef ref) async* {
+Stream<List<StockItem>> filteredStock(Ref ref) async* {
   final repository = await ref.watch(stockRepositoryProvider.future);
-  final filter = ref.watch(stockFilterNotifierProvider);
+  final filter = ref.watch(stockFilterProvider);
 
   // 정렬은 메모리에서 처리 (Isar의 복합 정렬 제한 우회)
   yield* repository
@@ -67,7 +67,7 @@ Stream<List<StockItem>> filteredStock(FilteredStockRef ref) async* {
 
 /// 유통기한 임박 재고 목록 (3일 이내).
 @riverpod
-Future<List<StockItem>> expiringStock(ExpiringStockRef ref) async {
+Future<List<StockItem>> expiringStock(Ref ref) async {
   final repository = await ref.watch(stockRepositoryProvider.future);
   final result = await repository.getExpiringSoon();
   return result.when(

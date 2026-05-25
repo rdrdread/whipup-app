@@ -12,7 +12,7 @@ part 'stock_item.g.dart';
 ///
 /// 필드 정의: `docs/core/product_map.md §3.1`
 @freezed
-class StockItem with _$StockItem {
+abstract class StockItem with _$StockItem {
   const StockItem._(); // 커스텀 메서드를 위한 private 생성자
 
   /// 새 재고 아이템을 생성한다.

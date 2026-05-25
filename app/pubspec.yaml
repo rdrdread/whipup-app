@@ -1,5 +1,5 @@
 name: whipup
-description: "냉장고 재료로 뚝딱 만드는 키친 컴패니언 앱"
+description: "냉장고 재료로 뚝딱! 키친 컴패니언 앱"
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -10,53 +10,53 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # ─── Core ─────────────────────────────────────────────
+  # Core
   cupertino_icons: ^1.0.8
 
-  # ─── State Management (Riverpod) ──────────────────────
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  # State Management (Riverpod)
+  flutter_riverpod: ^3.3.2-dev.2
+  riverpod_annotation: ^4.0.3-dev.2
 
-  # ─── Data Modeling (Freezed) ──────────────────────────
-  freezed_annotation: ^2.4.4
+  # Data Modeling (Freezed)
+  freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
 
-  # ─── Networking (Dio + Retrofit) ──────────────────────
+  # Networking (Dio + Retrofit)
   dio: ^5.7.0
   retrofit: ^4.4.1
   pretty_dio_logger: ^1.4.0
 
-  # ─── Routing (go_router) ──────────────────────────────
-  go_router: ^14.6.1
+  # Routing (go_router)
+  go_router: ^17.2.3
 
-  # ─── Styling (FlexColorScheme) ────────────────────────
+  # Styling (FlexColorScheme)
   flex_color_scheme: ^8.0.2
 
-  # ─── Animation (Lottie) ───────────────────────────────
+  # Animation (Lottie)
   lottie: ^3.1.3
 
-  # ─── Localization (slang) ─────────────────────────────
+  # Localization (slang)
   slang: ^4.3.0
   slang_flutter: ^4.3.0
 
-  # ─── Forms ────────────────────────────────────────────
+  # Forms
   flutter_form_builder: ^10.3.0+2
-  form_builder_validators: any   # intl 호환성으로 any 사용
+  form_builder_validators: any
 
-  # ─── Mobile Core: Vision ──────────────────────────────
-  camera: ^0.11.0+2
-  google_mlkit_text_recognition: ^0.13.1
+  # Mobile Core: Vision
+  camera: ^0.12.0+1
+  google_mlkit_text_recognition: ^0.15.1
 
-  # ─── Mobile Core: Audio ───────────────────────────────
+  # Mobile Core: Audio
   speech_to_text: ^7.0.0
 
-  # ─── Storage (Isar) ───────────────────────────────────
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  # Storage (Isar) - any: freezed analyzer 충돌 방지
+  isar: any
+  isar_flutter_libs: any
   path_provider: ^2.1.4
 
-  # ─── Security & Monitoring ────────────────────────────
-  flutter_secure_storage: ^9.2.2
+  # Security & Monitoring
+  flutter_secure_storage: ^10.3.0
   sentry_flutter: ^8.9.0
 
 dev_dependencies:
@@ -64,17 +64,21 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
-  # ─── Code Generation ──────────────────────────────────
+  # Code Generation
   build_runner: ^2.4.13
-  riverpod_generator: ^2.6.3
-  freezed: ^2.5.7
+  riverpod_generator: ^4.0.4-dev.3
+  freezed: ^3.2.6-dev.1
   json_serializable: ^6.8.0
-  retrofit_generator: ^9.1.5
-  isar_generator: ^3.1.0+1
+  # retrofit_generator: 현재 코드에 @RestApi 없음 — Backend 연동 시 추가
+  # retrofit_generator: any
+  # isar_generator: 제거 — riverpod_generator와 source_gen 메이저 버전 충돌
+  # isar_stock_item.g.dart는 tools/isar_codegen으로 별도 생성 후 커밋
 
-  # ─── Linting ──────────────────────────────────────────
-  riverpod_lint: ^2.3.13
-  custom_lint: ^0.7.0
+  # Linting
+  # riverpod_lint + custom_lint: analyzer_plugin 0.12.0 → analyzer 7.x 충돌
+  # build_runner 실행 후 버전 업데이트 시 재활성화
+  # riverpod_lint: any
+  # custom_lint: any
 
 flutter:
   uses-material-design: true
