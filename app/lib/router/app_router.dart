@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
+import 'package:whipup/views/splash/splash_screen.dart';
 import 'package:whipup/views/recipe/recipe_detail_screen.dart';
 import 'package:whipup/views/recipe/recipe_screen.dart';
 import 'package:whipup/views/reward/reward_screen.dart';
@@ -18,8 +19,14 @@ import 'package:whipup/views/voice/voice_screen.dart';
 ///
 /// 라우트 구조: `docs/core/screen_layout.md §1`
 final appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/splash',
   routes: [
+    // ─── 스플래시 (Shell 밖) ──────────────────────────────────────────────
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
+
     // ─── Shell (BottomNavigation) ────────────────────────────────────────
     ShellRoute(
       builder: (context, state, child) => _MainShell(child: child),
