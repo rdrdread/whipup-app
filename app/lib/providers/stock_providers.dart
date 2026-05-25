@@ -6,6 +6,28 @@ import 'package:whipup/providers/stock_repository_provider.dart';
 
 part 'stock_providers.g.dart';
 
+// ─── 재고 요약 데이터 모델 ────────────────────────────────────────────────────────
+
+/// 홈 대시보드용 재고 요약.
+class StockSummary {
+  const StockSummary({
+    required this.fridgeCount,
+    required this.freezerCount,
+    required this.pantryCount,
+    required this.drawerCount,
+    required this.expiringCount,
+  });
+
+  final int fridgeCount;
+  final int freezerCount;
+  final int pantryCount;
+  final int drawerCount;
+  final int expiringCount;
+
+  /// 전체 재고 수량.
+  int get totalCount => fridgeCount + freezerCount + pantryCount + drawerCount;
+}
+
 // ─── 필터 Provider ─────────────────────────────────────────────────────────
 
 /// 재고 목록 필터/정렬 상태 Notifier.
@@ -73,6 +95,34 @@ Future<List<StockItem>> expiringStock(Ref ref) async {
   return result.when(
     success: (items) => items,
     failure: (_) => [],
+  );
+}
+
+/// 전체 재고 요약 (홈 대시보드 카드 용).
+@riverpod
+Future<StockSummary> stockSummary(Ref ref) async {
+  final repository = await ref.watch(stockRepositoryProvider.future);
+
+  final fridgeResult = await repository.getAll(
+    const StockFilter(storageLocation: StorageLocation.fridge),
+  );
+  final freezerResult = await repository.getAll(
+    const StockFilter(storageLocation: StorageLocation.freezer),
+  );
+  final pantryResult = await repository.getAll(
+    const StockFilter(storageLocation: StorageLocation.pantry),
+  );
+  final drawerResult = await repository.getAll(
+    const StockFilter(storageLocation: StorageLocation.drawer),
+  );
+  final expiringResult = await repository.getExpiringSoon();
+
+  return StockSummary(
+    fridgeCount: fridgeResult.valueOrNull?.length ?? 0,
+    freezerCount: freezerResult.valueOrNull?.length ?? 0,
+    pantryCount: pantryResult.valueOrNull?.length ?? 0,
+    drawerCount: drawerResult.valueOrNull?.length ?? 0,
+    expiringCount: expiringResult.valueOrNull?.length ?? 0,
   );
 }
 

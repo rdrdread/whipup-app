@@ -260,87 +260,56 @@ class _SortBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
       child: Row(
-        children: [
-          Text(
-            '정렬',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(width: 8),
-          ...SortType.values.map(
-            (sort) => Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: _SortChip(
-                sort: sort,
-                isSelected: currentSort == sort,
-                ascending: ascending,
-                onTap: () => onSortChanged(sort),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SortChip extends StatelessWidget {
-  const _SortChip({
-    required this.sort,
-    required this.isSelected,
-    required this.ascending,
-    required this.onTap,
-  });
-
-  final SortType sort;
-  final bool isSelected;
-  final bool ascending;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        constraints: const BoxConstraints(minHeight: 34),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              sort.label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.onPrimaryContainer
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        children: SortType.values
+            .expand((sort) => [
+                  if (sort != SortType.values.first) ...[
+                    const Text(
+                      ' · ',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        color: Color(0x992C2C2C),
+                      ),
+                    ),
+                  ],
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      onSortChanged(sort);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          sort.label,
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 13,
+                            fontWeight: currentSort == sort
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: currentSort == sort
+                                ? const Color(0xFFF04E23)
+                                : const Color(0x992C2C2C),
+                          ),
+                        ),
+                        if (currentSort == sort) ...[
+                          const SizedBox(width: 2),
+                          Icon(
+                            ascending
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.keyboard_arrow_down_rounded,
+                            size: 14,
+                            color: const Color(0xFFF04E23),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 2),
-              Icon(
-                ascending
-                    ? Icons.arrow_upward_rounded
-                    : Icons.arrow_downward_rounded,
-                size: 12,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-            ],
-          ],
-        ),
+                ])
+            .toList(),
       ),
     );
   }
@@ -382,42 +351,62 @@ class _StockList extends ConsumerWidget {
               );
             }
 
-            return ListView.builder(
+            return ListView(
               padding: const EdgeInsets.only(top: 4, bottom: 96),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return IngredientCard(
-                  item: item,
-                  onTap: () {
-                    context.push('/stock/edit/${item.id}');
-                  },
-                  onDelete: () async {
-                    final deletedItem = item;
-                    final result = await repository.delete(item.id);
-                    if (context.mounted) {
-                      result.when(
-                        success: (_) {
-                          context.showDeletedWithUndo(
-                            itemName: deletedItem.name,
-                            onUndo: () async {
-                              await repository.add(
-                                deletedItem.copyWith(id: 0),
-                              );
-                            },
-                          );
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0F000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: items.asMap().entries.map((entry) {
+                      final i = entry.key;
+                      final item = entry.value;
+                      return IngredientCard(
+                        key: ValueKey('card_${item.id}'),
+                        item: item,
+                        showTopBorder: i > 0,
+                        onTap: () => context.push('/stock/edit/${item.id}'),
+                        onDelete: () async {
+                          final deletedItem = item;
+                          final result = await repository.delete(item.id);
+                          if (context.mounted) {
+                            result.when(
+                              success: (_) {
+                                context.showDeletedWithUndo(
+                                  itemName: deletedItem.name,
+                                  onUndo: () async {
+                                    await repository.add(
+                                      deletedItem.copyWith(id: 0),
+                                    );
+                                  },
+                                );
+                              },
+                              failure: (err) {
+                                context.showSnackBar(
+                                    '삭제 실패: ${err.message}');
+                              },
+                            );
+                          }
                         },
-                        failure: (err) {
-                          context.showSnackBar('삭제 실패: ${err.message}');
+                        onUndoDelete: () async {
+                          await repository.add(item.copyWith(id: 0));
                         },
                       );
-                    }
-                  },
-                  onUndoDelete: () async {
-                    await repository.add(item.copyWith(id: 0));
-                  },
-                );
-              },
+                    }).toList(),
+                  ),
+                ),
+              ],
             );
           },
         );

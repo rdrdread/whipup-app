@@ -18,7 +18,7 @@ import 'package:whipup/views/voice/voice_screen.dart';
 ///
 /// 라우트 구조: `docs/core/screen_layout.md §1`
 final appRouter = GoRouter(
-  initialLocation: '/stock',
+  initialLocation: '/home',
   routes: [
     // ─── Shell (BottomNavigation) ────────────────────────────────────────
     ShellRoute(
