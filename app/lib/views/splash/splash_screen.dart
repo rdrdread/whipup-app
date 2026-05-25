@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/theme/app_theme.dart';
 
@@ -29,9 +30,14 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _controller.forward();
 
-    // 2초 후 홈으로 이동
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (mounted) context.go('/home');
+    // 2초 후 온보딩(최초 실행) 또는 홈으로 이동
+    Future.delayed(const Duration(milliseconds: 2000), () async {
+      if (!mounted) return;
+      const storage = FlutterSecureStorage();
+      final done = await storage.read(key: 'onboarding_done');
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
+      context.go(done == 'true' ? '/home' : '/onboarding');
     });
   }
 

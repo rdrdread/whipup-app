@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
+import 'package:whipup/views/onboarding/onboarding_screen.dart';
+import 'package:whipup/views/settings/settings_screen.dart';
 import 'package:whipup/views/splash/splash_screen.dart';
 import 'package:whipup/views/recipe/recipe_detail_screen.dart';
 import 'package:whipup/views/recipe/recipe_screen.dart';
@@ -25,6 +27,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+
+    // ─── 온보딩 (Shell 밖) ───────────────────────────────────────────────
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
     ),
 
     // ─── Shell (BottomNavigation) ────────────────────────────────────────
@@ -98,7 +106,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/my/settings',
-      builder: (context, state) => const _SettingsPlaceholder(),
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );
@@ -168,16 +176,3 @@ class _MainShell extends StatelessWidget {
   }
 }
 
-// ─── 설정 플레이스홀더 ─────────────────────────────────────────────────────────
-
-class _SettingsPlaceholder extends StatelessWidget {
-  const _SettingsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('설정')),
-      body: const Center(child: Text('설정 화면 - 준비 중')),
-    );
-  }
-}
