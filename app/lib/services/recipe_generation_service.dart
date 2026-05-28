@@ -16,13 +16,12 @@ import 'package:whipup/services/prompt_builder.dart';
 ///
 /// 데이터 흐름: `docs/core/product_map.md §6.1`
 class RecipeGenerationService {
-  // ignore: prefer_initializing_formals
   RecipeGenerationService({
     required GeminiService geminiService,
     required PromptBuilder promptBuilder,
     required RecipeRepository recipeRepository,
   })  : _gemini = geminiService,
-        _promptBuilder = promptBuilder,
+        _promptBuilder = promptBuilder, // ignore: prefer_initializing_formals
         _repository = recipeRepository;
 
   final GeminiService _gemini;

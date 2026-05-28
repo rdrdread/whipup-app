@@ -9,9 +9,8 @@ import 'package:whipup/repositories/reward_repository.dart';
 ///
 /// 트리거 정의: `docs/features/reward_system.md §6`
 class RewardTriggerService {
-  // ignore: prefer_initializing_formals
   const RewardTriggerService({required RewardRepository repository})
-      : _repository = repository;
+      : _repository = repository; // ignore: prefer_initializing_formals
 
   final RewardRepository _repository;
 

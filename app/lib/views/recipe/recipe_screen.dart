@@ -74,7 +74,7 @@ class _IngredientSelectionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
-    final stockAsync = ref.watch(filteredStockProvider);
+    final stockAsync = ref.watch(allStockProvider);
 
     return stockAsync.when(
       data: (allItems) {
