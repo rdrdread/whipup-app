@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_item.dart';
+import 'package:whipup/providers/reward_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/sub_category_service.dart';
 
@@ -208,6 +209,10 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
       result.when(
         success: (_) {
           HapticFeedback.lightImpact();
+          // 재고 추가 시 리워드 트리거 (fire-and-forget)
+          if (widget.itemId == null) {
+            handleStockAdded(ref);
+          }
           context.pop();
           context.showSnackBar(
             widget.itemId != null ? '재료가 수정되었어요 ✅' : '재료가 추가되었어요 🎉',
