@@ -247,6 +247,10 @@ abstract final class AppTheme {
         fontSize: 11,
         color: subtleColor,
       ),
+    ).apply(
+      // 모든 이모지를 Twemoji 컬러 폰트로 폴백 렌더링하여
+      // iOS/Android/Web에서 동일한 모양을 보장한다.
+      fontFamilyFallback: const ['TwemojiMozilla'],
     );
   }
 }
