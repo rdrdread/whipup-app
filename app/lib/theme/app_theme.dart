@@ -17,9 +17,9 @@ abstract final class AppTheme {
   /// Dark Mode Primary (밝게 조정)
   static const Color primaryDarkColor = Color(0xFFF47A5C);
 
-  /// 라이트 모드 배경: 밝은 웜 아이보리.
-  /// 기존 #FFF8F0(웜 크림)이 답답하다는 피드백으로 더 밝게 조정.
-  static const Color backgroundColor = Color(0xFFFFFBF7);
+  /// 라이트 모드 배경: 밝고 가벼운 웜 화이트.
+  /// (#FFF8F0 → #FFFBF7 → #FFFDFB로 점진적으로 더 밝게 조정)
+  static const Color backgroundColor = Color(0xFFFFFDFB);
 
   /// 유통기한 fresh 색상 (데모 r4 팔레트)
   static const Color freshGreen = Color(0xFF66BB6A);
@@ -29,6 +29,20 @@ abstract final class AppTheme {
 
   /// 유통기한 danger 색상 (데모 r4 팔레트)
   static const Color dangerRed = Color(0xFFEF5350);
+
+  /// 이모지 폰트 폴백.
+  /// Pretendard에 없는 이모지 글리프를 TwemojiMozilla로 렌더링한다.
+  static const List<String> emojiFallback = <String>['TwemojiMozilla'];
+
+  /// 화면 공통 AppBar 타이틀 스타일.
+  /// 홈 'WhipUp'과 동일하게 Black(900) + Flame Orange로 통일한다.
+  static const TextStyle screenTitleStyle = TextStyle(
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w900,
+    fontSize: 24,
+    color: primaryColor,
+    letterSpacing: -0.25,
+  );
 
   // ─── 테마 ─────────────────────────────────────────────────────────────────
 
@@ -94,7 +108,9 @@ abstract final class AppTheme {
         fontFamily: 'Pretendard',
       ).copyWith(
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
-        textTheme: _buildTextTheme(Brightness.light),
+        // 모든 테마 텍스트에 이모지 폴백을 적용해 ☃️ 등 글리프 깨짐 방지.
+        textTheme: _buildTextTheme(Brightness.light)
+            .apply(fontFamilyFallback: emojiFallback),
       );
 
   /// 다크 테마.
@@ -146,7 +162,8 @@ abstract final class AppTheme {
         useMaterial3: true,
         fontFamily: 'Pretendard',
       ).copyWith(
-        textTheme: _buildTextTheme(Brightness.dark),
+        textTheme: _buildTextTheme(Brightness.dark)
+            .apply(fontFamilyFallback: emojiFallback),
       );
 
   // ─── 헬퍼 ─────────────────────────────────────────────────────────────────

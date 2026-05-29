@@ -24,11 +24,7 @@ class MyScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text(
           '마이',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
         actions: [

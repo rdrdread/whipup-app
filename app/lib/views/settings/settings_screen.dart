@@ -106,11 +106,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         elevation: 0,
         title: const Text(
           '설정',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
       ),
