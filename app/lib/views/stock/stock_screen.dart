@@ -59,8 +59,8 @@ class _StockScreenState extends ConsumerState<StockScreen>
           '재고',
           style: TextStyle(
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
         ),
         centerTitle: false,

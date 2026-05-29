@@ -234,8 +234,8 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
           isEditMode ? '재료 수정' : '재료 추가',
           style: const TextStyle(
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
         ),
         leading: IconButton(

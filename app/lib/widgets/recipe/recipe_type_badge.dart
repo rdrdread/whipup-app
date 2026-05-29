@@ -36,13 +36,13 @@ class RecipeTypeBadge extends StatelessWidget {
 
   (Color, Color) _colors(BuildContext context, RecipeType type) {
     return switch (type) {
-      RecipeType.main => (const Color(0xFFFFEBEE), const Color(0xFFE53935)),
-      RecipeType.soup => (const Color(0xFFE3F2FD), const Color(0xFF1E88E5)),
-      RecipeType.side => (const Color(0xFFE8F5E9), const Color(0xFF43A047)),
-      RecipeType.dessert => (const Color(0xFFFCE4EC), const Color(0xFFD81B60)),
-      RecipeType.snack => (const Color(0xFFFFF8E1), const Color(0xFFFF8F00)),
+      RecipeType.main => (const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
+      RecipeType.soup => (const Color(0xFFE3F2FD), const Color(0xFF1565C0)),
+      RecipeType.side => (const Color(0xFFF1F8E9), const Color(0xFF558B2F)),
+      RecipeType.dessert => (const Color(0xFFFCE4EC), const Color(0xFFC62828)),
+      RecipeType.snack => (const Color(0xFFFFF8E1), const Color(0xFFF57F17)),
       RecipeType.drink => (const Color(0xFFE0F7FA), const Color(0xFF00ACC1)),
-      RecipeType.sauce => (const Color(0xFFF3E5F5), const Color(0xFF8E24AA)),
+      RecipeType.sauce => (const Color(0xFFF3E5F5), const Color(0xFF6A1B9A)),
     };
   }
 }
