@@ -24,8 +24,8 @@ abstract final class AppTheme {
   /// 유통기한 fresh 색상 (데모 r4 팔레트)
   static const Color freshGreen = Color(0xFF66BB6A);
 
-  /// 유통기한 warning 색상 (데모 r4 팔레트)
-  static const Color warningAmber = Color(0xFFFFA726);
+  /// 유통기한 warning 색상 (브랜드 Warm Amber, 더 밝은 톤)
+  static const Color warningAmber = Color(0xFFFFC107);
 
   /// 유통기한 danger 색상 (데모 r4 팔레트)
   static const Color dangerRed = Color(0xFFEF5350);
