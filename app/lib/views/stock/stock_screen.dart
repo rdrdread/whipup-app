@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_filter.dart';
 import 'package:whipup/models/stock_item.dart';
@@ -10,6 +11,7 @@ import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/widgets/stock/category_chip.dart';
 import 'package:whipup/widgets/stock/empty_state_widget.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 import 'package:whipup/widgets/stock/ingredient_card.dart';
 
 /// 재고 목록 화면.
@@ -60,7 +62,9 @@ class _StockScreenState extends ConsumerState<StockScreen>
           style: TextStyle(
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w900,
-            fontSize: 24,
+            fontSize: 22,
+            color: AppTheme.primaryColor,
+            letterSpacing: -0.25,
           ),
         ),
         centerTitle: false,
@@ -91,7 +95,7 @@ class _StockScreenState extends ConsumerState<StockScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(loc.emoji, style: const TextStyle(fontSize: 16)),
+                      TwemojiIcon(loc.emoji, size: 16),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(

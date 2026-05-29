@@ -18,16 +18,18 @@ class MyScreen extends ConsumerWidget {
     final statsAsync = ref.watch(rewardStatsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF8F0),
+        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           '마이',
           style: TextStyle(
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
+            color: AppTheme.primaryColor,
+            letterSpacing: -0.25,
           ),
         ),
         centerTitle: false,

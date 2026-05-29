@@ -89,6 +89,7 @@ abstract final class AppTheme {
         fontFamily: 'Pretendard',
       ).copyWith(
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
+        scaffoldBackgroundColor: const Color(0xFFFAFAF8),
         textTheme: _buildTextTheme(Brightness.light),
       );
 

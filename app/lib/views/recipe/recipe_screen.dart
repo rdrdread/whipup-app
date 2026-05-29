@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/recipe_type.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/stock_providers.dart';
@@ -17,15 +18,20 @@ class RecipeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tt = Theme.of(context).textTheme;
     final generatorState = ref.watch(recipeGeneratorProvider);
     final selectedItems = ref.watch(selectedIngredientsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '레시피',
-          style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
+            color: AppTheme.primaryColor,
+            letterSpacing: -0.25,
+          ),
         ),
         centerTitle: false,
         actions: [

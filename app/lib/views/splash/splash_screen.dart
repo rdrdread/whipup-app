@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 스플래시 화면.
 ///
@@ -73,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ],
                 ),
                 child: const Center(
-                  child: Text('🍳', style: TextStyle(fontSize: 48)),
+                  child: TwemojiIcon('🍳', size: 48),
                 ),
               ),
 

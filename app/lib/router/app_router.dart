@@ -130,23 +130,23 @@ class _MainShell extends StatelessWidget {
         animationDuration: const Duration(milliseconds: 200),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
+            icon: Icon(Icons.cottage_outlined),
+            selectedIcon: Icon(Icons.cottage),
             label: '홈',
           ),
           NavigationDestination(
             icon: Icon(Icons.kitchen_outlined),
-            selectedIcon: Icon(Icons.kitchen_rounded),
+            selectedIcon: Icon(Icons.kitchen),
             label: '재고',
           ),
           NavigationDestination(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: Icon(Icons.restaurant_menu_rounded),
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
             label: '레시피',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
+            icon: Icon(Icons.face_outlined),
+            selectedIcon: Icon(Icons.face),
             label: '마이',
           ),
         ],

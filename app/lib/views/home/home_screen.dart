@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 홈 화면 (대시보드).
 ///
@@ -19,18 +20,18 @@ class HomeScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(stockSummaryProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF8F0),
+        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           'WhipUp',
           style: TextStyle(
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w900,
-            fontSize: 22,
+            fontSize: 24,
             color: AppTheme.primaryColor,
-            letterSpacing: -0.25,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: false,
@@ -66,7 +67,7 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => context.go('/recipe'),
               child: const Row(
                 children: [
-                  Text('🍳', style: TextStyle(fontSize: 18)),
+                  const TwemojiIcon('🍳', size: 18),
                   SizedBox(width: 6),
                   Text(
                     '빠른 레시피 추천',
@@ -81,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           SizedBox(
-            height: 100,
+            height: 120,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
@@ -124,7 +125,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: const Row(
               children: [
-                Text('📰', style: TextStyle(fontSize: 18)),
+                const TwemojiIcon('📰', size: 18),
                 SizedBox(width: 6),
                 Text(
                   '콘텐츠',
@@ -189,159 +190,233 @@ class _DashboardCard extends StatelessWidget {
     final total = summary?.totalCount ?? 0;
     final expiring = summary?.expiringCount ?? 0;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.primaryColor, Color(0xFFE88A5A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x40F04E23),
-            blurRadius: 16,
-            offset: Offset(0, 4),
+    return GestureDetector(
+      onTap: () => context.go('/stock'),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppTheme.primaryColor, Color(0xFFE07A4A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ─── 제목 + 숫자 ─────────────────────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x35F04E23),
+              blurRadius: 20,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ─── 헤더: 라벨 + 전체 개수 ──────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Expanded(
+                  child: Text(
+                    '오늘의 냉장고',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 13,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      '보유 재료',
-                      style: TextStyle(
+                      '$total',
+                      style: const TextStyle(
                         fontFamily: 'Pretendard',
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      '우리집 냉장고 현황',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 20,
+                        fontSize: 26,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Text(
+                      '개',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        color: Colors.white70,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Text(
-                '$total',
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 42,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1,
-                ),
-              ),
-            ],
-          ),
-
-          // ─── 위치별 분류 ────────────────────────────────────────────
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _LocationChip(
-                emoji: '🧊',
-                label: '냉장 ${summary?.fridgeCount ?? 0}',
-              ),
-              const SizedBox(width: 12),
-              _LocationChip(
-                emoji: '❄️',
-                label: '냉동 ${summary?.freezerCount ?? 0}',
-              ),
-              const SizedBox(width: 12),
-              _LocationChip(
-                emoji: '📦',
-                label: '팬트리 ${summary?.pantryCount ?? 0}',
-              ),
-              const SizedBox(width: 12),
-              _LocationChip(
-                emoji: '🧂',
-                label: '서랍 ${summary?.drawerCount ?? 0}',
-              ),
-            ],
-          ),
-
-          // ─── 유통기한 임박 경고 ─────────────────────────────────────
-          if (expiring > 0) ...[
-            const Divider(
-              color: Colors.white24,
-              height: 20,
+              ],
             ),
+
+            const SizedBox(height: 14),
+
+            // ─── 보관 위치별 박스 4개 ────────────────────────────────────
             Row(
               children: [
-                const Icon(
-                  Icons.warning_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '유통기한 임박 ',
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 13,
-                    color: Colors.white,
+                Expanded(
+                  child: _LocationBox(
+                    emoji: '🧊',
+                    label: '냉장',
+                    count: summary?.fridgeCount ?? 0,
                   ),
                 ),
-                Text(
-                  '$expiring개',
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _LocationBox(
+                    emoji: '❄️',
+                    label: '냉동',
+                    count: summary?.freezerCount ?? 0,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _LocationBox(
+                    emoji: '📦',
+                    label: '팬트리',
+                    count: summary?.pantryCount ?? 0,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _LocationBox(
+                    emoji: '🧂',
+                    label: '서랍',
+                    count: summary?.drawerCount ?? 0,
+                  ),
+                ),
+              ],
+            ),
+
+            // ─── 유통기한 상태 + 재료 추가 버튼 ─────────────────────────
+            const Divider(color: Colors.white24, height: 20),
+            Row(
+              children: [
+                if (expiring > 0) ...[
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    size: 15,
+                    color: Color(0xFFFFE082),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      '유통기한 임박 $expiring개 있어요',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  const Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 15,
+                    color: Colors.white60,
+                  ),
+                  const SizedBox(width: 5),
+                  const Expanded(
+                    child: Text(
+                      '모든 재료 신선해요 ✨',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 12,
+                        color: Colors.white60,
+                      ),
+                    ),
+                  ),
+                ],
+                GestureDetector(
+                  onTap: () => context.push('/stock/add'),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add_rounded, size: 13, color: Colors.white),
+                        SizedBox(width: 3),
+                        Text(
+                          '재료 추가',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 11,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-class _LocationChip extends StatelessWidget {
-  const _LocationChip({required this.emoji, required this.label});
+class _LocationBox extends StatelessWidget {
+  const _LocationBox({
+    required this.emoji,
+    required this.label,
+    required this.count,
+  });
 
   final String emoji;
   final String label;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 13)),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Pretendard',
-            fontSize: 13,
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TwemojiIcon(emoji, size: 18),
+          const SizedBox(height: 4),
+          Text(
+            '$count',
+            style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 10,
+              color: Colors.white70,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -387,7 +462,7 @@ class _RecipeSlideCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 36)),
+            TwemojiIcon(emoji, size: 36),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

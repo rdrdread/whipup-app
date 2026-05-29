@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 import 'package:whipup/widgets/stock/expiry_badge.dart';
 
 /// 재고 목록의 개별 재료 카드 위젯.
@@ -78,11 +79,7 @@ class IngredientCard extends StatelessWidget {
                 // ─── 이모지 ─────────────────────────────────────────────
                 SizedBox(
                   width: 40,
-                  child: Text(
-                    item.category.emoji,
-                    style: const TextStyle(fontSize: 28),
-                    textAlign: TextAlign.center,
-                  ),
+                  child: Center(child: TwemojiIcon(item.category.emoji, size: 28)),
                 ),
                 const SizedBox(width: 12),
 

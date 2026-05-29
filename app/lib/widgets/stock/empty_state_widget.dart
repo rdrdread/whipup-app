@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whipup/models/stock_category.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 재고 목록이 비어있을 때 표시되는 빈 상태 위젯. (AC-6)
 ///
@@ -30,13 +31,14 @@ class EmptyStateWidget extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // ─── 이모지 ──────────────────────────────────────────────────
-            Text(emoji, style: const TextStyle(fontSize: 64)),
-            const SizedBox(height: 20),
+            TwemojiIcon(emoji, size: 56),
+            const SizedBox(height: 16),
 
             // ─── 제목 ────────────────────────────────────────────────────
             Text(
