@@ -98,6 +98,17 @@ Future<List<StockItem>> expiringStock(Ref ref) async {
   );
 }
 
+/// 전체 위치 재고 스트림 (레시피 재료 선택용).
+///
+/// [StockFilter]의 `storageLocation: null`을 이용해 전 위치 재고를 반환한다.
+@riverpod
+Stream<List<StockItem>> allStock(Ref ref) async* {
+  final repository = await ref.watch(stockRepositoryProvider.future);
+  yield* repository
+      .watchAll(const StockFilter())
+      .map((items) => items..sort((a, b) => a.name.compareTo(b.name)));
+}
+
 /// 전체 재고 요약 (홈 대시보드 카드 용).
 @riverpod
 Future<StockSummary> stockSummary(Ref ref) async {
