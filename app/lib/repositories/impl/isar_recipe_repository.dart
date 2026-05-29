@@ -13,11 +13,10 @@ import 'isar_cached_recipe.dart';
 /// 레시피를 JSON 문자열로 로컬 캐시에 저장하고 조회한다.
 /// AI 생성은 [RecipeGenerationService]에 위임한다.
 class IsarRecipeRepository implements RecipeRepository {
-  // ignore: prefer_initializing_formals
   const IsarRecipeRepository({
     required Isar isar,
     required RecipeGenerationService generationService,
-  })  : _isar = isar,
+  })  : _isar = isar, // ignore: prefer_initializing_formals
         _generation = generationService;
 
   final Isar _isar;

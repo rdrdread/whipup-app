@@ -100,7 +100,7 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
                   await ref.read(recipeRepositoryProvider.future);
               await repo.toggleFavorite(recipe.id);
               if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar( // ignore: use_build_context_synchronously
                 const SnackBar(
                   content: Text('즐겨찾기에 추가되었습니다!'),
                   duration: Duration(seconds: 2),

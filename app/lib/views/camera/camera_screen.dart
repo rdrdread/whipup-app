@@ -89,7 +89,7 @@ class _CameraScreenState extends State<CameraScreen>
 
       textResult.when(
         success: (text) {
-          final parser = const ReceiptParser();
+          const parser = ReceiptParser();
           final result = parser.parse(text);
           setState(() {
             _ocrResult = result;
