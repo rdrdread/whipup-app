@@ -70,9 +70,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF8F0),
+        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         title: const Text(
           '설정',

@@ -17,14 +17,18 @@ abstract final class AppTheme {
   /// Dark Mode Primary (밝게 조정)
   static const Color primaryDarkColor = Color(0xFFF47A5C);
 
-  /// 유통기한 fresh 색상
-  static const Color freshGreen = Color(0xFF4CAF50);
+  /// 라이트 모드 배경: 밝은 웜 아이보리.
+  /// 기존 #FFF8F0(웜 크림)이 답답하다는 피드백으로 더 밝게 조정.
+  static const Color backgroundColor = Color(0xFFFFFBF7);
 
-  /// 유통기한 warning 색상
-  static const Color warningAmber = Color(0xFFFFC107);
+  /// 유통기한 fresh 색상 (데모 r4 팔레트)
+  static const Color freshGreen = Color(0xFF66BB6A);
 
-  /// 유통기한 danger 색상
-  static const Color dangerRed = Color(0xFFF44336);
+  /// 유통기한 warning 색상 (데모 r4 팔레트)
+  static const Color warningAmber = Color(0xFFFFA726);
+
+  /// 유통기한 danger 색상 (데모 r4 팔레트)
+  static const Color dangerRed = Color(0xFFEF5350);
 
   // ─── 테마 ─────────────────────────────────────────────────────────────────
 
@@ -42,6 +46,7 @@ abstract final class AppTheme {
         ),
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 7,
+        scaffoldBackground: backgroundColor,
         subThemesData: const FlexSubThemesData(
           blendOnLevel: 10,
           blendOnColors: false,
@@ -49,8 +54,8 @@ abstract final class AppTheme {
           useM2StyleDividerInM3: true,
           alignedDropdown: true,
           useInputDecoratorThemeInDialogs: true,
-          // 카드
-          cardRadius: 16.0,
+          // 카드 (데모 r4: --radius-card 12)
+          cardRadius: 12.0,
           // 버튼
           elevatedButtonRadius: 12.0,
           filledButtonRadius: 12.0,
@@ -58,8 +63,8 @@ abstract final class AppTheme {
           textButtonRadius: 8.0,
           // FAB
           fabRadius: 16.0,
-          // 칩
-          chipRadius: 8.0,
+          // 칩 (데모 r4: --radius-chip 20, 알약형)
+          chipRadius: 20.0,
           // 입력 필드
           inputDecoratorRadius: 12.0,
           inputDecoratorIsFilled: true,
@@ -112,13 +117,13 @@ abstract final class AppTheme {
           useM2StyleDividerInM3: true,
           alignedDropdown: true,
           useInputDecoratorThemeInDialogs: true,
-          cardRadius: 16.0,
+          cardRadius: 12.0,
           elevatedButtonRadius: 12.0,
           filledButtonRadius: 12.0,
           outlinedButtonRadius: 12.0,
           textButtonRadius: 8.0,
           fabRadius: 16.0,
-          chipRadius: 8.0,
+          chipRadius: 20.0,
           inputDecoratorRadius: 12.0,
           inputDecoratorIsFilled: true,
           dialogRadius: 20.0,
