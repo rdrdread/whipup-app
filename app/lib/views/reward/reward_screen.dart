@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/achievement.dart';
 import 'package:whipup/models/user_reward_stats.dart';
 import 'package:whipup/providers/reward_providers.dart';
@@ -51,15 +52,14 @@ class _RewardScreenState extends ConsumerState<RewardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final statsAsync = ref.watch(rewardStatsProvider);
     final achievementsAsync = ref.watch(achievementsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '나의 기록',
-          style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          style: AppTheme.screenTitleStyle,
         ),
       ),
       body: statsAsync.when(
@@ -97,7 +97,7 @@ class _Body extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [

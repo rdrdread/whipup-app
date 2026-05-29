@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
 import 'package:whipup/models/stock_category.dart';
@@ -57,11 +58,7 @@ class _StockScreenState extends ConsumerState<StockScreen>
       appBar: AppBar(
         title: const Text(
           '재고',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 24,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
         actions: [
