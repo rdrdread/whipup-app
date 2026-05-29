@@ -107,7 +107,7 @@ class MyScreen extends ConsumerWidget {
                   icon: Icons.auto_stories_rounded,
                   iconColor: AppTheme.primaryColor,
                   label: '칼럼',
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => context.push('/my/column'),
                 ),
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(

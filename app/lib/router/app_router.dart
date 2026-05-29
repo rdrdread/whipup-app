@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
+import 'package:whipup/views/column/column_screen.dart';
+import 'package:whipup/views/column/column_detail_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
 import 'package:whipup/views/onboarding/onboarding_screen.dart';
@@ -112,6 +114,15 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/my/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/my/column',
+      builder: (context, state) => const ColumnScreen(),
+    ),
+    GoRoute(
+      path: '/my/column/:id',
+      builder: (context, state) =>
+          ColumnDetailScreen(columnId: state.pathParameters['id']!),
     ),
   ],
 );
