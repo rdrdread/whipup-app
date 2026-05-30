@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
@@ -247,11 +248,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
       appBar: AppBar(
         title: Text(
           isEditMode ? '재료 수정' : '재료 추가',
-          style: const TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),

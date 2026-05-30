@@ -85,7 +85,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      _finishOnboarding();
+      // 마지막 페이지 → 재고함 설정 단계로 이동 (완료 플래그는 거기서 기록).
+      context.go('/storage-setup');
     }
   }
 
@@ -95,7 +96,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isLastPage = _currentPage == totalPages - 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF8),
       body: SafeArea(
         child: Column(
           children: [
@@ -176,7 +176,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   child: Text(
-                    isLastPage ? '시작하기 🍳' : '다음',
+                    isLastPage ? '재고함 설정하기' : '다음',
                     style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 16,

@@ -20,19 +20,11 @@ class HomeScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(stockSummaryProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           'WhipUp',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 24,
-            color: AppTheme.primaryColor,
-            letterSpacing: -0.5,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
         actions: [
@@ -189,65 +181,86 @@ class _DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = summary?.totalCount ?? 0;
     final expiring = summary?.expiringCount ?? 0;
+    final isEmpty = summary != null && total == 0;
 
     return GestureDetector(
-      onTap: () => context.go('/stock'),
+      onTap: () =>
+          isEmpty ? context.push('/stock/add') : context.go('/stock'),
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [AppTheme.primaryColor, Color(0xFFE07A4A)],
+            colors: [AppTheme.primaryColor, Color(0xFFE88A5A)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x35F04E23),
-              blurRadius: 20,
-              offset: Offset(0, 6),
+              color: Color(0x40F04E23),
+              blurRadius: 16,
+              offset: Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── 헤더: 라벨 + 전체 개수 ──────────────────────────────────
+            // ─── 제목 + 숫자 ─────────────────────────────────────────────
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Expanded(
-                  child: Text(
-                    '오늘의 냉장고',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 13,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w400,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '보유 재료',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '우리집 냉장고 현황',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
                       '$total',
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 42,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        height: 1.1,
+                        height: 1,
                       ),
                     ),
                     const SizedBox(width: 2),
-                    const Text(
-                      '개',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 13,
-                        color: Colors.white70,
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        '개',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 16,
+                          color: Colors.white70,
+                        ),
                       ),
                     ),
                   ],
@@ -257,112 +270,99 @@ class _DashboardCard extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // ─── 보관 위치별 박스 4개 ────────────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: _LocationBox(
-                    emoji: '🧊',
-                    label: '냉장',
-                    count: summary?.fridgeCount ?? 0,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _LocationBox(
-                    emoji: '❄️',
-                    label: '냉동',
-                    count: summary?.freezerCount ?? 0,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _LocationBox(
-                    emoji: '📦',
-                    label: '팬트리',
-                    count: summary?.pantryCount ?? 0,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _LocationBox(
-                    emoji: '🧂',
-                    label: '서랍',
-                    count: summary?.drawerCount ?? 0,
-                  ),
-                ),
-              ],
-            ),
-
-            // ─── 유통기한 상태 + 재료 추가 버튼 ─────────────────────────
-            const Divider(color: Colors.white24, height: 20),
-            Row(
-              children: [
-                if (expiring > 0) ...[
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    size: 15,
-                    color: Color(0xFFFFE082),
-                  ),
-                  const SizedBox(width: 5),
+            if (isEmpty)
+              // ─── 빈 상태 CTA ───────────────────────────────────────────
+              const Row(
+                children: [
+                  Icon(Icons.add_circle_outline_rounded,
+                      size: 18, color: Colors.white),
+                  SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      '유통기한 임박 $expiring개 있어요',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  const Icon(
-                    Icons.check_circle_outline_rounded,
-                    size: 15,
-                    color: Colors.white60,
-                  ),
-                  const SizedBox(width: 5),
-                  const Expanded(
-                    child: Text(
-                      '모든 재료 신선해요 ✨',
+                      '아직 등록된 재료가 없어요. 첫 재료를 추가해 보세요!',
                       style: TextStyle(
                         fontFamily: 'Pretendard',
-                        fontSize: 12,
-                        color: Colors.white60,
+                        fontSize: 13,
+                        color: Colors.white,
                       ),
                     ),
                   ),
+                  Icon(Icons.chevron_right_rounded,
+                      size: 18, color: Colors.white),
                 ],
-                GestureDetector(
-                  onTap: () => context.push('/stock/add'),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add_rounded, size: 13, color: Colors.white),
-                        SizedBox(width: 3),
-                        Text(
-                          '재료 추가',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 11,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+              )
+            else ...[
+              // ─── 위치별 분류 (overflow-safe) ──────────────────────────
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  _LocationChip(
+                    emoji: '🧊',
+                    label: '냉장 ${summary?.fridgeCount ?? 0}',
                   ),
-                ),
-              ],
-            ),
+                  _LocationChip(
+                    emoji: '❄️',
+                    label: '냉동 ${summary?.freezerCount ?? 0}',
+                  ),
+                  _LocationChip(
+                    emoji: '📦',
+                    label: '팬트리 ${summary?.pantryCount ?? 0}',
+                  ),
+                  _LocationChip(
+                    emoji: '🧂',
+                    label: '서랍 ${summary?.drawerCount ?? 0}',
+                  ),
+                ],
+              ),
+
+              // ─── 유통기한 상태 (항상 표시) ────────────────────────────
+              const Divider(color: Colors.white24, height: 22),
+              Row(
+                children: [
+                  Icon(
+                    expiring > 0
+                        ? Icons.warning_amber_rounded
+                        : Icons.check_circle_outline_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: expiring > 0
+                        ? Text.rich(
+                            TextSpan(
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 13,
+                                color: Colors.white,
+                              ),
+                              children: [
+                                const TextSpan(text: '유통기한 임박 '),
+                                TextSpan(
+                                  text: '$expiring개',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                const TextSpan(text: ' · 지금 확인하기'),
+                              ],
+                            ),
+                          )
+                        : const Text(
+                            '유통기한 임박 재료가 없어요 👍',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 13,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded,
+                      size: 18, color: Colors.white70),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -370,53 +370,29 @@ class _DashboardCard extends StatelessWidget {
   }
 }
 
-class _LocationBox extends StatelessWidget {
-  const _LocationBox({
-    required this.emoji,
-    required this.label,
-    required this.count,
-  });
+class _LocationChip extends StatelessWidget {
+  const _LocationChip({required this.emoji, required this.label});
 
   final String emoji;
   final String label;
-  final int count;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TwemojiIcon(emoji, size: 18),
-          const SizedBox(height: 4),
-          Text(
-            '$count',
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              height: 1,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TwemojiIcon(emoji, size: 13),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 13,
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
           ),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 10,
-              color: Colors.white70,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

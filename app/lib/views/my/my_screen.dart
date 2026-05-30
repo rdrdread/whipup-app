@@ -18,19 +18,11 @@ class MyScreen extends ConsumerWidget {
     final statsAsync = ref.watch(rewardStatsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           '마이',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-            color: AppTheme.primaryColor,
-            letterSpacing: -0.25,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
         actions: [
@@ -113,7 +105,7 @@ class MyScreen extends ConsumerWidget {
                   icon: Icons.auto_stories_rounded,
                   iconColor: AppTheme.primaryColor,
                   label: '칼럼',
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => context.push('/my/column'),
                 ),
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(

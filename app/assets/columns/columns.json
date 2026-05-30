@@ -1,0 +1,95 @@
+[
+  {
+    "id": "col_001",
+    "title": "당근의 재발견: 왜 기름에 볶을수록 영양가가 올라갈까?",
+    "subtitle": "지용성 비타민의 비밀",
+    "body": "당근 하면 '눈에 좋은 채소'라는 말이 먼저 떠오른다. 그런데 막상 당근을 날것으로 먹을 때와 기름에 볶을 때, 우리 몸이 흡수하는 영양소의 양은 크게 다르다.\n\n당근에 풍부한 베타카로틴은 몸속에서 비타민 A로 전환되는 '지용성' 영양소다. 지용성이라는 말은 기름에 녹는다는 뜻. 생당근을 씹어 먹을 때는 단단한 세포벽이 막고 있어 베타카로틴이 쉽게 빠져나오지 못한다.\n\n2008년 이탈리아 연구팀(Miglio et al.)의 실험에서는 당근을 가열하면 세포벽이 부드러워지고, 특히 기름과 함께 조리할 때 베타카로틴의 생체이용률이 크게 높아진다는 결과가 나왔다.\n\n결론은 단순하다. 당근은 기름 한 방울과 함께 볶을 때 더 영양가 있게 즐길 수 있다. 채소볶음에 당근을 먼저 넣고 기름에 살짝 볶는 것, 그것이 과학에 가장 가까운 조리법이다.",
+    "category": "science",
+    "tags": ["당근", "베타카로틴", "지용성비타민", "볶음"],
+    "sources": [
+      {
+        "citation": "Miglio, C. et al. (2008). Effects of Different Cooking Methods on Nutritional and Physicochemical Characteristics of Selected Vegetables. J. Agric. Food Chem., 56(1), 139-147.",
+        "url": "https://doi.org/10.1021/jf072304b",
+        "type": "paper"
+      }
+    ],
+    "thumbnailEmoji": "🥕",
+    "publishedAt": "2026-05-01T00:00:00Z",
+    "readingTimeMinutes": 3
+  },
+  {
+    "id": "col_002",
+    "title": "달걀은 왜 익으면 하얘질까?",
+    "subtitle": "단백질 변성의 과학",
+    "body": "투명하던 달걀흰자가 열을 받으면 새하얀 고체로 바뀐다. 이 변화는 마법이 아니라 '단백질 변성(denaturation)'이라는 화학 반응의 결과다.\n\n달걀흰자의 대부분은 물과 단백질로 이루어져 있다. 단백질은 아미노산이 특정한 3차원 구조로 접혀 있는 형태인데, 이 구조 덕분에 빛이 통과해 날달걀흰자는 투명해 보인다.\n\n열이 가해지면 단백질의 접힘 구조가 풀리고(변성), 풀린 가닥들이 서로 얽히며 새로운 그물 구조를 만든다. 이 구조가 빛을 산란시켜 흰색으로 보이게 한다.\n\n온도가 핵심이다. 흰자는 약 60도부터 굳기 시작하고 노른자는 그보다 조금 높은 온도에서 익는다. 저온에서 천천히 익힌 수란이 부드러운 질감을 갖는 이유가 여기에 있다.",
+    "category": "science",
+    "tags": ["달걀", "단백질변성", "조리과학", "수란"],
+    "sources": [
+      {
+        "citation": "McGee, H. (2004). On Food and Cooking: The Science and Lore of the Kitchen. Scribner. pp. 70-79.",
+        "type": "book"
+      }
+    ],
+    "thumbnailEmoji": "🥚",
+    "publishedAt": "2026-05-08T00:00:00Z",
+    "readingTimeMinutes": 3
+  },
+  {
+    "id": "col_003",
+    "title": "양파를 썰 때 눈이 매운 과학적 이유",
+    "subtitle": "그리고 눈물을 줄이는 법",
+    "body": "양파를 썰면 어김없이 눈물이 핑 돈다. 양파가 우리를 울리려는 게 아니라, 스스로를 지키려는 화학 작용이 일어나기 때문이다.\n\n양파의 세포가 칼날에 잘리면 효소와 황 화합물이 만나 휘발성 자극 물질이 만들어진다. 이 물질이 공기를 타고 올라와 눈의 표면에 닿으면, 눈은 이를 씻어내려 눈물을 흘린다.\n\n눈물을 줄이는 방법은 이 화학 반응의 속도를 늦추는 데 있다. 양파를 썰기 전 30분 정도 냉장고에 두면 휘발 속도가 느려져 자극이 줄어든다. 잘 드는 칼을 쓰면 세포 손상이 적어 효과가 더 좋다.",
+    "category": "ingredient",
+    "tags": ["양파", "조리팁", "보관"],
+    "sources": [
+      {
+        "citation": "McGee, H. (2004). On Food and Cooking: The Science and Lore of the Kitchen. Scribner. pp. 310-311.",
+        "type": "book"
+      }
+    ],
+    "thumbnailEmoji": "🧅",
+    "publishedAt": "2026-05-15T00:00:00Z",
+    "readingTimeMinutes": 2
+  },
+  {
+    "id": "col_005",
+    "title": "닭고기 핑크빛 = 덜 익은 것? 색보다 온도를 믿어야 하는 이유",
+    "subtitle": "식품 안전의 기준은 색깔이 아니라 온도",
+    "body": "닭고기를 충분히 구웠는데 속이 살짝 분홍빛이면 '덜 익었나?' 하며 불안해지기 쉽다. 하지만 색깔만으로 닭고기의 안전성을 판단하는 것은 정확한 방법이 아니다.\n\n닭고기의 색은 닭의 나이, 냉동 이력, 산도, 조리 방법 등 여러 요인에 영향을 받는다. 특히 어린 닭은 뼈가 얇아 골수의 색소가 살로 배어나와, 충분히 익어도 뼈 근처가 분홍빛으로 남는 경우가 많다.\n\n올바른 기준은 내부 온도다. 한국 식약처와 미국 USDA는 공통적으로 닭고기 내부 온도가 75도(165F) 이상에 도달하면 살모넬라를 포함한 식중독균이 사멸한다고 안내한다.\n\n가장 믿을 수 있는 도구는 조리용 온도계다. 가장 두꺼운 부위에 꽂아 75도 이상을 확인하면, 색이 약간 분홍빛이어도 안전하게 즐길 수 있다.",
+    "category": "safety",
+    "tags": ["닭고기", "식품안전", "조리온도", "살모넬라"],
+    "sources": [
+      {
+        "citation": "식품의약품안전처. 식중독 예방 조리 가이드라인.",
+        "url": "https://www.mfds.go.kr",
+        "type": "government"
+      },
+      {
+        "citation": "USDA FSIS. Safe Minimum Internal Temperature Chart.",
+        "url": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/safe-temperature-chart",
+        "type": "government"
+      }
+    ],
+    "thumbnailEmoji": "🍗",
+    "publishedAt": "2026-05-29T00:00:00Z",
+    "readingTimeMinutes": 3
+  },
+  {
+    "id": "col_007",
+    "title": "수박에 소금을 뿌리면 더 단 이유",
+    "subtitle": "소금이 단맛을 끌어올리는 미각의 과학",
+    "body": "수박에 소금을 살짝 뿌려 먹는 습관, 단순한 옛날 방식이 아니라 미각의 원리에 닿아 있는 조합이다.\n\n혀의 미각 수용체는 여러 맛을 동시에 감지한다. 소량의 소금은 짠맛을 강하게 내지 않으면서도 단맛의 인지를 도와, 같은 양의 당분이라도 더 달게 느껴지게 만든다.\n\n이 원리는 디저트에도 폭넓게 쓰인다. 캐러멜이나 초콜릿에 약간의 소금을 더하면 단맛이 한층 또렷해지는 것도 같은 이유다.\n\n핵심은 '약간'이다. 단맛을 돋우는 정도의 소량만 사용하는 것이 비결이다.",
+    "category": "science",
+    "tags": ["소금", "단맛", "미각", "수박"],
+    "sources": [
+      {
+        "citation": "Breslin, P. A. S. & Beauchamp, G. K. (1997). Salt enhances flavour by suppressing bitterness. Nature, 387, 563.",
+        "url": "https://doi.org/10.1038/42388",
+        "type": "paper"
+      }
+    ],
+    "thumbnailEmoji": "🍉",
+    "publishedAt": "2026-05-22T00:00:00Z",
+    "readingTimeMinutes": 2
+  }
+]

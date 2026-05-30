@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/stock_category.dart';
@@ -131,7 +132,10 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('음성으로 재료 추가'),
+        title: const Text(
+          '음성으로 재료 추가',
+          style: AppTheme.screenTitleStyle,
+        ),
       ),
       body: Column(
         children: [

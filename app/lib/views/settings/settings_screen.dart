@@ -6,11 +6,12 @@ import 'package:whipup/theme/app_theme.dart';
 
 /// 앱 설정 화면.
 ///
-/// - 테마 전환 (시스템/라이트/다크)
+/// - 테마 전환 (시스템/라이트/다크) — 칩 선택형
+/// - 알림 설정 (유통기한 알림, 알림 기준일, 칼럼 알림)
 /// - Gemini API 키 설정
 /// - 앱 정보
 ///
-/// 레이아웃: `docs/core/screen_layout.md §2.3`
+/// 레이아웃: `docs/core/screen_layout.md §3.7`, 데모 `s-settings`
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -21,25 +22,39 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static const _storage = FlutterSecureStorage();
   static const _kGeminiApiKey = 'gemini_api_key';
+  static const _kExpiryAlert = 'notif_expiry_on';
+  static const _kColumnAlert = 'notif_column_on';
+  static const _kAlertDays = 'notif_days_before';
 
   final _apiKeyController = TextEditingController();
   bool _apiKeyObscured = true;
   bool _apiKeySaved = false;
   bool _loadingApiKey = true;
 
+  // 알림 설정 (로컬 영속).
+  bool _expiryAlertOn = true;
+  bool _columnAlertOn = true;
+  int _alertDaysBefore = 3;
+
   @override
   void initState() {
     super.initState();
-    _loadApiKey();
+    _loadSettings();
   }
 
-  /// 저장된 Gemini API 키를 입력 필드에 불러온다.
-  Future<void> _loadApiKey() async {
-    final key = await _storage.read(key: _kGeminiApiKey);
+  /// 저장된 설정(API 키 + 알림)을 불러온다.
+  Future<void> _loadSettings() async {
+    final apiKey = await _storage.read(key: _kGeminiApiKey);
+    final expiry = await _storage.read(key: _kExpiryAlert);
+    final column = await _storage.read(key: _kColumnAlert);
+    final days = await _storage.read(key: _kAlertDays);
     if (!mounted) return;
     setState(() {
-      if (key != null) _apiKeyController.text = key;
+      if (apiKey != null) _apiKeyController.text = apiKey;
       _loadingApiKey = false;
+      _expiryAlertOn = expiry != 'false';
+      _columnAlertOn = column != 'false';
+      _alertDaysBefore = int.tryParse(days ?? '') ?? 3;
     });
   }
 
@@ -58,6 +73,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (mounted) setState(() => _apiKeySaved = false);
   }
 
+  Future<void> _setExpiryAlert(bool value) async {
+    setState(() => _expiryAlertOn = value);
+    await _storage.write(key: _kExpiryAlert, value: '$value');
+  }
+
+  Future<void> _setColumnAlert(bool value) async {
+    setState(() => _columnAlertOn = value);
+    await _storage.write(key: _kColumnAlert, value: '$value');
+  }
+
+  Future<void> _setAlertDays(int value) async {
+    setState(() => _alertDaysBefore = value);
+    await _storage.write(key: _kAlertDays, value: '$value');
+  }
+
   @override
   void dispose() {
     _apiKeyController.dispose();
@@ -66,54 +96,71 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeModeAsync = ref.watch(themeModeProvider);
+    final themeModeAsync = ref.watch(themeModeNotifierProvider);
     final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           '설정',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
+          style: AppTheme.screenTitleStyle,
         ),
         centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
-          // ─── 테마 설정 ────────────────────────────────────────────────
+          // ─── 테마 설정 (칩 선택형) ─────────────────────────────────────
           const _SectionHeader(label: '테마'),
+          _SettingsCard(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  _ThemeChip(
+                    label: '시스템',
+                    selected: currentThemeMode == ThemeMode.system,
+                    onTap: () => _setTheme(ThemeMode.system),
+                  ),
+                  const SizedBox(width: 8),
+                  _ThemeChip(
+                    label: '라이트',
+                    selected: currentThemeMode == ThemeMode.light,
+                    onTap: () => _setTheme(ThemeMode.light),
+                  ),
+                  const SizedBox(width: 8),
+                  _ThemeChip(
+                    label: '다크',
+                    selected: currentThemeMode == ThemeMode.dark,
+                    onTap: () => _setTheme(ThemeMode.dark),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ─── 알림 설정 ────────────────────────────────────────────────
+          const _SectionHeader(label: '알림'),
           _SettingsCard(
             child: Column(
               children: [
-                _ThemeRadioTile(
-                  mode: ThemeMode.system,
-                  label: '시스템 기본',
-                  icon: Icons.settings_system_daydream_outlined,
-                  groupValue: currentThemeMode,
-                  onChanged: _setTheme,
+                _SwitchRow(
+                  label: '유통기한 알림',
+                  value: _expiryAlertOn,
+                  onChanged: _setExpiryAlert,
                 ),
                 const Divider(height: 1, indent: 16),
-                _ThemeRadioTile(
-                  mode: ThemeMode.light,
-                  label: '라이트 모드',
-                  icon: Icons.light_mode_outlined,
-                  groupValue: currentThemeMode,
-                  onChanged: _setTheme,
+                _AlertDaysRow(
+                  value: _alertDaysBefore,
+                  enabled: _expiryAlertOn,
+                  onChanged: _setAlertDays,
                 ),
                 const Divider(height: 1, indent: 16),
-                _ThemeRadioTile(
-                  mode: ThemeMode.dark,
-                  label: '다크 모드',
-                  icon: Icons.dark_mode_outlined,
-                  groupValue: currentThemeMode,
-                  onChanged: _setTheme,
+                _SwitchRow(
+                  label: '칼럼 알림',
+                  value: _columnAlertOn,
+                  onChanged: _setColumnAlert,
                 ),
               ],
             ),
@@ -232,10 +279,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const _SectionHeader(label: '앱 정보'),
           _SettingsCard(
             child: Column(
-              children: const [
-                _InfoRow(label: '버전', value: 'v0.1.0'),
-                Divider(height: 1, indent: 16),
-                _InfoRow(label: '개발', value: 'WhipUp Team'),
+              children: [
+                const _InfoRow(label: '버전', value: '1.0.0'),
+                const Divider(height: 1, indent: 16),
+                _NavRow(
+                  label: '오픈소스 라이선스',
+                  onTap: () => showLicensePage(
+                    context: context,
+                    applicationName: 'WhipUp',
+                    applicationVersion: '1.0.0',
+                  ),
+                ),
+                const Divider(height: 1, indent: 16),
+                _NavRow(
+                  label: '개인정보 처리방침',
+                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('개인정보 처리방침 준비 중이에요')),
+                  ),
+                ),
               ],
             ),
           ),
@@ -244,10 +305,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _setTheme(ThemeMode? mode) {
-    if (mode != null) {
-      ref.read(themeModeProvider.notifier).setThemeMode(mode);
-    }
+  void _setTheme(ThemeMode mode) {
+    ref.read(themeModeNotifierProvider.notifier).setThemeMode(mode);
   }
 }
 
@@ -302,32 +361,66 @@ class _SettingsCard extends StatelessWidget {
   }
 }
 
-/// 테마 RadioListTile.
-class _ThemeRadioTile extends StatelessWidget {
-  const _ThemeRadioTile({
-    required this.mode,
+/// 테마 선택 칩 (알약형).
+class _ThemeChip extends StatelessWidget {
+  const _ThemeChip({
     required this.label,
-    required this.icon,
-    required this.groupValue,
-    required this.onChanged,
+    required this.selected,
+    required this.onTap,
   });
 
-  final ThemeMode mode;
   final String label;
-  final IconData icon;
-  final ThemeMode groupValue;
-  final ValueChanged<ThemeMode?> onChanged;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return RadioListTile<ThemeMode>(
-      value: mode,
-      groupValue: groupValue,
-      activeColor: AppTheme.primaryColor,
-      title: Row(
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected
+                ? AppTheme.primaryColor
+                : const Color(0xFFF5F0E8),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: selected ? Colors.white : const Color(0xFF2C2C2C),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 토글 스위치 행.
+class _SwitchRow extends StatelessWidget {
+  const _SwitchRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, size: 20, color: AppTheme.primaryColor),
-          const SizedBox(width: 10),
           Text(
             label,
             style: const TextStyle(
@@ -335,9 +428,81 @@ class _ThemeRadioTile extends StatelessWidget {
               fontSize: 15,
             ),
           ),
+          Switch(
+            value: value,
+            activeColor: AppTheme.primaryColor,
+            onChanged: onChanged,
+          ),
         ],
       ),
-      onChanged: onChanged,
+    );
+  }
+}
+
+/// 알림 기준일 선택 행.
+class _AlertDaysRow extends StatelessWidget {
+  const _AlertDaysRow({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final int value;
+  final bool enabled;
+  final ValueChanged<int> onChanged;
+
+  static const _options = [1, 2, 3, 5, 7];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '알림 기준일',
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 15,
+              color: enabled ? const Color(0xFF2C2C2C) : const Color(0x662C2C2C),
+            ),
+          ),
+          PopupMenuButton<int>(
+            enabled: enabled,
+            initialValue: value,
+            onSelected: onChanged,
+            itemBuilder: (context) => _options
+                .map((d) => PopupMenuItem<int>(
+                      value: d,
+                      child: Text('$d일 전'),
+                    ))
+                .toList(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$value일 전',
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: enabled
+                        ? AppTheme.primaryColor
+                        : const Color(0x662C2C2C),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 20,
+                  color:
+                      enabled ? AppTheme.primaryColor : const Color(0x662C2C2C),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -372,6 +537,41 @@ class _InfoRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 탭하면 이동하는 행 (chevron 표시).
+class _NavRow extends StatelessWidget {
+  const _NavRow({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: Color(0x992C2C2C),
+            ),
+          ],
+        ),
       ),
     );
   }

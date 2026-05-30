@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
+import 'package:whipup/views/column/column_screen.dart';
+import 'package:whipup/views/column/column_detail_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
 import 'package:whipup/views/onboarding/onboarding_screen.dart';
+import 'package:whipup/views/onboarding/storage_setup_screen.dart';
 import 'package:whipup/views/settings/settings_screen.dart';
 import 'package:whipup/views/splash/splash_screen.dart';
 import 'package:whipup/views/recipe/recipe_detail_screen.dart';
@@ -33,6 +36,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/storage-setup',
+      builder: (context, state) => const StorageSetupScreen(),
     ),
 
     // ─── Shell (BottomNavigation) ────────────────────────────────────────
@@ -107,6 +114,15 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/my/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/my/column',
+      builder: (context, state) => const ColumnScreen(),
+    ),
+    GoRoute(
+      path: '/my/column/:id',
+      builder: (context, state) =>
+          ColumnDetailScreen(columnId: state.pathParameters['id']!),
     ),
   ],
 );
