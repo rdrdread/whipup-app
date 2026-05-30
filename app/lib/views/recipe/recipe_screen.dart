@@ -4,6 +4,7 @@ import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/recipe_type.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/stock_providers.dart';
@@ -293,13 +294,13 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final tt = Theme.of(context).textTheme;
     final options = ref.watch(recipeOptionsProvider);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+    return Material(
+      color: const Color(0xFFFFFAF3),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           ListTile(

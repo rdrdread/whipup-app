@@ -58,6 +58,8 @@ dependencies:
   # Security & Monitoring
   flutter_secure_storage: ^10.3.0
   sentry_flutter: ^8.9.0
+  flutter_twemoji: ^1.1.0
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:

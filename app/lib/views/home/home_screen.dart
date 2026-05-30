@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 홈 화면 (대시보드).
 ///
@@ -19,9 +20,7 @@ class HomeScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(stockSummaryProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         title: const Text(
           'WhipUp',
@@ -60,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => context.go('/recipe'),
               child: const Row(
                 children: [
-                  Text('🍳', style: TextStyle(fontSize: 18)),
+                  const TwemojiIcon('🍳', size: 18),
                   SizedBox(width: 6),
                   Text(
                     '빠른 레시피 추천',
@@ -75,7 +74,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           SizedBox(
-            height: 100,
+            height: 120,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
@@ -118,7 +117,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: const Row(
               children: [
-                Text('📰', style: TextStyle(fontSize: 18)),
+                const TwemojiIcon('📰', size: 18),
                 SizedBox(width: 6),
                 Text(
                   '콘텐츠',
@@ -382,7 +381,7 @@ class _LocationChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 13)),
+        TwemojiIcon(emoji, size: 13),
         const SizedBox(width: 4),
         Text(
           label,
@@ -427,7 +426,7 @@ class _RecipeSlideCard extends StatelessWidget {
         width: 220,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFFFFAF3),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -439,7 +438,7 @@ class _RecipeSlideCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 36)),
+            TwemojiIcon(emoji, size: 36),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -516,7 +515,7 @@ class _ContentCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFAF3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(

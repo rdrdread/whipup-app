@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/models/stock_category.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 카테고리 필터 칩 위젯.
 ///
@@ -55,7 +56,7 @@ class CategoryChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (emoji != null) ...[
-              Text(emoji, style: const TextStyle(fontSize: 13)),
+              TwemojiIcon(emoji, size: 13),
               const SizedBox(width: 4),
             ],
             Text(

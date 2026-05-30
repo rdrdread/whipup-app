@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whipup/models/stock_category.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 재고 목록이 비어있을 때 표시되는 빈 상태 위젯. (AC-6)
 ///
@@ -10,7 +11,6 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     required this.storageLocation,
     this.hasFilter = false,
-    this.onAddTap,
   });
 
   /// 현재 선택된 보관 위치 탭
@@ -18,9 +18,6 @@ class EmptyStateWidget extends StatelessWidget {
 
   /// 카테고리 필터 적용 중 여부
   final bool hasFilter;
-
-  /// 재료 추가 버튼 탭 콜백
-  final VoidCallback? onAddTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +27,13 @@ class EmptyStateWidget extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ─── 이모지 ──────────────────────────────────────────────────
-            Text(emoji, style: const TextStyle(fontSize: 64)),
-            const SizedBox(height: 20),
-
-            // ─── 제목 ────────────────────────────────────────────────────
+            TwemojiIcon(emoji, size: 56),
+            const SizedBox(height: 16),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -47,8 +42,6 @@ class EmptyStateWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-
-            // ─── 부제목 ──────────────────────────────────────────────────
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -56,21 +49,6 @@ class EmptyStateWidget extends StatelessWidget {
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 28),
-
-            // ─── 추가 버튼 ────────────────────────────────────────────────
-            if (onAddTap != null && !hasFilter)
-              FilledButton.tonal(
-                onPressed: onAddTap,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add_rounded, size: 18),
-                    SizedBox(width: 6),
-                    Text('재료 추가하기'),
-                  ],
-                ),
-              ),
           ],
         ),
       ),

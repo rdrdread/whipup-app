@@ -108,9 +108,14 @@ abstract final class AppTheme {
         fontFamily: 'Pretendard',
       ).copyWith(
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
-        // 모든 테마 텍스트에 이모지 폴백을 적용해 ☃️ 등 글리프 깨짐 방지.
-        textTheme: _buildTextTheme(Brightness.light)
-            .apply(fontFamilyFallback: emojiFallback),
+        scaffoldBackgroundColor: const Color(0xFFFAFAF8),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFFAFAF8),
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+        ),
+        textTheme: _buildTextTheme(Brightness.light),
       );
 
   /// 다크 테마.

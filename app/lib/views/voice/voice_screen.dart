@@ -9,6 +9,7 @@ import 'package:whipup/models/voice_input_result.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/voice_input_service.dart';
 import 'package:whipup/services/voice_parser.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 음성 재료 입력 화면 (Phase 1.3).
 ///
@@ -314,10 +315,7 @@ class _VoiceResultList extends StatelessWidget {
               subtitle: c.quantity != null
                   ? Text('${c.quantity}${c.unit ?? ''}', style: tt.bodySmall)
                   : null,
-              secondary: Text(
-                c.category.emoji,
-                style: const TextStyle(fontSize: 24),
-              ),
+              secondary: TwemojiIcon(c.category.emoji, size: 24),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

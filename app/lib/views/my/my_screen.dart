@@ -18,9 +18,7 @@ class MyScreen extends ConsumerWidget {
     final statsAsync = ref.watch(rewardStatsProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         title: const Text(
           '마이',
@@ -83,7 +81,7 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFFFFAF3),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -126,7 +124,7 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFFFFAF3),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -192,7 +190,7 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFAF3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 온보딩 완료 플래그 저장 키.
 const _kOnboardingDoneKey = 'onboarding_done';
+
+/// 활성화된 보관 위치 저장 키.
+const _kActiveLocationsKey = 'active_locations';
 
 /// 온보딩 화면 (3단계).
 ///
@@ -22,6 +27,8 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+  Set<StorageLocation> _selectedLocations =
+      Set.from(StorageLocation.values);
 
   static const _pages = [
     _OnboardingPage(
@@ -48,13 +55,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finishOnboarding() async {
-    await const FlutterSecureStorage().write(
-      key: _kOnboardingDoneKey,
-      value: 'true',
+    final storage = const FlutterSecureStorage();
+    await storage.write(key: _kOnboardingDoneKey, value: 'true');
+    await storage.write(
+      key: _kActiveLocationsKey,
+      value: _selectedLocations.map((l) => l.name).join(','),
     );
     if (!mounted) return;
     // ignore: use_build_context_synchronously
     context.go('/home');
+  }
+
+  void _toggleLocation(StorageLocation loc) {
+    setState(() {
+      final updated = Set<StorageLocation>.from(_selectedLocations);
+      if (updated.contains(loc) && updated.length > 1) {
+        updated.remove(loc);
+      } else {
+        updated.add(loc);
+      }
+      _selectedLocations = updated;
+    });
   }
 
   void _nextPage() {
@@ -71,10 +92,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLastPage = _currentPage == _pages.length - 1;
+    final totalPages = _pages.length + 1;
+    final isLastPage = _currentPage == totalPages - 1;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -105,8 +126,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 controller: _pageController,
                 onPageChanged: (index) =>
                     setState(() => _currentPage = index),
-                itemCount: _pages.length,
-                itemBuilder: (_, index) => _pages[index],
+                itemCount: totalPages,
+                itemBuilder: (_, index) {
+                  if (index < _pages.length) return _pages[index];
+                  return _ContainerSetupPage(
+                    selected: _selectedLocations,
+                    onToggle: _toggleLocation,
+                  );
+                },
               ),
             ),
 
@@ -116,7 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                totalPages,
                 (index) => AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -167,6 +194,156 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
+// ─── 컨테이너 설정 페이지 ─────────────────────────────────────────────────────────
+
+/// 보관 공간 선택 페이지 (4번째 온보딩 단계).
+class _ContainerSetupPage extends StatelessWidget {
+  const _ContainerSetupPage({
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final Set<StorageLocation> selected;
+  final void Function(StorageLocation) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          const SizedBox(height: 32),
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withAlpha(25),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Center(
+              child: TwemojiIcon('🏠', size: 48),
+            ),
+          ),
+          const SizedBox(height: 28),
+          const Text(
+            '어떤 보관 공간이\n있나요?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              height: 1.35,
+              color: Color(0xFF1A1A1A),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            '사용 중인 공간을 선택하면\n재고를 더 스마트하게 관리해요',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              height: 1.6,
+              color: Color(0x992C2C2C),
+            ),
+          ),
+          const SizedBox(height: 28),
+          ...StorageLocation.values.map(
+            (loc) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _LocationToggleCard(
+                location: loc,
+                isSelected: selected.contains(loc),
+                onTap: () => onToggle(loc),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+/// 보관 위치 선택 카드.
+class _LocationToggleCard extends StatelessWidget {
+  const _LocationToggleCard({
+    required this.location,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final StorageLocation location;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primaryColor.withAlpha(18)
+              : const Color(0xFFFFFAF3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.primaryColor
+                : const Color(0x1A000000),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          children: [
+            TwemojiIcon(location.emoji, size: 26),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    location.label,
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    location.description,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 12,
+                      color: Color(0x992C2C2C),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: isSelected
+                  ? AppTheme.primaryColor
+                  : const Color(0x332C2C2C),
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── 온보딩 페이지 ──────────────────────────────────────────────────────────────
 
 /// 개별 온보딩 페이지 위젯.
@@ -197,10 +374,7 @@ class _OnboardingPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(32),
             ),
             child: Center(
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 64),
-              ),
+              child: TwemojiIcon(emoji, size: 64),
             ),
           ),
           const SizedBox(height: 40),

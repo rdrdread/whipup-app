@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_filter.dart';
 import 'package:whipup/models/stock_item.dart';
@@ -11,6 +12,7 @@ import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/widgets/stock/category_chip.dart';
 import 'package:whipup/widgets/stock/empty_state_widget.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 import 'package:whipup/widgets/stock/ingredient_card.dart';
 
 /// 재고 목록 화면.
@@ -88,7 +90,7 @@ class _StockScreenState extends ConsumerState<StockScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(loc.emoji, style: const TextStyle(fontSize: 16)),
+                      TwemojiIcon(loc.emoji, size: 16),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -342,9 +344,6 @@ class _StockList extends ConsumerWidget {
               return EmptyStateWidget(
                 storageLocation: storageLocation,
                 hasFilter: filter.category != null,
-                onAddTap: () => context.push(
-                  '/stock/add?location=${storageLocation.name}',
-                ),
               );
             }
 
@@ -354,7 +353,7 @@ class _StockList extends ConsumerWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFFFFAF3),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(

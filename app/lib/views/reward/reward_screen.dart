@@ -6,6 +6,7 @@ import 'package:whipup/models/user_reward_stats.dart';
 import 'package:whipup/providers/reward_providers.dart';
 import 'package:whipup/widgets/reward/achievement_card.dart';
 import 'package:whipup/widgets/reward/achievement_unlock_dialog.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 리워드 대시보드 화면 (Phase 1.4).
 ///
@@ -264,7 +265,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 22)),
+          TwemojiIcon(emoji, size: 22),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
