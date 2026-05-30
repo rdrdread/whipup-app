@@ -36,7 +36,7 @@ class WhipUpApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeModeAsync = ref.watch(themeModeNotifierProvider);
+    final themeModeAsync = ref.watch(themeModeProvider);
     final themeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return MaterialApp.router(

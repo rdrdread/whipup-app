@@ -130,44 +130,91 @@ final appRouter = GoRouter(
 // ─── Main Shell ───────────────────────────────────────────────────────────────
 
 /// 바텀 네비게이션이 포함된 메인 쉘.
-class _MainShell extends StatelessWidget {
+class _MainShell extends StatefulWidget {
   const _MainShell({required this.child});
   final Widget child;
+
+  @override
+  State<_MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<_MainShell> {
+  Future<void> _showExitDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          '앱을 종료할까요?',
+          style: TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          '지금 종료하면 WhipUp을 닫아요.',
+          style: TextStyle(fontFamily: 'Pretendard'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('취소', style: TextStyle(fontFamily: 'Pretendard')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              '종료',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                color: Theme.of(ctx).colorScheme.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      SystemNavigator.pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
 
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _locationToIndex(location),
-        onDestinationSelected: (index) => _onTabTapped(context, index),
-        animationDuration: const Duration(milliseconds: 200),
-        backgroundColor: const Color(0xFFFAFAF8),
-        surfaceTintColor: Colors.transparent,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.cottage_outlined),
-            selectedIcon: Icon(Icons.cottage),
-            label: '홈',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.kitchen_outlined),
-            selectedIcon: Icon(Icons.kitchen),
-            label: '재고',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: '레시피',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.face_outlined),
-            selectedIcon: Icon(Icons.face),
-            label: '마이',
-          ),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _showExitDialog();
+      },
+      child: Scaffold(
+        body: widget.child,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _locationToIndex(location),
+          onDestinationSelected: (index) => _onTabTapped(context, index),
+          animationDuration: const Duration(milliseconds: 200),
+          backgroundColor: const Color(0xFFFAFAF8),
+          surfaceTintColor: Colors.transparent,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.cottage_outlined),
+              selectedIcon: Icon(Icons.cottage),
+              label: '홈',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.kitchen_outlined),
+              selectedIcon: Icon(Icons.kitchen),
+              label: '재고',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.receipt_long_outlined),
+              selectedIcon: Icon(Icons.receipt_long),
+              label: '레시피',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.face_outlined),
+              selectedIcon: Icon(Icons.face),
+              label: '마이',
+            ),
+          ],
+        ),
       ),
     );
   }

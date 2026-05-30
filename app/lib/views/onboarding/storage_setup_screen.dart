@@ -78,7 +78,11 @@ class _StorageSetupScreenState extends State<StorageSetupScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('재고함이 설정되었어요! 🎉')),
     );
-    context.go('/home');
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
+    }
   }
 
   @override

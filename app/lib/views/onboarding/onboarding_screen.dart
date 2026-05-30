@@ -85,9 +85,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // 마지막 페이지 → 재고함 설정 단계로 이동 (완료 플래그는 거기서 기록).
-      context.go('/storage-setup');
+      // 마지막 페이지 → 보관 위치 저장 후 재고함 설정 화면으로 이동.
+      _saveLocationsAndNavigate();
     }
+  }
+
+  Future<void> _saveLocationsAndNavigate() async {
+    final storage = const FlutterSecureStorage();
+    await storage.write(
+      key: _kActiveLocationsKey,
+      value: _selectedLocations.map((l) => l.name).join(','),
+    );
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
+    context.go('/storage-setup');
   }
 
   @override

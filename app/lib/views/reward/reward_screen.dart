@@ -215,7 +215,7 @@ class _Body extends StatelessWidget {
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.75,
                   ),
                   itemCount: achievements.length,
                   itemBuilder: (context, index) => AchievementCard(

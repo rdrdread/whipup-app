@@ -64,6 +64,12 @@ class _StockScreenState extends ConsumerState<StockScreen>
         ),
         centerTitle: false,
         actions: [
+          // 재고함 설정
+          IconButton(
+            icon: const Icon(Icons.tune_rounded),
+            onPressed: () => context.push('/storage-setup'),
+            tooltip: '재고함 설정',
+          ),
           // 검색 버튼 (후속 개발중)
           IconButton(
             icon: const Icon(Icons.search_rounded),

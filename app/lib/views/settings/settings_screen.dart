@@ -96,7 +96,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeModeAsync = ref.watch(themeModeNotifierProvider);
+    final themeModeAsync = ref.watch(themeModeProvider);
     final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Scaffold(
@@ -306,7 +306,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _setTheme(ThemeMode mode) {
-    ref.read(themeModeNotifierProvider.notifier).setThemeMode(mode);
+    ref.read(themeModeProvider.notifier).setThemeMode(mode);
   }
 }
 
