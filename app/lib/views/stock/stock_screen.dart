@@ -31,66 +31,69 @@ class StockScreen extends ConsumerStatefulWidget {
 
 class _StockScreenState extends ConsumerState<StockScreen>
     with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-  List<StorageContainerSlot> _slots = [];
+  late TabController _tabController;
+  late List<StorageContainerSlot> _slots;
 
-  void _syncTabController(List<StorageContainerSlot> slots) {
-    if (_tabController == null || _slots.length != slots.length) {
-      final prevIndex = _tabController?.index ?? 0;
-      _tabController?.dispose();
-      _slots = slots;
-      final length = slots.isNotEmpty ? slots.length : 1;
-      _tabController = TabController(
-        length: length,
-        initialIndex: prevIndex.clamp(0, length - 1),
-        vsync: this,
-      );
-      _tabController!.addListener(() {
-        if (!_tabController!.indexIsChanging && _slots.isNotEmpty) {
-          final slot = _slots[_tabController!.index];
-          ref
-              .read(stockFilterProvider.notifier)
-              .setContainer(slot.location, slot.index);
-        }
-      });
+  @override
+  void initState() {
+    super.initState();
+    // 기본값으로 초기화 (각 위치 1개씩)
+    _slots = StorageLocation.values
+        .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
+        .toList();
+    _tabController = TabController(length: _slots.length, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      final slot = _slots[_tabController.index];
+      ref.read(stockFilterProvider.notifier).setContainer(slot.location, slot.index);
     }
+  }
+
+  void _rebuildController(List<StorageContainerSlot> slots) {
+    final prevIndex = _tabController.index;
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    _slots = slots;
+    final length = slots.isNotEmpty ? slots.length : 1;
+    _tabController = TabController(
+      length: length,
+      initialIndex: prevIndex.clamp(0, length - 1),
+      vsync: this,
+    );
+    _tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final slotsAsync = ref.watch(storageContainerSlotsProvider);
-
-    return slotsAsync.when(
-      data: (slots) {
-        _syncTabController(slots);
-        return _buildScaffold(slots);
-      },
-      loading: () {
-        // 로딩 중에는 기본 4탭으로 표시
-        final defaultSlots = StorageLocation.values
-            .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
-            .toList();
-        _syncTabController(defaultSlots);
-        return _buildScaffold(defaultSlots);
-      },
-      error: (_, __) {
-        final defaultSlots = StorageLocation.values
-            .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
-            .toList();
-        _syncTabController(defaultSlots);
-        return _buildScaffold(defaultSlots);
+    // 슬롯 변경 감지 → setState로 TabController 재생성
+    ref.listen<AsyncValue<List<StorageContainerSlot>>>(
+      storageContainerSlotsProvider,
+      (_, next) {
+        next.whenData((slots) {
+          if (_slots.length != slots.length) {
+            setState(() => _rebuildController(slots));
+          } else {
+            _slots = slots;
+          }
+        });
       },
     );
+
+    return _buildScaffold();
   }
 
-  Widget _buildScaffold(List<StorageContainerSlot> slots) {
-    final tc = _tabController!;
+  Widget _buildScaffold() {
+    final slots = _slots;
+    final tc = _tabController;
     return Scaffold(
       appBar: AppBar(
         title: const Text('재고', style: AppTheme.screenTitleStyle),
