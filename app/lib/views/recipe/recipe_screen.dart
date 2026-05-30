@@ -299,13 +299,13 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final tt = Theme.of(context).textTheme;
     final options = ref.watch(recipeOptionsProvider);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+    return Material(
+      color: const Color(0xFFFFFAF3),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           ListTile(

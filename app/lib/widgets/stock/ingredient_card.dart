@@ -54,7 +54,7 @@ class IngredientCard extends StatelessWidget {
         await onDelete();
       },
       child: Material(
-        color: Colors.white,
+        color: const Color(0xFFFFFAF3),
         child: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
@@ -62,7 +62,7 @@ class IngredientCard extends StatelessWidget {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFFFFAF3),
               border: Border(
                 left: BorderSide(color: leftColor, width: 4),
                 top: showTopBorder

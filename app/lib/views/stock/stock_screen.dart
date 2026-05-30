@@ -349,9 +349,6 @@ class _StockList extends ConsumerWidget {
               return EmptyStateWidget(
                 storageLocation: storageLocation,
                 hasFilter: filter.category != null,
-                onAddTap: () => context.push(
-                  '/stock/add?location=${storageLocation.name}',
-                ),
               );
             }
 
@@ -361,7 +358,7 @@ class _StockList extends ConsumerWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFFFFAF3),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(

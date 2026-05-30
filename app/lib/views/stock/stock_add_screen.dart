@@ -8,6 +8,7 @@ import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/reward_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/sub_category_service.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 재료 추가/수정 화면.
 ///
@@ -144,6 +145,15 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         subCategory: subCategory,
       );
       _isNameAutoSet = true;
+      // 수량 자동 입력 (추가 모드만)
+      if (widget.itemId == null) {
+        final qty = SubCategoryService.getDefaultQuantity(
+          _selectedCategory!,
+          subCategory: subCategory,
+        );
+        _quantityController.text =
+            qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
+      }
     });
   }
 
@@ -412,7 +422,6 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
               onDateSelected: (date) {
                 setState(() => _expiryDate = date);
               },
-              onComingSoon: () => context.showComingSoon(),
             ),
 
             const SizedBox(height: 32),
@@ -494,8 +503,7 @@ class _CategorySelector extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(cat.emoji,
-                    style: const TextStyle(fontSize: 16)),
+                TwemojiIcon(cat.emoji, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   cat.label,
@@ -719,8 +727,7 @@ class _LocationSelector extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text(loc.emoji,
-                        style: const TextStyle(fontSize: 20)),
+                    TwemojiIcon(loc.emoji, size: 20),
                     const SizedBox(height: 4),
                     Text(
                       loc.label,
@@ -831,27 +838,37 @@ class _UnitField extends StatelessWidget {
   }
 }
 
-/// 유통기한 날짜 선택 + AI 추천 callout
+/// 유통기한 날짜 선택 + 빠른 선택 칩
 class _ExpiryDatePicker extends StatelessWidget {
   const _ExpiryDatePicker({
     required this.selectedDate,
     required this.category,
     required this.subCategory,
     required this.onDateSelected,
-    required this.onComingSoon,
   });
 
   final DateTime? selectedDate;
   final StockCategory? category;
   final String? subCategory;
   final void Function(DateTime?) onDateSelected;
-  final VoidCallback onComingSoon;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 날짜 선택 행
+        // 빠른 선택 칩 (카테고리 선택 시 노출)
+        if (category != null) ...[
+          _ExpiryQuickChips(
+            category: category!,
+            subCategory: subCategory,
+            onSelected: (days) {
+              onDateSelected(DateTime.now().add(Duration(days: days)));
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+        // 날짜 직접 선택 행
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -886,7 +903,7 @@ class _ExpiryDatePicker extends StatelessWidget {
                   child: Text(
                     selectedDate != null
                         ? _formatDate(selectedDate!)
-                        : '유통기한을 선택하세요 (선택)',
+                        : '직접 날짜 선택',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: selectedDate != null
                               ? null
@@ -903,74 +920,113 @@ class _ExpiryDatePicker extends StatelessWidget {
             ),
           ),
         ),
-
-        // AI 추천 callout (Phase 1.0+ — 후속 개발중)
-        if (category != null) ...[
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: onComingSoon,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primaryContainer
-                    .withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Text('💡', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI 유통기한 추천',
-                          style:
-                              Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                        ),
-                        Text(
-                          '${subCategory ?? category?.label ?? '이 재료'}의 일반적인 유통기한을 자동으로 추천해 드려요.',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '개발중 🚧',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }
 
   String _formatDate(DateTime date) {
     return '${date.year}년 ${date.month}월 ${date.day}일';
+  }
+}
+
+/// 유통기한 빠른 선택 칩 목록
+class _ExpiryQuickChips extends StatelessWidget {
+  const _ExpiryQuickChips({
+    required this.category,
+    required this.subCategory,
+    required this.onSelected,
+  });
+
+  final StockCategory category;
+  final String? subCategory;
+  final void Function(int days) onSelected;
+
+  static const _options = [
+    (3, '3일'),
+    (7, '1주'),
+    (14, '2주'),
+    (30, '1개월'),
+    (90, '3개월'),
+    (180, '6개월'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final defaultDays = SubCategoryService.getDefaultExpiryDays(
+      category,
+      subCategory: subCategory,
+    );
+    final recommendedDays = _options
+        .map((o) => o.$1)
+        .reduce((a, b) =>
+            (a - defaultDays).abs() <= (b - defaultDays).abs() ? a : b);
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: _options.map((option) {
+        final (days, label) = option;
+        final isRecommended = days == recommendedDays;
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onSelected(days);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: isRecommended
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(20),
+              border: isRecommended
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1,
+                    )
+                  : Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 0.5,
+                    ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: isRecommended
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: isRecommended
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                ),
+                if (isRecommended) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '추천',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }

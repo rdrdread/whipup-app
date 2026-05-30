@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whipup/models/achievement.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 업적 카드 위젯.
 ///
@@ -50,10 +51,7 @@ class AchievementCard extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Text(
-                    achievement.emoji,
-                    style: const TextStyle(fontSize: 32),
-                  ),
+                  TwemojiIcon(achievement.emoji, size: 32),
                   if (!isUnlocked)
                     Container(
                       width: 44,

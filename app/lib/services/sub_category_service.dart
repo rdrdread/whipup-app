@@ -131,6 +131,94 @@ abstract final class SubCategoryService {
     return subCategory;
   }
 
+  /// 재료별 마트 기본 구매 수량을 반환한다.
+  static double getDefaultQuantity(
+    StockCategory category, {
+    String? subCategory,
+  }) {
+    if (subCategory != null) {
+      const map = <String, double>{
+        '달걀': 10,
+        '우유/크림': 1,
+        '치즈': 1,
+        '버터/마가린': 1,
+        '요거트/발효유': 1,
+        '뿌리채소': 3,
+        '국산과일': 3,
+        '열대과일': 3,
+        '베리류': 150,
+      };
+      if (map.containsKey(subCategory)) return map[subCategory]!;
+    }
+    const catMap = <StockCategory, double>{
+      StockCategory.meat: 300,
+      StockCategory.seafood: 1,
+      StockCategory.vegetable: 1,
+      StockCategory.fruit: 3,
+      StockCategory.dairy: 1,
+      StockCategory.grain: 1,
+      StockCategory.seasoning: 1,
+      StockCategory.beverage: 1,
+      StockCategory.frozen: 1,
+      StockCategory.other: 1,
+    };
+    return catMap[category] ?? 1;
+  }
+
+  /// 재료별 일반적인 유통기한(일 수)을 반환한다.
+  static int getDefaultExpiryDays(
+    StockCategory category, {
+    String? subCategory,
+  }) {
+    if (subCategory != null) {
+      const map = <String, int>{
+        '잎채소': 5,
+        '뿌리채소': 14,
+        '열매채소': 7,
+        '줄기채소': 7,
+        '버섯': 5,
+        '국산과일': 7,
+        '열대과일': 5,
+        '베리류': 5,
+        '달걀': 21,
+        '우유/크림': 14,
+        '치즈': 30,
+        '버터/마가린': 60,
+        '요거트/발효유': 14,
+        '쌀/잡곡': 180,
+        '밀가루/전분': 90,
+        '면류': 90,
+        '빵/떡': 5,
+        '냉동육류': 90,
+        '냉동해산물': 60,
+        '냉동채소': 90,
+        '냉동가공식품': 90,
+        '간장/된장/고추장': 180,
+        '소금/설탕/식초': 365,
+        '오일류': 180,
+        '소스류': 90,
+        '향신료': 180,
+        '물/탄산': 30,
+        '주스/음료': 14,
+        '주류': 365,
+      };
+      if (map.containsKey(subCategory)) return map[subCategory]!;
+    }
+    const catMap = <StockCategory, int>{
+      StockCategory.meat: 4,
+      StockCategory.seafood: 2,
+      StockCategory.vegetable: 7,
+      StockCategory.fruit: 7,
+      StockCategory.dairy: 14,
+      StockCategory.grain: 90,
+      StockCategory.seasoning: 90,
+      StockCategory.beverage: 14,
+      StockCategory.frozen: 60,
+      StockCategory.other: 14,
+    };
+    return catMap[category] ?? 14;
+  }
+
   /// 사용 가능한 단위 목록을 반환한다.
   static const List<String> allUnits = [
     'g',

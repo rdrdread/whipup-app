@@ -90,6 +90,12 @@ abstract final class AppTheme {
       ).copyWith(
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
         scaffoldBackgroundColor: const Color(0xFFFAFAF8),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFFAFAF8),
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+        ),
         textTheme: _buildTextTheme(Brightness.light),
       );
 

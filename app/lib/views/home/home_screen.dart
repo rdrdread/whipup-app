@@ -450,7 +450,7 @@ class _RecipeSlideCard extends StatelessWidget {
         width: 220,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFFFFAF3),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -539,7 +539,7 @@ class _ContentCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFAF3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(

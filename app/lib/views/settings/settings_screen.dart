@@ -70,9 +70,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: const Color(0xFFFAFAF8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF8F0),
+        backgroundColor: const Color(0xFFFAFAF8),
         elevation: 0,
         title: const Text(
           '설정',
@@ -286,7 +286,7 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFAF3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(

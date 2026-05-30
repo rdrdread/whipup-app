@@ -95,7 +95,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isLastPage = _currentPage == totalPages - 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF8),
+      backgroundColor: const Color(0xFFFAFAF8),
       body: SafeArea(
         child: Column(
           children: [
@@ -288,7 +288,7 @@ class _LocationToggleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryColor.withAlpha(18)
-              : Colors.white,
+              : const Color(0xFFFFFAF3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected

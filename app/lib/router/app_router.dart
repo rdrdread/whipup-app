@@ -128,6 +128,8 @@ class _MainShell extends StatelessWidget {
         selectedIndex: _locationToIndex(location),
         onDestinationSelected: (index) => _onTabTapped(context, index),
         animationDuration: const Duration(milliseconds: 200),
+        backgroundColor: const Color(0xFFFAFAF8),
+        surfaceTintColor: Colors.transparent,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.cottage_outlined),
