@@ -25,6 +25,7 @@ class StockAddScreen extends ConsumerStatefulWidget {
     super.key,
     this.itemId,
     this.initialStorageLocationName,
+    this.initialContainerIndex = 0,
   });
 
   /// null이면 추가 모드, 값이 있으면 수정 모드
@@ -32,6 +33,9 @@ class StockAddScreen extends ConsumerStatefulWidget {
 
   /// 초기 보관 위치 (StockScreen FAB에서 진입 시 전달)
   final String? initialStorageLocationName;
+
+  /// 초기 재고함 인덱스 (StockScreen FAB에서 진입 시 전달)
+  final int initialContainerIndex;
 
   @override
   ConsumerState<StockAddScreen> createState() => _StockAddScreenState();
@@ -48,6 +52,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
   String? _selectedSubCategory;
   String? _selectedPart;
   StorageLocation _selectedLocation = StorageLocation.fridge;
+  int _containerIndex = 0;
   DateTime? _expiryDate;
   bool _isUnitAutoSet = false;
   bool _isNameAutoSet = false;
@@ -59,7 +64,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
   @override
   void initState() {
     super.initState();
-    // 초기 보관 위치 설정
+    // 초기 보관 위치 및 재고함 인덱스 설정
     if (widget.initialStorageLocationName != null) {
       final loc = StorageLocation.values.where(
         (l) => l.name == widget.initialStorageLocationName,
@@ -68,6 +73,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         _selectedLocation = loc.first;
       }
     }
+    _containerIndex = widget.initialContainerIndex;
     // 수정 모드: 기존 데이터 로드
     if (widget.itemId != null) {
       _loadExistingItem();
@@ -91,6 +97,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
             _selectedSubCategory = item.subCategory;
             _selectedPart = item.itemPart;
             _selectedLocation = item.storageLocation;
+            _containerIndex = item.containerIndex;
             _expiryDate = item.expiryDate;
           });
         }
@@ -205,6 +212,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         subCategory: _selectedSubCategory,
         itemPart: _selectedPart,
         storageLocation: _selectedLocation,
+        containerIndex: _containerIndex,
         quantity: quantity,
         unit: unit,
         expiryDate: _expiryDate,

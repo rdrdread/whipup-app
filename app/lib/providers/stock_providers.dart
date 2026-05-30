@@ -42,7 +42,16 @@ class StockFilterNotifier extends _$StockFilterNotifier {
 
   /// 보관 위치 탭을 전환한다.
   void setStorageLocation(StorageLocation location) {
-    state = state.copyWith(storageLocation: location, category: null);
+    state = state.copyWith(storageLocation: location, containerIndex: 0, category: null);
+  }
+
+  /// 보관 위치와 컨테이너 인덱스를 함께 전환한다.
+  void setContainer(StorageLocation location, int containerIndex) {
+    state = state.copyWith(
+      storageLocation: location,
+      containerIndex: containerIndex,
+      category: null,
+    );
   }
 
   /// 카테고리 필터를 토글한다. 동일 카테고리 탭 시 해제.

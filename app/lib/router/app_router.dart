@@ -70,7 +70,12 @@ final appRouter = GoRouter(
       path: '/stock/add',
       builder: (context, state) {
         final location = state.uri.queryParameters['location'];
-        return StockAddScreen(initialStorageLocationName: location);
+        final containerIndex =
+            int.tryParse(state.uri.queryParameters['containerIndex'] ?? '0') ?? 0;
+        return StockAddScreen(
+          initialStorageLocationName: location,
+          initialContainerIndex: containerIndex,
+        );
       },
     ),
     GoRoute(

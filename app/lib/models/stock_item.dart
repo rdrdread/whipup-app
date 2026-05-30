@@ -46,6 +46,9 @@ abstract class StockItem with _$StockItem {
 
     /// 등록일
     required DateTime addedAt,
+
+    /// 재고함 인덱스 (0-based, 동일 보관 위치 내 여러 재고함 구분)
+    @Default(0) int containerIndex,
   }) = _StockItem;
 
   factory StockItem.fromJson(Map<String, dynamic> json) =>
