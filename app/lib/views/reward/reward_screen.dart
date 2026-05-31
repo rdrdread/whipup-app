@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/achievement.dart';
@@ -258,7 +258,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border:
             Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),

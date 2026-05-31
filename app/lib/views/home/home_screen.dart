@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/column_article.dart';
@@ -9,6 +9,7 @@ import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/widgets/column/column_category_badge.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
+import 'package:whipup/widgets/recipe/recipe_type_badge.dart';
 
 /// 홈 화면 (대시보드).
 ///
@@ -77,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Spacer(),
-                  Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF999999)),
+                  Icon(Icons.chevron_right_rounded, size: 20, color: AppTheme.iconGrey),
                 ],
               ),
             ),
@@ -133,11 +134,11 @@ class HomeScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 13,
-                      color: Color(0xFF999999),
+                      color: AppTheme.iconGrey,
                     ),
                   ),
                   SizedBox(width: 2),
-                  Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF999999)),
+                  Icon(Icons.chevron_right_rounded, size: 18, color: AppTheme.iconGrey),
                 ],
               ),
             ),
@@ -181,25 +182,9 @@ String _recipeTypeEmoji(RecipeType type) => switch (type) {
       RecipeType.sauce => '🫙',
     };
 
-Color _recipeTypeBadgeColor(RecipeType type) => switch (type) {
-      RecipeType.main => const Color(0xFF2E7D32),
-      RecipeType.side => const Color(0xFF558B2F),
-      RecipeType.soup => const Color(0xFF1565C0),
-      RecipeType.dessert => const Color(0xFF6A1B9A),
-      RecipeType.snack => const Color(0xFFE65100),
-      RecipeType.drink => const Color(0xFF00838F),
-      RecipeType.sauce => const Color(0xFF827717),
-    };
+Color _recipeTypeBadgeColor(RecipeType type) => RecipeTypeBadge.colorsOf(type).$2;
 
-Color _recipeTypeBadgeBg(RecipeType type) => switch (type) {
-      RecipeType.main => const Color(0xFFE8F5E9),
-      RecipeType.side => const Color(0xFFF1F8E9),
-      RecipeType.soup => const Color(0xFFE3F2FD),
-      RecipeType.dessert => const Color(0xFFF3E5F5),
-      RecipeType.snack => const Color(0xFFFBE9E7),
-      RecipeType.drink => const Color(0xFFE0F7FA),
-      RecipeType.sauce => const Color(0xFFF9FBE7),
-    };
+Color _recipeTypeBadgeBg(RecipeType type) => RecipeTypeBadge.colorsOf(type).$1;
 
 // ─── 대시보드 카드 ─────────────────────────────────────────────────────────────
 
@@ -222,14 +207,14 @@ class _DashboardCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [AppTheme.primaryColor, Color(0xFFE88A5A)],
+            colors: [AppTheme.primaryColor, AppTheme.gradientEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x40F04E23),
+              color: AppTheme.shadowPrimary,
               blurRadius: 16,
               offset: Offset(0, 4),
             ),
@@ -448,7 +433,7 @@ class _RecipePlaceholderList extends StatelessWidget {
             width: 240,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppTheme.primaryColor.withValues(alpha: 0.3),
@@ -478,7 +463,7 @@ class _RecipePlaceholderList extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 12,
-                          color: Color(0xFF999999),
+                          color: AppTheme.iconGrey,
                         ),
                       ),
                     ],
@@ -520,11 +505,11 @@ class _RecipeSlideCard extends StatelessWidget {
         width: 220,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0F000000),
+              color: AppTheme.dividerSubtle,
               blurRadius: 4,
               offset: Offset(0, 1),
             ),
@@ -573,7 +558,7 @@ class _RecipeSlideCard extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
-                      color: Color(0x992C2C2C),
+                      color: AppTheme.iconSubtle,
                     ),
                   ),
                 ],
@@ -602,11 +587,11 @@ class _ContentCard extends StatelessWidget {
         width: 200,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0F000000),
+              color: AppTheme.dividerSubtle,
               blurRadius: 4,
               offset: Offset(0, 1),
             ),
@@ -634,7 +619,7 @@ class _ContentCard extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 12,
-                  color: Color(0x992C2C2C),
+                  color: AppTheme.iconSubtle,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

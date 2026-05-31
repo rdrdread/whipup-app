@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -265,7 +265,7 @@ class _IngredientChip extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? cs.primary : cs.surfaceContainerHigh,
+          color: isSelected ? cs.primary : AppTheme.surfaceHigh,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -299,7 +299,7 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final options = ref.watch(recipeOptionsProvider);
 
     return Material(
-      color: const Color(0xFFFFFAF3),
+      color: AppTheme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
@@ -492,7 +492,7 @@ class _SelectButton extends StatelessWidget {
             fontFamily: 'Pretendard',
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: Color(0x992C2C2C),
+            color: AppTheme.iconSubtle,
           ),
         ),
       ),
@@ -595,9 +595,9 @@ class _ApiKeyBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1),
+        color: AppTheme.bannerWarningBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFD54F), width: 1),
+        border: Border.all(color: AppTheme.bannerWarningBorder, width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,7 +614,7 @@ class _ApiKeyBanner extends StatelessWidget {
                     fontFamily: 'Pretendard',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF5D4037),
+                    color: AppTheme.bannerWarningTitle,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -623,7 +623,7 @@ class _ApiKeyBanner extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 12,
-                    color: Color(0xFF795548),
+                    color: AppTheme.bannerWarningBody,
                     height: 1.5,
                   ),
                 ),

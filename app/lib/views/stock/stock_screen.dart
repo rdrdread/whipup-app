@@ -348,7 +348,7 @@ class _SortBar extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 13,
-                        color: Color(0x992C2C2C),
+                        color: AppTheme.iconSubtle,
                       ),
                     ),
                   ],
@@ -369,8 +369,8 @@ class _SortBar extends StatelessWidget {
                                 ? FontWeight.w600
                                 : FontWeight.w500,
                             color: currentSort == sort
-                                ? const Color(0xFFF04E23)
-                                : const Color(0x992C2C2C),
+                                ? AppTheme.primaryColor
+                                : AppTheme.iconSubtle,
                           ),
                         ),
                         if (currentSort == sort) ...[
@@ -380,7 +380,7 @@ class _SortBar extends StatelessWidget {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 14,
-                            color: const Color(0xFFF04E23),
+                            color: AppTheme.primaryColor,
                           ),
                         ],
                       ],
@@ -475,11 +475,11 @@ class _StockList extends ConsumerWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFAF3),
+                    color: AppTheme.cardColor,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x0F000000),
+                        color: AppTheme.dividerSubtle,
                         blurRadius: 4,
                         offset: Offset(0, 1),
                       ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -500,7 +500,7 @@ class _CategorySelector extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(10),
               border: isSelected
                   ? null
@@ -572,7 +572,7 @@ class _SubCategorySelector extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
               border: isSelected
                   ? null
@@ -628,7 +628,7 @@ class _PartSelector extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.tertiary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
               border: isSelected
                   ? null
@@ -741,7 +741,7 @@ class _LocationSelector extends ConsumerWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(10),
               border: isSelected
                   ? Border.all(
@@ -998,7 +998,7 @@ class _ExpiryQuickChips extends StatelessWidget {
             decoration: BoxDecoration(
               color: isRecommended
                   ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
               border: isRecommended
                   ? Border.all(

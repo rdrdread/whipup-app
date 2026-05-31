@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/stock_category.dart';
@@ -132,7 +132,7 @@ class _StorageSetupScreenState extends State<StorageSetupScreen> {
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 14,
-                          color: Color(0x992C2C2C),
+                          color: AppTheme.iconSubtle,
                         ),
                       ),
                     ],
@@ -148,7 +148,7 @@ class _StorageSetupScreenState extends State<StorageSetupScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: const [
                             BoxShadow(
-                              color: Color(0x0F000000),
+                              color: AppTheme.dividerSubtle,
                               blurRadius: 4,
                               offset: Offset(0, 1),
                             ),
@@ -255,7 +255,7 @@ class _StorageSection extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 12,
-                        color: Color(0x992C2C2C),
+                        color: AppTheme.iconSubtle,
                       ),
                     ),
                   ],
@@ -365,7 +365,7 @@ class _NameFieldState extends State<_NameField> {
         hintStyle: const TextStyle(
           fontFamily: 'Pretendard',
           fontSize: 13,
-          color: Color(0x662C2C2C),
+          color: AppTheme.textDisabled,
         ),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -407,13 +407,13 @@ class _CounterButton extends StatelessWidget {
           border: Border.all(
             color: enabled
                 ? AppTheme.primaryColor
-                : const Color(0x332C2C2C),
+                : AppTheme.textFaint,
           ),
         ),
         child: Icon(
           icon,
           size: 18,
-          color: enabled ? AppTheme.primaryColor : const Color(0x332C2C2C),
+          color: enabled ? AppTheme.primaryColor : AppTheme.textFaint,
         ),
       ),
     );

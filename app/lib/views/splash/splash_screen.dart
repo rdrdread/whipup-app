@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/theme/app_theme.dart';
@@ -64,9 +64,9 @@ class _SplashScreenState extends State<SplashScreen>
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x4DF04E23),
+                      color: AppTheme.primaryColor.withAlpha(0x4D),
                       blurRadius: 32,
                       offset: Offset(0, 8),
                     ),
@@ -100,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen>
                   fontFamily: 'Pretendard',
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  color: Color(0x992C2C2C),
+                  color: AppTheme.iconSubtle,
                 ),
               ),
             ],

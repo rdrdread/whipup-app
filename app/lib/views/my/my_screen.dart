@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/providers/reward_providers.dart';
@@ -81,11 +81,11 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x0F000000),
+                  color: AppTheme.dividerSubtle,
                   blurRadius: 4,
                   offset: Offset(0, 1),
                 ),
@@ -110,7 +110,7 @@ class MyScreen extends ConsumerWidget {
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(
                   icon: Icons.settings_rounded,
-                  iconColor: const Color(0x992C2C2C),
+                  iconColor: AppTheme.iconSubtle,
                   label: '설정',
                   onTap: () => context.push('/my/settings'),
                 ),
@@ -124,11 +124,11 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x0F000000),
+                  color: AppTheme.dividerSubtle,
                   blurRadius: 4,
                   offset: Offset(0, 1),
                 ),
@@ -139,7 +139,7 @@ class MyScreen extends ConsumerWidget {
               children: [
                 _MenuRow(
                   icon: Icons.camera_alt_rounded,
-                  iconColor: const Color(0x992C2C2C),
+                  iconColor: AppTheme.iconSubtle,
                   label: '영수증 스캔',
                   subtitle: '영수증 촬영으로 재료 추가',
                   onTap: () => context.push('/camera'),
@@ -147,7 +147,7 @@ class MyScreen extends ConsumerWidget {
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(
                   icon: Icons.mic_rounded,
-                  iconColor: const Color(0x992C2C2C),
+                  iconColor: AppTheme.iconSubtle,
                   label: '음성 재료 입력',
                   subtitle: '말로 재료를 추가해요',
                   onTap: () => context.push('/stock/add'),
@@ -155,7 +155,7 @@ class MyScreen extends ConsumerWidget {
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(
                   icon: Icons.info_outline_rounded,
-                  iconColor: const Color(0x992C2C2C),
+                  iconColor: AppTheme.iconSubtle,
                   label: '앱 정보',
                   onTap: () => _showComingSoon(context),
                 ),
@@ -190,11 +190,11 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F000000),
+            color: AppTheme.dividerSubtle,
             blurRadius: 3,
             offset: Offset(0, 1),
           ),
@@ -218,7 +218,7 @@ class _StatBox extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 12,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
             textAlign: TextAlign.center,
           ),
@@ -274,7 +274,7 @@ class _MenuRow extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 12,
-                        color: Color(0x992C2C2C),
+                        color: AppTheme.iconSubtle,
                       ),
                     ),
                   ],
@@ -284,7 +284,7 @@ class _MenuRow extends StatelessWidget {
             const Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:whipup/providers/app_settings_providers.dart';
@@ -173,7 +173,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
-                      color: Color(0x992C2C2C),
+                      color: AppTheme.iconSubtle,
                       height: 1.5,
                     ),
                   ),
@@ -199,7 +199,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               hintStyle: const TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 14,
-                                color: Color(0x662C2C2C),
+                                color: AppTheme.textDisabled,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -312,7 +312,7 @@ class _SectionHeader extends StatelessWidget {
           fontFamily: 'Pretendard',
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Color(0x992C2C2C),
+          color: AppTheme.iconSubtle,
           letterSpacing: 0.8,
         ),
       ),
@@ -330,11 +330,11 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F000000),
+            color: AppTheme.dividerSubtle,
             blurRadius: 4,
             offset: Offset(0, 1),
           ),
@@ -369,7 +369,7 @@ class _ThemeChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? AppTheme.primaryColor
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                : AppTheme.surfaceHighest,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -378,7 +378,7 @@ class _ThemeChip extends StatelessWidget {
               fontFamily: 'Pretendard',
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : const Color(0xFF2C2C2C),
+              color: selected ? Colors.white : AppTheme.textDark,
             ),
           ),
         ),
@@ -450,7 +450,7 @@ class _AlertDaysRow extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 15,
-              color: enabled ? const Color(0xFF2C2C2C) : const Color(0x662C2C2C),
+              color: enabled ? AppTheme.textDark : AppTheme.textDisabled,
             ),
           ),
           PopupMenuButton<int>(
@@ -474,14 +474,14 @@ class _AlertDaysRow extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: enabled
                         ? AppTheme.primaryColor
-                        : const Color(0x662C2C2C),
+                        : AppTheme.textDisabled,
                   ),
                 ),
                 Icon(
                   Icons.arrow_drop_down,
                   size: 20,
                   color:
-                      enabled ? AppTheme.primaryColor : const Color(0x662C2C2C),
+                      enabled ? AppTheme.primaryColor : AppTheme.textDisabled,
                 ),
               ],
             ),
@@ -518,7 +518,7 @@ class _InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 14,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
         ],
@@ -553,7 +553,7 @@ class _NavRow extends StatelessWidget {
             const Icon(
               Icons.chevron_right,
               size: 18,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ],
         ),

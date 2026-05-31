@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
 import 'package:whipup/views/column/column_browse_screen.dart';
@@ -25,7 +26,7 @@ import 'package:whipup/views/voice/voice_screen.dart';
 ///
 /// 라우트 구조: `docs/core/screen_layout.md §1`
 final appRouter = GoRouter(
-  initialLocation: '/splash',
+  initialLocation: '/home',
   routes: [
     // ─── 스플래시 (Shell 밖) ──────────────────────────────────────────────
     GoRoute(
@@ -200,29 +201,29 @@ class _MainShellState extends State<_MainShell> {
           selectedIndex: _locationToIndex(location),
           onDestinationSelected: (index) => _onTabTapped(context, index),
           animationDuration: const Duration(milliseconds: 200),
-          backgroundColor: const Color(0xFFFAFAF8),
+          backgroundColor: AppTheme.backgroundColor,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.cottage_outlined),
-              selectedIcon: Icon(Icons.cottage),
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
               label: '홈',
             ),
             NavigationDestination(
-              icon: Icon(Icons.kitchen_outlined),
-              selectedIcon: Icon(Icons.kitchen),
+              icon: Icon(Icons.shopping_basket_outlined),
+              selectedIcon: Icon(Icons.shopping_basket),
               label: '재고',
             ),
             NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long),
+              icon: Icon(Icons.restaurant_menu_outlined),
+              selectedIcon: Icon(Icons.restaurant_menu),
               label: '레시피',
             ),
             NavigationDestination(
-              icon: Icon(Icons.face_outlined),
-              selectedIcon: Icon(Icons.face),
+              icon: Icon(Icons.account_circle_outlined),
+              selectedIcon: Icon(Icons.account_circle),
               label: '마이',
             ),
           ],

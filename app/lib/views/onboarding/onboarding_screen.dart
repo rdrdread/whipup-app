@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/stock_category.dart';
@@ -124,7 +124,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 14,
-                            color: Color(0x992C2C2C),
+                            color: AppTheme.iconSubtle,
                           ),
                         ),
                       ),
@@ -163,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? AppTheme.primaryColor
-                        : const Color(0x332C2C2C),
+                        : AppTheme.textFaint,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -256,7 +256,7 @@ class _ContainerSetupPage extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               height: 1.6,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
           const SizedBox(height: 28),
@@ -299,7 +299,7 @@ class _LocationToggleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryColor.withAlpha(18)
-              : const Color(0xFFFFFAF3),
+              : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
@@ -333,7 +333,7 @@ class _LocationToggleCard extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
-                      color: Color(0x992C2C2C),
+                      color: AppTheme.iconSubtle,
                     ),
                   ),
                 ],
@@ -345,7 +345,7 @@ class _LocationToggleCard extends StatelessWidget {
                   : Icons.radio_button_unchecked_rounded,
               color: isSelected
                   ? AppTheme.primaryColor
-                  : const Color(0x332C2C2C),
+                  : AppTheme.textFaint,
               size: 22,
             ),
           ],
@@ -413,7 +413,7 @@ class _OnboardingPage extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               height: 1.6,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
         ],

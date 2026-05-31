@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
@@ -43,7 +44,7 @@ class CategoryChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surfaceContainerHigh,
+              : AppTheme.surfaceHigh,
           borderRadius: BorderRadius.circular(20),
           border: isSelected
               ? null

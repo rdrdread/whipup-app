@@ -11,15 +11,14 @@ abstract final class AppTheme {
   /// Primary: Flame Orange
   static const Color primaryColor = Color(0xFFF04E23);
 
-  /// Primary Container
-  static const Color primaryContainerColor = Color(0xFFFDD0C0);
+  /// Primary Container: Clean Off-White
+  static const Color primaryContainerColor = Color(0xFFFAFAFA);
 
-  /// Dark Mode Primary (밝게 조정)
-  static const Color primaryDarkColor = Color(0xFFF47A5C);
+  /// Dark Mode Primary (라이트와 동일한 Flame Orange로 통일)
+  static const Color primaryDarkColor = primaryColor;
 
-  /// 라이트 모드 배경: 밝고 가벼운 웜 화이트.
-  /// (#FFF8F0 → #FFFBF7 → #FFFDFB로 점진적으로 더 밝게 조정)
-  static const Color backgroundColor = Color(0xFFFFFDFB);
+  /// 배경색: Pure White
+  static const Color backgroundColor = Color(0xFFFFFFFF);
 
   /// 유통기한 fresh 색상 (데모 r4 팔레트)
   static const Color freshGreen = Color(0xFF66BB6A);
@@ -29,6 +28,62 @@ abstract final class AppTheme {
 
   /// 유통기한 danger 색상 (데모 r4 팔레트)
   static const Color dangerRed = Color(0xFFEF5350);
+
+  // ─── 서피스 / 카드 ────────────────────────────────────────────────────────
+
+  /// 카드·패널 공통 배경: Clean Off-White (surfaceContainerLow 대체)
+  static const Color cardColor = Color(0xFFFAFAFA);
+
+  /// 중간 강조 서피스: 연한 중립 회색 (surfaceContainerHigh 대체)
+  static const Color surfaceHigh = Color(0xFFF0F0F0);
+
+  /// 가장 강조된 서피스: 중립 회색 (surfaceContainerHighest 대체)
+  static const Color surfaceHighest = Color(0xFFE8E8E8);
+
+  /// 재고 삭제 스와이프 배경: dangerRed 10% 틴트
+  static const Color dismissSurface = Color(0xFFFFEBEB);
+
+  // ─── 아이콘 / 텍스트 보조 색상 ───────────────────────────────────────────
+
+  /// 보조 아이콘·텍스트: 60% 불투명 다크 (비활성 탭, 부제목 등)
+  static const Color iconSubtle = Color(0x992C2C2C);
+
+  /// 중립 회색 아이콘: chevron, 힌트 등
+  static const Color iconGrey = Color(0xFF999999);
+
+  /// 진한 텍스트: near-black (강조 레이블)
+  static const Color textDark = Color(0xFF2C2C2C);
+
+  /// 비활성화 상태: 40% 불투명 다크
+  static const Color textDisabled = Color(0x662C2C2C);
+
+  /// 매우 미묘한 상태: 20% 불투명 다크
+  static const Color textFaint = Color(0x332C2C2C);
+
+  // ─── 구분선 / 그림자 ──────────────────────────────────────────────────────
+
+  /// 미묘한 구분선: 6% 불투명 블랙
+  static const Color dividerSubtle = Color(0x0F000000);
+
+  /// 대시보드 카드 그라디언트 끝 색상 (Soft Coral)
+  static const Color gradientEnd = Color(0xFFE88A5A);
+
+  /// Primary 계열 그림자
+  static const Color shadowPrimary = Color(0x40F04E23);
+
+  // ─── API 키 배너 ─────────────────────────────────────────────────────────
+
+  /// API 키 안내 배너 배경: 연한 황색
+  static const Color bannerWarningBg = Color(0xFFFFF8E1);
+
+  /// API 키 안내 배너 테두리: Amber
+  static const Color bannerWarningBorder = Color(0xFFFFD54F);
+
+  /// API 키 안내 배너 제목 색상: 짙은 갈색
+  static const Color bannerWarningTitle = Color(0xFF5D4037);
+
+  /// API 키 안내 배너 본문 색상: 갈색
+  static const Color bannerWarningBody = Color(0xFF795548);
 
   /// 이모지 폰트 폴백.
   /// Pretendard에 없는 이모지 글리프를 TwemojiMozilla로 렌더링한다.
@@ -52,17 +107,17 @@ abstract final class AppTheme {
           primary: primaryColor,
           primaryContainer: primaryContainerColor,
           secondary: Color(0xFFFF7043),
-          secondaryContainer: Color(0xFFFFCCBC),
+          secondaryContainer: Color(0xFFFAFAFA),
           tertiary: Color(0xFF795548),
-          tertiaryContainer: Color(0xFFD7CCC8),
+          tertiaryContainer: Color(0xFFF5F5F5),
           appBarColor: primaryColor,
           error: dangerRed,
         ),
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 7,
+        blendLevel: 0,
         scaffoldBackground: backgroundColor,
         subThemesData: const FlexSubThemesData(
-          blendOnLevel: 10,
+          blendOnLevel: 0,
           blendOnColors: false,
           useTextTheme: true,
           useM2StyleDividerInM3: true,
@@ -102,25 +157,57 @@ abstract final class AppTheme {
         keyColors: const FlexKeyColors(
           useSecondary: true,
           useTertiary: true,
+          keepPrimaryContainer: true,
+          keepSecondaryContainer: true,
+          keepTertiaryContainer: true,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
         fontFamily: 'Pretendard',
       ).copyWith(
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
-        scaffoldBackgroundColor: const Color(0xFFFAFAF8),
+        scaffoldBackgroundColor: backgroundColor,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFFAFAF8),
+          backgroundColor: Color(0xFFFFFFFF),
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
         ),
         textTheme: _buildTextTheme(Brightness.light),
         navigationBarTheme: const NavigationBarThemeData(
-          backgroundColor: Color(0xFFFAFAF8),
+          backgroundColor: Color(0xFFFFFFFF),
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
+        ),
+        cardTheme: const CardThemeData(
+          color: Color(0xFFFAFAFA),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFFAFAFA),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFF04E23), width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFEF5350), width: 1.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFEF5350), width: 1.5),
+          ),
         ),
       );
 
@@ -128,11 +215,11 @@ abstract final class AppTheme {
   static ThemeData get dark => FlexThemeData.dark(
         colors: const FlexSchemeColor(
           primary: primaryDarkColor,
-          primaryContainer: Color(0xFF7A2210),
+          primaryContainer: primaryContainerColor,
           secondary: Color(0xFFFF8A65),
-          secondaryContainer: Color(0xFF4E2118),
+          secondaryContainer: Color(0xFF2A2A2A),
           tertiary: Color(0xFFBCAAA4),
-          tertiaryContainer: Color(0xFF4E342E),
+          tertiaryContainer: Color(0xFF262626),
           appBarColor: Color(0xFF1A0F0C),
           error: Color(0xFFEF9A9A),
         ),
@@ -168,6 +255,9 @@ abstract final class AppTheme {
         keyColors: const FlexKeyColors(
           useSecondary: true,
           useTertiary: true,
+          keepPrimaryContainer: true,
+          keepSecondaryContainer: true,
+          keepTertiaryContainer: true,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,

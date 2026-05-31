@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:whipup/theme/app_theme.dart';
 
 /// 칼럼 본문 렌더링 위젯.
@@ -71,7 +71,7 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: AppTheme.primaryColor.withValues(alpha: 0.25),

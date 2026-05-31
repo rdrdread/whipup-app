@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 
@@ -39,7 +40,7 @@ class IngredientCheckList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isOwned
                       ? cs.primaryContainer
-                      : cs.surfaceContainerHigh,
+                      : AppTheme.surfaceHigh,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -84,7 +85,7 @@ class IngredientCheckList extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHigh,
+                    color: AppTheme.surfaceHigh,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

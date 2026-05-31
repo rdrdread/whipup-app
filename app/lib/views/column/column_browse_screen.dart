@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/column_article.dart';
 import 'package:whipup/models/column_category.dart';
@@ -127,7 +128,7 @@ class _CategorySection extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 13,
-                  color: Color(0xFF999999),
+                  color: AppTheme.iconGrey,
                 ),
               ),
             ],
@@ -166,11 +167,11 @@ class _BrowseCard extends StatelessWidget {
         width: 210,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0F000000),
+              color: AppTheme.dividerSubtle,
               blurRadius: 4,
               offset: Offset(0, 1),
             ),
@@ -213,7 +214,7 @@ class _BrowseCard extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'Pretendard',
                 fontSize: 11,
-                color: Color(0xFF999999),
+                color: AppTheme.iconGrey,
               ),
             ),
           ],
