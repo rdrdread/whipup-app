@@ -36,9 +36,12 @@ class StockSummary {
 @riverpod
 class StockFilterNotifier extends _$StockFilterNotifier {
   @override
-  StockFilter build() => const StockFilter(
-        storageLocation: StorageLocation.fridge,
-      );
+  StockFilter build() => const StockFilter(); // 초기 탭 = 전체 (storageLocation: null)
+
+  /// 전체 탭: 위치 필터를 초기화한다.
+  void clearContainer() {
+    state = StockFilter(sortBy: state.sortBy, sortAscending: state.sortAscending);
+  }
 
   /// 보관 위치 탭을 전환한다.
   void setStorageLocation(StorageLocation location) {

@@ -36,6 +36,17 @@ Future<List<ColumnArticle>> filteredColumnList(Ref ref) async {
   );
 }
 
+/// 홈 화면용 최신 칼럼 3개 (카테고리 필터 독립).
+@riverpod
+Future<List<ColumnArticle>> recentColumns(Ref ref) async {
+  final repository = ref.watch(columnRepositoryProvider);
+  final result = await repository.getAll();
+  return result.when(
+    success: (list) => list.take(3).toList(),
+    failure: (_) => [],
+  );
+}
+
 /// 단일 칼럼 상세.
 @riverpod
 Future<ColumnArticle> columnDetail(Ref ref, String id) async {

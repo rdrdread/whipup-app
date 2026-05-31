@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whipup/models/column_article.dart';
+import 'package:whipup/models/recipe_type.dart';
+import 'package:whipup/providers/column_providers.dart';
+import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/column/column_category_badge.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 홈 화면 (대시보드).
 ///
 /// - 대시보드 카드: 전체 재고 현황 + 유통기한 임박
-/// - 빠른 레시피 추천: 가로 슬라이더
-/// - 콘텐츠(칼럼): 가로 슬라이더
+/// - 빠른 레시피 추천: 캐시된 레시피 슬라이더
+/// - 콘텐츠(칼럼): 최신 칼럼 슬라이더
 ///
 /// 레이아웃: `docs/core/screen_layout.md §3.1`
 class HomeScreen extends ConsumerWidget {
@@ -18,6 +23,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summaryAsync = ref.watch(stockSummaryProvider);
+    final recipesAsync = ref.watch(cachedRecipesProvider);
+    final columnsAsync = ref.watch(recentColumnsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => context.go('/recipe'),
               child: const Row(
                 children: [
-                  const TwemojiIcon('🍳', size: 18),
+                  TwemojiIcon('🍳', size: 18),
                   SizedBox(width: 6),
                   Text(
                     '빠른 레시피 추천',
@@ -69,97 +76,89 @@ class HomeScreen extends ConsumerWidget {
                       fontSize: 17,
                     ),
                   ),
+                  Spacer(),
+                  Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF999999)),
                 ],
               ),
             ),
           ),
           SizedBox(
             height: 120,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              children: [
-                _RecipeSlideCard(
-                  emoji: '🫕',
-                  badge: 'SOUP',
-                  badgeColor: const Color(0xFF1565C0),
-                  badgeBg: const Color(0xFFE3F2FD),
-                  title: '소고기 배추 전골',
-                  meta: '30분 · 보통',
-                  onTap: () => context.go('/recipe'),
-                ),
-                const SizedBox(width: 10),
-                _RecipeSlideCard(
-                  emoji: '🥘',
-                  badge: 'MAIN',
-                  badgeColor: const Color(0xFF2E7D32),
-                  badgeBg: const Color(0xFFE8F5E9),
-                  title: '소불고기 배추쌈',
-                  meta: '25분 · 쉬움',
-                  onTap: () => context.go('/recipe'),
-                ),
-                const SizedBox(width: 10),
-                _RecipeSlideCard(
-                  emoji: '🍲',
-                  badge: 'SOUP',
-                  badgeColor: const Color(0xFF1565C0),
-                  badgeBg: const Color(0xFFE3F2FD),
-                  title: '배추된장국',
-                  meta: '20분 · 쉬움',
-                  onTap: () => context.go('/recipe'),
-                ),
-              ],
+            child: recipesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => _RecipePlaceholderList(onTap: () => context.go('/recipe')),
+              data: (recipes) => recipes.isEmpty
+                  ? _RecipePlaceholderList(onTap: () => context.go('/recipe'))
+                  : ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                      itemCount: recipes.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, index) {
+                        final recipe = recipes[index];
+                        return _RecipeSlideCard(
+                          emoji: _recipeTypeEmoji(recipe.recipeType),
+                          badge: recipe.recipeType.label,
+                          badgeColor: _recipeTypeBadgeColor(recipe.recipeType),
+                          badgeBg: _recipeTypeBadgeBg(recipe.recipeType),
+                          title: recipe.title,
+                          meta: '${recipe.cookingTimeMinutes}분 · ${recipe.difficulty.label}',
+                          onTap: () => context.push('/recipe/${recipe.id}'),
+                        );
+                      },
+                    ),
             ),
           ),
 
           // ─── 콘텐츠 ────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: const Row(
-              children: [
-                const TwemojiIcon('📰', size: 18),
-                SizedBox(width: 6),
-                Text(
-                  '콘텐츠',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17,
+            child: GestureDetector(
+              onTap: () => context.push('/columns'),
+              child: const Row(
+                children: [
+                  TwemojiIcon('📰', size: 18),
+                  SizedBox(width: 6),
+                  Text(
+                    '콘텐츠',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                    ),
                   ),
-                ),
-              ],
+                  Spacer(),
+                  Text(
+                    '전체 보기',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 13,
+                      color: Color(0xFF999999),
+                    ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF999999)),
+                ],
+              ),
             ),
           ),
           SizedBox(
             height: 108,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              children: const [
-                _ContentCard(
-                  badge: '요리 과학',
-                  badgeColor: Color(0xFF42A5F5),
-                  badgeBg: Color(0x1A42A5F5),
-                  title: '당근은 왜 기름과 함께?',
-                  subtitle: '지용성 비타민의 비밀을 알면 당근 요리가 달라져요',
-                ),
-                SizedBox(width: 10),
-                _ContentCard(
-                  badge: '재료 보관',
-                  badgeColor: Color(0xFFEF5350),
-                  badgeBg: Color(0x1AEF5350),
-                  title: '실온 해동 vs 냉장 해동',
-                  subtitle: '정답은 의외로 간단해요. 안전한 해동법을 알아볼까요',
-                ),
-                SizedBox(width: 10),
-                _ContentCard(
-                  badge: '홈 가드닝',
-                  badgeColor: Color(0xFFF57F17),
-                  badgeBg: Color(0x1AF57F17),
-                  title: '베란다 허브 키우기',
-                  subtitle: '파슬리부터 시작하면 요리가 더 즐거워져요',
-                ),
-              ],
+            child: columnsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (columns) => columns.isEmpty
+                  ? const SizedBox.shrink()
+                  : ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                      itemCount: columns.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, index) => _ContentCard(
+                        article: columns[index],
+                        onTap: () => context.push('/my/column/${columns[index].id}'),
+                      ),
+                    ),
             ),
           ),
 
@@ -169,6 +168,38 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 }
+
+// ─── 레시피 타입 헬퍼 ──────────────────────────────────────────────────────────
+
+String _recipeTypeEmoji(RecipeType type) => switch (type) {
+      RecipeType.main => '🥘',
+      RecipeType.side => '🥗',
+      RecipeType.soup => '🫕',
+      RecipeType.dessert => '🍮',
+      RecipeType.snack => '🍿',
+      RecipeType.drink => '🥤',
+      RecipeType.sauce => '🫙',
+    };
+
+Color _recipeTypeBadgeColor(RecipeType type) => switch (type) {
+      RecipeType.main => const Color(0xFF2E7D32),
+      RecipeType.side => const Color(0xFF558B2F),
+      RecipeType.soup => const Color(0xFF1565C0),
+      RecipeType.dessert => const Color(0xFF6A1B9A),
+      RecipeType.snack => const Color(0xFFE65100),
+      RecipeType.drink => const Color(0xFF00838F),
+      RecipeType.sauce => const Color(0xFF827717),
+    };
+
+Color _recipeTypeBadgeBg(RecipeType type) => switch (type) {
+      RecipeType.main => const Color(0xFFE8F5E9),
+      RecipeType.side => const Color(0xFFF1F8E9),
+      RecipeType.soup => const Color(0xFFE3F2FD),
+      RecipeType.dessert => const Color(0xFFF3E5F5),
+      RecipeType.snack => const Color(0xFFFBE9E7),
+      RecipeType.drink => const Color(0xFFE0F7FA),
+      RecipeType.sauce => const Color(0xFFF9FBE7),
+    };
 
 // ─── 대시보드 카드 ─────────────────────────────────────────────────────────────
 
@@ -399,6 +430,69 @@ class _LocationChip extends StatelessWidget {
 
 // ─── 레시피 슬라이더 카드 ───────────────────────────────────────────────────────
 
+/// 레시피가 없을 때 표시하는 플레이스홀더 (레시피 화면 CTA).
+class _RecipePlaceholderList extends StatelessWidget {
+  const _RecipePlaceholderList({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: 240,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: const Row(
+              children: [
+                Text('🍳', style: TextStyle(fontSize: 32)),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'AI 레시피 추천받기',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '재고 재료로 바로 추천받아요',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 12,
+                          color: Color(0xFF999999),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _RecipeSlideCard extends StatelessWidget {
   const _RecipeSlideCard({
     required this.emoji,
@@ -426,7 +520,7 @@ class _RecipeSlideCard extends StatelessWidget {
         width: 220,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFAF3),
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -495,80 +589,59 @@ class _RecipeSlideCard extends StatelessWidget {
 // ─── 콘텐츠 카드 ───────────────────────────────────────────────────────────────
 
 class _ContentCard extends StatelessWidget {
-  const _ContentCard({
-    required this.badge,
-    required this.badgeColor,
-    required this.badgeBg,
-    required this.title,
-    required this.subtitle,
-  });
+  const _ContentCard({required this.article, required this.onTap});
 
-  final String badge;
-  final Color badgeColor;
-  final Color badgeBg;
-  final String title;
-  final String subtitle;
+  final ColumnArticle article;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF3),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 4,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeBg,
-              borderRadius: BorderRadius.circular(4),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 200,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 4,
+              offset: Offset(0, 1),
             ),
-            child: Text(
-              badge,
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: badgeColor,
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: Text(
-              subtitle,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ColumnCategoryBadge(category: article.category),
+            const SizedBox(height: 6),
+            Text(
+              article.title,
               style: const TextStyle(
                 fontFamily: 'Pretendard',
-                fontSize: 12,
-                color: Color(0x992C2C2C),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Expanded(
+              child: Text(
+                article.subtitle,
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 12,
+                  color: Color(0x992C2C2C),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

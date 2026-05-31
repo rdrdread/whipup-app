@@ -22,7 +22,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static const _storage = FlutterSecureStorage();
   static const _kGeminiApiKey = 'gemini_api_key';
-  static const _kExpiryAlert = 'notif_expiry_on';
   static const _kColumnAlert = 'notif_column_on';
   static const _kAlertDays = 'notif_days_before';
 
@@ -32,7 +31,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _loadingApiKey = true;
 
   // 알림 설정 (로컬 영속).
-  bool _expiryAlertOn = true;
   bool _columnAlertOn = true;
   int _alertDaysBefore = 3;
 
@@ -45,14 +43,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   /// 저장된 설정(API 키 + 알림)을 불러온다.
   Future<void> _loadSettings() async {
     final apiKey = await _storage.read(key: _kGeminiApiKey);
-    final expiry = await _storage.read(key: _kExpiryAlert);
     final column = await _storage.read(key: _kColumnAlert);
     final days = await _storage.read(key: _kAlertDays);
     if (!mounted) return;
     setState(() {
       if (apiKey != null) _apiKeyController.text = apiKey;
       _loadingApiKey = false;
-      _expiryAlertOn = expiry != 'false';
       _columnAlertOn = column != 'false';
       _alertDaysBefore = int.tryParse(days ?? '') ?? 3;
     });
@@ -71,11 +67,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) setState(() => _apiKeySaved = false);
-  }
-
-  Future<void> _setExpiryAlert(bool value) async {
-    setState(() => _expiryAlertOn = value);
-    await _storage.write(key: _kExpiryAlert, value: '$value');
   }
 
   Future<void> _setColumnAlert(bool value) async {
@@ -145,15 +136,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _SettingsCard(
             child: Column(
               children: [
-                _SwitchRow(
-                  label: '유통기한 알림',
-                  value: _expiryAlertOn,
-                  onChanged: _setExpiryAlert,
-                ),
-                const Divider(height: 1, indent: 16),
                 _AlertDaysRow(
                   value: _alertDaysBefore,
-                  enabled: _expiryAlertOn,
+                  enabled: true,
                   onChanged: _setAlertDays,
                 ),
                 const Divider(height: 1, indent: 16),
@@ -345,7 +330,7 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF3),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
@@ -384,7 +369,7 @@ class _ThemeChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? AppTheme.primaryColor
-                : const Color(0xFFF5F0E8),
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(

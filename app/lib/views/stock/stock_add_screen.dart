@@ -7,6 +7,7 @@ import 'package:whipup/core/extensions/build_context_extensions.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/reward_providers.dart';
+import 'package:whipup/providers/storage_config_provider.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/sub_category_service.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
@@ -346,9 +347,13 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
             const SizedBox(height: 8),
             _LocationSelector(
               selectedLocation: _selectedLocation,
-              onSelected: (loc) {
+              selectedContainerIndex: _containerIndex,
+              onSelected: (loc, containerIndex) {
                 HapticFeedback.selectionClick();
-                setState(() => _selectedLocation = loc);
+                setState(() {
+                  _selectedLocation = loc;
+                  _containerIndex = containerIndex;
+                });
               },
             ),
 
@@ -691,71 +696,82 @@ class _NameField extends StatelessWidget {
   }
 }
 
-/// 보관 위치 선택
-class _LocationSelector extends StatelessWidget {
+/// 보관 위치(컨테이너) 선택 — `storageContainerSlotsProvider`에서 슬롯 목록을 동적으로 읽는다.
+class _LocationSelector extends ConsumerWidget {
   const _LocationSelector({
     required this.selectedLocation,
+    required this.selectedContainerIndex,
     required this.onSelected,
   });
 
   final StorageLocation selectedLocation;
-  final void Function(StorageLocation) onSelected;
+  final int selectedContainerIndex;
+  final void Function(StorageLocation location, int containerIndex) onSelected;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: StorageLocation.values.map((loc) {
-        final isSelected = selectedLocation == loc;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: GestureDetector(
-              onTap: () => onSelected(loc),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(10),
-                  border: isSelected
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1.5,
-                        )
-                      : Border.all(
-                          color:
-                              Theme.of(context).colorScheme.outlineVariant,
-                          width: 0.5,
-                        ),
-                ),
-                child: Column(
-                  children: [
-                    TwemojiIcon(loc.emoji, size: 20),
-                    const SizedBox(height: 4),
-                    Text(
-                      loc.label,
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                                color: isSelected
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
-                              ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slotsAsync = ref.watch(storageContainerSlotsProvider);
+    return slotsAsync.when(
+      loading: () => const SizedBox(
+        height: 64,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, __) => _buildSlotGrid(
+        context,
+        StorageLocation.values
+            .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
+            .toList(),
+      ),
+      data: (slots) => _buildSlotGrid(context, slots),
+    );
+  }
+
+  Widget _buildSlotGrid(BuildContext context, List<StorageContainerSlot> slots) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: slots.map((slot) {
+        final isSelected =
+            selectedLocation == slot.location && selectedContainerIndex == slot.index;
+        return GestureDetector(
+          onTap: () => onSelected(slot.location, slot.index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(10),
+              border: isSelected
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.5,
+                    )
+                  : Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 0.5,
                     ),
-                  ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TwemojiIcon(slot.emoji, size: 20),
+                const SizedBox(height: 4),
+                Text(
+                  slot.label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w400,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              ],
             ),
           ),
         );

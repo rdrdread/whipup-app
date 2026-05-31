@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:whipup/core/errors/app_error.dart';
-import 'package:whipup/core/result.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/isar_provider.dart';
@@ -25,6 +23,12 @@ GeminiService geminiService(Ref ref) {
   );
 }
 
+/// Gemini API 키 설정 여부.
+@riverpod
+Future<bool> geminiApiKeyStatus(Ref ref) async {
+  return ref.watch(geminiServiceProvider).hasApiKey();
+}
+
 /// PromptBuilder Provider.
 @riverpod
 PromptBuilder promptBuilder(Ref ref) => const PromptBuilder();
@@ -35,8 +39,6 @@ RecipeGenerationService recipeGenerationService(Ref ref) {
   return RecipeGenerationService(
     geminiService: ref.watch(geminiServiceProvider),
     promptBuilder: ref.watch(promptBuilderProvider),
-    recipeRepository: ref.watch(recipeRepositoryProvider).asData?.value ??
-        _PlaceholderRecipeRepository(),
   );
 }
 
@@ -180,38 +182,3 @@ Future<List<Recipe>> favoriteRecipes(Ref ref) async {
   return result.valueOrNull ?? [];
 }
 
-// ─── Placeholder (초기화 전 임시) ─────────────────────────────────────────────
-
-/// RecipeGenerationService 초기화 전 임시 플레이스홀더.
-///
-/// recipeRepository가 비동기 초기화 중일 때만 사용.
-class _PlaceholderRecipeRepository implements RecipeRepository {
-  @override
-  Future<Result<Recipe, AppError>> generateFromStock(List<StockItem> items,
-          {String? recipeType, String? difficulty, int servings = 2}) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<List<Recipe>, AppError>> getCached() async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<void, AppError>> saveToCache(Recipe recipe) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<void, AppError>> toggleFavorite(String recipeId) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<List<Recipe>, AppError>> getFavorites() async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<Recipe, AppError>> getById(String recipeId) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<void, AppError>> markCompleted(String recipeId) async =>
-      throw UnimplementedError();
-}

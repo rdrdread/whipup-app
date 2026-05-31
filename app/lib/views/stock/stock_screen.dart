@@ -30,7 +30,7 @@ class StockScreen extends ConsumerStatefulWidget {
 }
 
 class _StockScreenState extends ConsumerState<StockScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late List<StorageContainerSlot> _slots;
 
@@ -41,14 +41,19 @@ class _StockScreenState extends ConsumerState<StockScreen>
     _slots = StorageLocation.values
         .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
         .toList();
-    _tabController = TabController(length: _slots.length, vsync: this);
+    // 탭 0 = 전체, 탭 1..n = 슬롯
+    _tabController = TabController(length: _slots.length + 1, vsync: this);
     _tabController.addListener(_onTabChanged);
   }
 
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
-      final slot = _slots[_tabController.index];
-      ref.read(stockFilterProvider.notifier).setContainer(slot.location, slot.index);
+      if (_tabController.index == 0) {
+        ref.read(stockFilterProvider.notifier).clearContainer();
+      } else {
+        final slot = _slots[_tabController.index - 1];
+        ref.read(stockFilterProvider.notifier).setContainer(slot.location, slot.index);
+      }
     }
   }
 
@@ -57,7 +62,7 @@ class _StockScreenState extends ConsumerState<StockScreen>
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _slots = slots;
-    final length = slots.isNotEmpty ? slots.length : 1;
+    final length = slots.length + 1; // +1 for 전체 탭
     _tabController = TabController(
       length: length,
       initialIndex: prevIndex.clamp(0, length - 1),
@@ -72,21 +77,34 @@ class _StockScreenState extends ConsumerState<StockScreen>
     super.dispose();
   }
 
+  bool _slotsEqual(List<StorageContainerSlot> a, List<StorageContainerSlot> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].label != b[i].label ||
+          a[i].location != b[i].location ||
+          a[i].index != b[i].index) return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 슬롯 변경 감지 → setState로 TabController 재생성
-    ref.listen<AsyncValue<List<StorageContainerSlot>>>(
-      storageContainerSlotsProvider,
-      (_, next) {
-        next.whenData((slots) {
-          if (_slots.length != slots.length) {
-            setState(() => _rebuildController(slots));
-          } else {
-            _slots = slots;
-          }
+    // ref.watch로 초기값과 이후 변경 모두 감지 (ref.listen은 초기값 놓침)
+    final slotsAsync = ref.watch(storageContainerSlotsProvider);
+    slotsAsync.whenData((slots) {
+      if (!_slotsEqual(_slots, slots)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            if (_slots.length != slots.length) {
+              _rebuildController(slots);
+            } else {
+              _slots = slots;
+            }
+          });
         });
-      },
-    );
+      }
+    });
 
     return _buildScaffold();
   }
@@ -125,38 +143,63 @@ class _StockScreenState extends ConsumerState<StockScreen>
           isScrollable: true,
           tabAlignment: TabAlignment.start,
           dividerColor: Colors.transparent,
-          tabs: slots
-              .map(
-                (slot) => Tab(
-                  height: 44,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TwemojiIcon(slot.emoji, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        slot.label,
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
+          tabs: [
+            // 전체 탭
+            const Tab(
+              height: 44,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TwemojiIcon('📦', size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    '전체',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
+                ],
+              ),
+            ),
+            // 슬롯 탭들
+            ...slots.map(
+              (slot) => Tab(
+                height: 44,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TwemojiIcon(slot.emoji, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      slot.label,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          ],
         ),
       ),
       body: TabBarView(
         controller: tc,
-        children: slots.map((slot) => _StockTabContent(slot: slot)).toList(),
+        children: [
+          const _AllStockTabContent(),
+          ...slots.map((slot) => _StockTabContent(slot: slot)),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (slots.isEmpty) return;
-          final slot = slots[tc.index.clamp(0, slots.length - 1)];
+          // 전체 탭(0)이면 첫 번째 슬롯으로 추가
+          final slotIndex = tc.index == 0 ? 0 : tc.index - 1;
+          final slot = slots[slotIndex.clamp(0, slots.length - 1)];
           context.push(
             '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}',
           );
@@ -350,6 +393,49 @@ class _SortBar extends StatelessWidget {
   }
 }
 
+// ─── 전체 탭 콘텐츠 ──────────────────────────────────────────────────────────────
+
+/// 전체 탭: 모든 위치의 재고를 표시한다.
+class _AllStockTabContent extends ConsumerWidget {
+  const _AllStockTabContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(stockFilterProvider);
+    final isCurrentTab = filter.storageLocation == null;
+
+    final effectiveFilter = StockFilter(
+      category: isCurrentTab ? filter.category : null,
+      sortBy: isCurrentTab ? filter.sortBy : SortType.addedAt,
+      sortAscending: isCurrentTab ? filter.sortAscending : false,
+    );
+
+    return Column(
+      children: [
+        _CategoryFilterBar(
+          selectedCategory: isCurrentTab ? filter.category : null,
+          onCategoryTap: isCurrentTab
+              ? (cat) => ref.read(stockFilterProvider.notifier).toggleCategory(cat!)
+              : (_) {},
+          onAllTap: isCurrentTab
+              ? () => ref.read(stockFilterProvider.notifier).clearCategory()
+              : () {},
+        ),
+        _SortBar(
+          currentSort: isCurrentTab ? filter.sortBy : SortType.addedAt,
+          ascending: isCurrentTab ? filter.sortAscending : false,
+          onSortChanged: isCurrentTab
+              ? (sort) => ref.read(stockFilterProvider.notifier).setSortBy(sort)
+              : (_) {},
+        ),
+        Expanded(
+          child: _StockList(filter: effectiveFilter, storageLocation: null),
+        ),
+      ],
+    );
+  }
+}
+
 // ─── 재고 목록 ────────────────────────────────────────────────────────────────
 
 class _StockList extends ConsumerWidget {
@@ -359,7 +445,7 @@ class _StockList extends ConsumerWidget {
   });
 
   final StockFilter filter;
-  final StorageLocation storageLocation;
+  final StorageLocation? storageLocation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

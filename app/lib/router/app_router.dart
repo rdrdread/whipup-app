@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
-import 'package:whipup/views/column/column_screen.dart';
+import 'package:whipup/views/column/column_browse_screen.dart';
 import 'package:whipup/views/column/column_detail_screen.dart';
+import 'package:whipup/views/column/column_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
 import 'package:whipup/views/onboarding/onboarding_screen.dart';
@@ -129,6 +130,10 @@ final appRouter = GoRouter(
       builder: (context, state) =>
           ColumnDetailScreen(columnId: state.pathParameters['id']!),
     ),
+    GoRoute(
+      path: '/columns',
+      builder: (context, state) => const ColumnBrowseScreen(),
+    ),
   ],
 );
 
@@ -197,6 +202,8 @@ class _MainShellState extends State<_MainShell> {
           animationDuration: const Duration(milliseconds: 200),
           backgroundColor: const Color(0xFFFAFAF8),
           surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          elevation: 0,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.cottage_outlined),

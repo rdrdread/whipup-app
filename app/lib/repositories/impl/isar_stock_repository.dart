@@ -179,7 +179,7 @@ class IsarStockRepository implements StockRepository {
   /// storageLocation을 `"fridge:0"` 형식으로 인코딩하여 저장한다.
   IsarStockItem _toIsar(StockItem item) {
     return IsarStockItem()
-      ..id = item.id
+      ..id = item.id == 0 ? Isar.autoIncrement : item.id
       ..name = item.name
       ..category = item.category.name
       ..subCategory = item.subCategory

@@ -21,7 +21,7 @@ class GeminiService {
 
   static const String _storageKey = 'gemini_api_key';
   static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
   static const int _maxRetries = 2;
   static const double _temperature = 0.7;
   static const int _maxTokens = 4096;
@@ -84,10 +84,17 @@ class GeminiService {
         }
         return Result.success(text as String);
       } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        // ignore: avoid_print
+        print('[GeminiService] HTTP $status | body: ${e.response?.data}');
+        // 재시도해도 무의미한 에러는 즉시 반환
+        if (status == 401 || status == 403 || status == 429 || status == 400) {
+          return Result.failure(_mapDioError(e));
+        }
         if (attempt >= _maxRetries) {
           return Result.failure(_mapDioError(e));
         }
-        // 지수 백오프: 2s, 4s
+        // 지수 백오프: 2s, 4s (5xx·timeout 등 일시적 오류만)
         await Future.delayed(Duration(seconds: (attempt + 1) * 2));
       } catch (e) {
         return Result.failure(AppError.unknown(e));
@@ -98,19 +105,41 @@ class GeminiService {
   }
 
   AppError _mapDioError(DioException e) {
-    switch (e.response?.statusCode) {
+    final status = e.response?.statusCode;
+    final body = e.response?.data;
+    // Google API 에러 메시지 추출
+    String? googleMessage;
+    if (body is Map) {
+      final error = body['error'];
+      if (error is Map) {
+        googleMessage = error['message']?.toString();
+      }
+    }
+
+    switch (status) {
       case 401:
-        return const AppError.network('API 키가 유효하지 않습니다. 설정에서 키를 확인해 주세요.');
+      case 403:
+        return AppError.network(
+          'API 키가 유효하지 않습니다. 설정에서 키를 확인해 주세요.'
+          '${googleMessage != null ? '\n[$googleMessage]' : ''}',
+        );
       case 429:
-        return const AppError.network('API 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.');
+        return AppError.network(
+          'API 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.'
+          '${googleMessage != null ? '\n[$googleMessage]' : ''}',
+        );
       case 400:
-        return AppError.network('잘못된 요청입니다: ${e.response?.data}');
+        return AppError.network(
+          '잘못된 요청입니다.'
+          '${googleMessage != null ? '\n[$googleMessage]' : '\n${body}'}',
+        );
       default:
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout) {
           return const AppError.network('요청 시간이 초과되었습니다. 네트워크를 확인해 주세요.');
         }
-        return AppError.network('네트워크 오류: ${e.message}');
+        return AppError.network('네트워크 오류 (HTTP $status): ${e.message}'
+            '${googleMessage != null ? '\n[$googleMessage]' : ''}');
     }
   }
 }

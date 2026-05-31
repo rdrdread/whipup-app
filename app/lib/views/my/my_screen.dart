@@ -81,7 +81,7 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFAF3),
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -124,7 +124,7 @@ class MyScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFAF3),
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -150,7 +150,7 @@ class MyScreen extends ConsumerWidget {
                   iconColor: const Color(0x992C2C2C),
                   label: '음성 재료 입력',
                   subtitle: '말로 재료를 추가해요',
-                  onTap: () => context.push('/voice'),
+                  onTap: () => context.push('/stock/add'),
                 ),
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(
@@ -190,7 +190,7 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF3),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(

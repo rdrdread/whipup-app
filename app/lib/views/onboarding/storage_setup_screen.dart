@@ -297,7 +297,7 @@ class _StorageSection extends StatelessWidget {
                   child: _NameField(
                     storageKey: key,
                     hint: defaultLabel,
-                    initialValue: names[key] ?? '',
+                    initialValue: names[key] ?? defaultLabel,
                     onChanged: (v) => onNameChanged(key, v),
                   ),
                 );
@@ -311,7 +311,7 @@ class _StorageSection extends StatelessWidget {
             child: _NameField(
               storageKey: '${location.name}:0',
               hint: location.label,
-              initialValue: names['${location.name}:0'] ?? '',
+              initialValue: names['${location.name}:0'] ?? location.label,
               onChanged: (v) => onNameChanged('${location.name}:0', v),
             ),
           ),

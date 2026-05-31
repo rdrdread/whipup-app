@@ -29,12 +29,15 @@ class IsarRecipeRepository implements RecipeRepository {
     String? difficulty,
     int servings = 2,
   }) async {
-    return _generation.generateRecipe(
+    final result = await _generation.generateRecipe(
       items: items,
       recipeType: recipeType,
       difficulty: difficulty,
       servings: servings,
     );
+    final recipe = result.valueOrNull;
+    if (recipe != null) await saveToCache(recipe);
+    return result;
   }
 
   @override

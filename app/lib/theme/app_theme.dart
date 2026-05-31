@@ -116,6 +116,12 @@ abstract final class AppTheme {
           elevation: 0,
         ),
         textTheme: _buildTextTheme(Brightness.light),
+        navigationBarTheme: const NavigationBarThemeData(
+          backgroundColor: Color(0xFFFAFAF8),
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          elevation: 0,
+        ),
       );
 
   /// 다크 테마.
