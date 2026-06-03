@@ -9,6 +9,7 @@ import 'package:whipup/repositories/impl/isar_recipe_repository.dart';
 import 'package:whipup/services/gemini_service.dart';
 import 'package:whipup/services/prompt_builder.dart';
 import 'package:whipup/services/recipe_generation_service.dart';
+import 'package:whipup/services/recipe_server_service.dart';
 
 part 'recipe_providers.g.dart';
 
@@ -42,12 +43,23 @@ RecipeGenerationService recipeGenerationService(Ref ref) {
   );
 }
 
+/// RecipeServerService Provider.
+///
+/// MockRecipeServerService 를 기본으로 사용. 운영 배포 시 WhipupRecipeApiClient 로 교체.
+@riverpod
+RecipeServerService recipeServerService(Ref ref) => const MockRecipeServerService();
+
 /// RecipeRepository Provider (keepAlive).
 @Riverpod(keepAlive: true)
 Future<RecipeRepository> recipeRepository(Ref ref) async {
   final isar = await ref.watch(isarDbProvider.future);
   final generation = ref.watch(recipeGenerationServiceProvider);
-  return IsarRecipeRepository(isar: isar, generationService: generation);
+  final server = ref.watch(recipeServerServiceProvider);
+  return IsarRecipeRepository(
+    isar: isar,
+    generationService: generation,
+    serverService: server,
+  );
 }
 
 // ─── 재료 선택 Provider ───────────────────────────────────────────────────────
@@ -130,7 +142,8 @@ class RecipeOptionState {
 /// AI 레시피 생성 Notifier.
 ///
 /// [generate] 호출 → AI 생성 → 결과 캐시 → UI 갱신
-@riverpod
+/// keepAlive: 다른 탭으로 이동했다가 돌아와도 결과가 유지된다.
+@Riverpod(keepAlive: true)
 class RecipeGenerator extends _$RecipeGenerator {
   @override
   AsyncValue<Recipe?> build() => const AsyncValue.data(null);

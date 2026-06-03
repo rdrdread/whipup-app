@@ -12,8 +12,12 @@ import 'package:whipup/views/onboarding/onboarding_screen.dart';
 import 'package:whipup/views/onboarding/storage_setup_screen.dart';
 import 'package:whipup/views/settings/settings_screen.dart';
 import 'package:whipup/views/splash/splash_screen.dart';
+import 'package:whipup/views/recipe/quick_recipe_screen.dart';
+import 'package:whipup/models/recipe.dart';
 import 'package:whipup/views/recipe/recipe_detail_screen.dart';
+import 'package:whipup/views/recipe/recipe_review_screen.dart';
 import 'package:whipup/views/recipe/recipe_screen.dart';
+import 'package:whipup/views/recipe/time_based_recipe_screen.dart';
 import 'package:whipup/views/reward/reward_screen.dart';
 import 'package:whipup/views/stock/stock_add_screen.dart';
 import 'package:whipup/views/stock/stock_screen.dart';
@@ -26,7 +30,7 @@ import 'package:whipup/views/voice/voice_screen.dart';
 ///
 /// 라우트 구조: `docs/core/screen_layout.md §1`
 final appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/splash',
   routes: [
     // ─── 스플래시 (Shell 밖) ──────────────────────────────────────────────
     GoRoute(
@@ -74,9 +78,11 @@ final appRouter = GoRouter(
         final location = state.uri.queryParameters['location'];
         final containerIndex =
             int.tryParse(state.uri.queryParameters['containerIndex'] ?? '0') ?? 0;
+        final categoryName = state.uri.queryParameters['category'];
         return StockAddScreen(
           initialStorageLocationName: location,
           initialContainerIndex: containerIndex,
+          initialCategoryName: categoryName,
         );
       },
     ),
@@ -93,12 +99,42 @@ final appRouter = GoRouter(
       path: '/recipe/:id',
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return RecipeDetailScreen(recipeId: id);
+        // extra로 Recipe 객체가 전달되면 Isar 조회 없이 직접 렌더링
+        final recipe = state.extra is Recipe ? state.extra as Recipe : null;
+        return RecipeDetailScreen(recipeId: id, initialRecipe: recipe);
       },
     ),
     GoRoute(
       path: '/recipe/favorites',
       builder: (context, state) => const RecipeScreen(),
+    ),
+    GoRoute(
+      path: '/recipe/review',
+      builder: (context, state) {
+        final title = state.extra as String? ?? '요리';
+        return RecipeReviewScreen(recipeTitle: title);
+      },
+    ),
+
+    // ─── 빠른 레시피 (요리명 기반 AI 생성) ──────────────────────────────────
+    GoRoute(
+      path: '/recipe/quick',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return QuickRecipeScreen(
+          dishName: extra['name'] as String? ?? '레시피',
+          emoji: extra['emoji'] as String? ?? '🍽️',
+        );
+      },
+    ),
+
+    // ─── 시간대별 추천 레시피 ────────────────────────────────────────────────
+    GoRoute(
+      path: '/recipe/time',
+      builder: (context, state) {
+        final period = state.uri.queryParameters['period'] ?? 'dinner';
+        return TimeBasedRecipeScreen(period: period);
+      },
     ),
 
     // ─── 카메라 OCR (Phase 1.2) ──────────────────────────────────────────

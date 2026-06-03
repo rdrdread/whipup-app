@@ -50,6 +50,19 @@ class RecipeGenerationService {
     );
   }
 
+  /// 요리명 기반 레시피를 AI로 생성한다.
+  Future<Result<Recipe, AppError>> generateByDishName(
+    String dishName, {
+    int servings = 2,
+  }) async {
+    final prompt = _promptBuilder.buildByDishName(dishName, servings: servings);
+    final aiResult = await _gemini.generateContent(prompt);
+    return aiResult.when(
+      success: (jsonText) => _parseRecipe(jsonText),
+      failure: (error) => Result.failure(error),
+    );
+  }
+
   /// JSON 텍스트를 Recipe로 파싱한다. 캐시 저장은 호출자가 담당한다.
   Future<Result<Recipe, AppError>> _parseRecipe(String jsonText) async {
     try {

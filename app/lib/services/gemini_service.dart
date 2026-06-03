@@ -20,11 +20,13 @@ class GeminiService {
   final FlutterSecureStorage _storage;
 
   static const String _storageKey = 'gemini_api_key';
+  // 개발/테스트용 폴백 키: 설정화면에서 키를 저장하지 않은 경우 사용.
+  static const String _kDevFallbackKey = 'AIzaSyBZNZwSgkNfmntEG63ep52sI02TH6S52B4';
   static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
   static const int _maxRetries = 2;
   static const double _temperature = 0.7;
-  static const int _maxTokens = 4096;
+  static const int _maxTokens = 2048;
 
   /// Gemini API 키를 FlutterSecureStorage에 저장한다.
   Future<void> saveApiKey(String apiKey) async {
@@ -42,14 +44,10 @@ class GeminiService {
   /// - 에러 시 최대 2회 재시도 (지수 백오프: 2s, 4s)
   /// - API 키 미설정 시 [AppError.network] 반환
   Future<Result<String, AppError>> generateContent(String prompt) async {
-    final apiKey = await _storage.read(key: _storageKey);
-    if (apiKey == null || apiKey.trim().isEmpty) {
-      return const Result.failure(
-        AppError.network(
-          'Gemini API 키가 설정되지 않았습니다.\n설정에서 API 키를 입력해 주세요.',
-        ),
-      );
-    }
+    final stored = await _storage.read(key: _storageKey);
+    final apiKey = (stored == null || stored.trim().isEmpty)
+        ? _kDevFallbackKey
+        : stored.trim();
 
     for (int attempt = 0; attempt <= _maxRetries; attempt++) {
       try {
@@ -67,6 +65,11 @@ class GeminiService {
               'temperature': _temperature,
               'maxOutputTokens': _maxTokens,
               'responseMimeType': 'application/json',
+              // thinking 토큰 비활성화: 레시피 JSON 생성에 불필요하며
+              // 0 없이는 요청당 토큰이 급증해 RPM 한도를 빠르게 소진.
+              'thinkingConfig': {
+                'thinkingBudget': 0,
+              },
             },
           },
           options: Options(
@@ -87,14 +90,24 @@ class GeminiService {
         final status = e.response?.statusCode;
         // ignore: avoid_print
         print('[GeminiService] HTTP $status | body: ${e.response?.data}');
-        // 재시도해도 무의미한 에러는 즉시 반환
-        if (status == 401 || status == 403 || status == 429 || status == 400) {
+        if (status == 401 || status == 403 || status == 400) {
+          return Result.failure(_mapDioError(e));
+        }
+        // 429: retryDelay가 90초 이하면 자동 대기 후 재시도
+        if (status == 429) {
+          final delaySecs = _parseRetryDelay(e.response?.data);
+          if (delaySecs != null && delaySecs <= 90 && attempt < _maxRetries) {
+            // ignore: avoid_print
+            print('[GeminiService] 429 → ${delaySecs}s 대기 후 재시도');
+            await Future.delayed(Duration(seconds: delaySecs));
+            continue;
+          }
           return Result.failure(_mapDioError(e));
         }
         if (attempt >= _maxRetries) {
           return Result.failure(_mapDioError(e));
         }
-        // 지수 백오프: 2s, 4s (5xx·timeout 등 일시적 오류만)
+        // 지수 백오프: 2s, 4s (5xx·timeout 등 일시적 오류)
         await Future.delayed(Duration(seconds: (attempt + 1) * 2));
       } catch (e) {
         return Result.failure(AppError.unknown(e));
@@ -102,6 +115,28 @@ class GeminiService {
     }
 
     return const Result.failure(AppError.unknown('알 수 없는 오류'));
+  }
+
+  /// Gemini 429 응답의 retryDelay 파싱.
+  ///
+  /// 응답 예시: {"error": {"details": [{"retryDelay": "60s"}]}}
+  /// 파싱 실패 시 null 반환.
+  int? _parseRetryDelay(dynamic body) {
+    try {
+      if (body is! Map) return null;
+      final error = body['error'];
+      if (error is! Map) return null;
+      final details = error['details'];
+      if (details is! List) return null;
+      for (final detail in details) {
+        if (detail is Map && detail['retryDelay'] is String) {
+          final raw = detail['retryDelay'] as String; // e.g. "60s"
+          final secs = int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), ''));
+          return secs;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   AppError _mapDioError(DioException e) {

@@ -195,14 +195,22 @@ class _StockScreenState extends ConsumerState<StockScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
+        onPressed: () async {
           if (slots.isEmpty) return;
           // 전체 탭(0)이면 첫 번째 슬롯으로 추가
           final slotIndex = tc.index == 0 ? 0 : tc.index - 1;
           final slot = slots[slotIndex.clamp(0, slots.length - 1)];
-          context.push(
-            '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}',
+          final filter = ref.read(stockFilterProvider);
+          final catParam = filter.category != null
+              ? '&category=${filter.category!.name}'
+              : '';
+          await context.push(
+            '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}$catParam',
           );
+          // 카테고리 필터 초기화: 새로 추가한 재료가 보이도록
+          if (mounted) {
+            ref.read(stockFilterProvider.notifier).clearCategory();
+          }
         },
         icon: const Icon(Icons.add_rounded),
         label: const Text(
@@ -436,6 +444,28 @@ class _AllStockTabContent extends ConsumerWidget {
   }
 }
 
+// ─── 정렬 헬퍼 (stock_providers.dart의 private 함수와 동일) ─────────────────
+
+List<StockItem> _applySortToList(List<StockItem> items, StockFilter filter) {
+  final result = List<StockItem>.from(items);
+  result.sort((a, b) {
+    final cmp = switch (filter.sortBy) {
+      SortType.name => a.name.compareTo(b.name),
+      SortType.expiryDate => _cmpExpiry(a.expiryDate, b.expiryDate),
+      SortType.addedAt => a.addedAt.compareTo(b.addedAt),
+    };
+    return filter.sortAscending ? cmp : -cmp;
+  });
+  return result;
+}
+
+int _cmpExpiry(DateTime? a, DateTime? b) {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return a.compareTo(b);
+}
+
 // ─── 재고 목록 ────────────────────────────────────────────────────────────────
 
 class _StockList extends ConsumerWidget {
@@ -460,7 +490,7 @@ class _StockList extends ConsumerWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final items = snapshot.data ?? [];
+            final items = _applySortToList(snapshot.data ?? [], filter);
 
             if (items.isEmpty) {
               return EmptyStateWidget(

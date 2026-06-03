@@ -75,6 +75,10 @@ abstract final class SubCategoryService {
 
   /// 서브 카테고리별 기본 단위 (카테고리 기본값 오버라이드).
   static const Map<String, String> subCategoryDefaultUnit = {
+    // 해산물: 생선·갑각류·오징어류는 마리 단위
+    '생선': '마리',
+    '갑각류': '마리',
+    '오징어/낙지류': '마리',
     // 채소: 뿌리채소는 개 단위
     '뿌리채소': '개',
     // 과일: 모두 개 단위
@@ -237,5 +241,8 @@ abstract final class SubCategoryService {
     '컵',
     '큰술',
     '작은술',
+    '마리',
+    '장',
+    '알',
   ];
 }

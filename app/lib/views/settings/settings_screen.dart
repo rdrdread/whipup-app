@@ -1,7 +1,10 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:whipup/providers/app_settings_providers.dart';
+import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
 
 /// 앱 설정 화면.
@@ -19,7 +22,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen>
+    with WidgetsBindingObserver {
   static const _storage = FlutterSecureStorage();
   static const _kGeminiApiKey = 'gemini_api_key';
   static const _kColumnAlert = 'notif_column_on';
@@ -37,7 +41,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadSettings();
+  }
+
+  /// 브라우저에서 돌아올 때 클립보드에 API 키가 있으면 자동 감지한다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _tryPasteFromClipboard();
+    }
   }
 
   /// 저장된 설정(API 키 + 알림)을 불러온다.
@@ -59,14 +72,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final key = _apiKeyController.text.trim();
     if (key.isEmpty) return;
     await _storage.write(key: _kGeminiApiKey, value: key);
+    // 레시피 화면 API 키 상태 배너를 즉시 갱신한다.
+    ref.invalidate(geminiApiKeyStatusProvider);
     if (!mounted) return;
     setState(() => _apiKeySaved = true);
-    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('API 키가 저장되었어요 ✅')),
     );
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) setState(() => _apiKeySaved = false);
+  }
+
+  /// AI Studio 페이지를 외부 브라우저로 연다.
+  Future<void> _openAiStudio() async {
+    final uri = Uri.parse('https://aistudio.google.com/apikey');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// 클립보드에 Gemini API 키 패턴(AIza...)이 있으면 자동 붙여넣기한다.
+  Future<void> _tryPasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    // Gemini API 키는 'AIza'로 시작하며 39자
+    if (!text.startsWith('AIza') || text.length < 30) return;
+    // 이미 같은 값이면 무시
+    if (_apiKeyController.text.trim() == text) return;
+    if (!mounted) return;
+    setState(() => _apiKeyController.text = text);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('클립보드에서 API 키를 감지했어요'),
+        action: SnackBarAction(label: '저장', onPressed: _saveApiKey),
+        duration: const Duration(seconds: 5),
+      ),
+    );
   }
 
   Future<void> _setColumnAlert(bool value) async {
@@ -81,6 +122,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _apiKeyController.dispose();
     super.dispose();
   }
@@ -159,17 +201,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Gemini API 키',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  // ── 헤더 + 발급받기 링크 ──────────────────────────────
+                  Row(
+                    children: [
+                      const Text(
+                        'Gemini API 키',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: _openAiStudio,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppTheme.flameOrange,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.open_in_new_rounded,
+                                  size: 13, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text(
+                                '발급받기',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   const Text(
-                    'AI 레시피 추천을 사용하려면\nGoogle AI Studio에서 발급한 API 키를 입력하세요.',
+                    'Google AI Studio에서 발급 → 복사 후 앱으로 돌아오면\n자동으로 붙여넣어요.',
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
@@ -188,8 +264,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     )
                   else
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // ── 입력 필드 ──────────────────────────────────
                         Expanded(
                           child: TextField(
                             controller: _apiKeyController,
@@ -227,7 +304,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
+                        // ── 클립보드 붙여넣기 ───────────────────────────
+                        SizedBox(
+                          height: 48,
+                          width: 48,
+                          child: IconButton.outlined(
+                            onPressed: _tryPasteFromClipboard,
+                            icon: const Icon(Icons.content_paste_rounded,
+                                size: 20),
+                            tooltip: '클립보드에서 붙여넣기',
+                            style: IconButton.styleFrom(
+                              foregroundColor: AppTheme.primaryColor,
+                              side: const BorderSide(
+                                  color: AppTheme.primaryColor, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        // ── 저장 버튼 ──────────────────────────────────
                         SizedBox(
                           height: 48,
                           child: FilledButton(
@@ -239,9 +337,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                             ),
                             child: Text(
                               _apiKeySaved ? '저장됨' : '저장',

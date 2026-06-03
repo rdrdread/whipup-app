@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 칼럼 본문 렌더링 위젯.
 ///
@@ -81,7 +82,7 @@ class _InfoCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 36)),
+          TwemojiIcon(emoji, size: 36),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -101,13 +102,15 @@ class _InfoCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      statLabel,
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: cs.onSurface.withValues(alpha: 0.6),
+                    Flexible(
+                      child: Text(
+                        statLabel,
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                        ),
                       ),
                     ),
                   ],

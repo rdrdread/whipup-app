@@ -3,22 +3,26 @@ import 'package:flutter/material.dart';
 
 /// WhipUp 앱 테마.
 ///
-/// Flame Orange (#F04E23)를 Primary 색상으로 사용한다.
+/// P10 Graphite Warm 팔레트 적용.
+/// Primary: Graphite Warm (#584D48), Secondary: Flame Orange (#F04E23)
 /// 디자인 토큰: `docs/core/design_system.md`, `docs/brand-assets/README.md`
 abstract final class AppTheme {
   // ─── 색상 토큰 ─────────────────────────────────────────────────────────────
 
-  /// Primary: Flame Orange
-  static const Color primaryColor = Color(0xFFF04E23);
+  /// Primary: Graphite Warm (P10)
+  static const Color primaryColor = Color(0xFF584D48);
 
-  /// Primary Container: Clean Off-White
-  static const Color primaryContainerColor = Color(0xFFFAFAFA);
+  /// Secondary: Flame Orange — 강조 포인트, 입력 포커스, 뱃지
+  static const Color flameOrange = Color(0xFFF04E23);
 
-  /// Dark Mode Primary (라이트와 동일한 Flame Orange로 통일)
-  static const Color primaryDarkColor = primaryColor;
+  /// Primary Container: Warm Light Gray
+  static const Color primaryContainerColor = Color(0xFFE0D8D3);
 
-  /// 배경색: Pure White
-  static const Color backgroundColor = Color(0xFFFFFFFF);
+  /// Dark Mode Primary
+  static const Color primaryDarkColor = Color(0xFF8C7B74);
+
+  /// 배경색: Graphite Warm Off-White
+  static const Color backgroundColor = Color(0xFFF0EEEC);
 
   /// 유통기한 fresh 색상 (데모 r4 팔레트)
   static const Color freshGreen = Color(0xFF66BB6A);
@@ -31,14 +35,14 @@ abstract final class AppTheme {
 
   // ─── 서피스 / 카드 ────────────────────────────────────────────────────────
 
-  /// 카드·패널 공통 배경: Clean Off-White (surfaceContainerLow 대체)
-  static const Color cardColor = Color(0xFFFAFAFA);
+  /// 카드·패널 공통 배경: Graphite Warm Card (surfaceContainerLow 대체)
+  static const Color cardColor = Color(0xFFF8F6F4);
 
-  /// 중간 강조 서피스: 연한 중립 회색 (surfaceContainerHigh 대체)
-  static const Color surfaceHigh = Color(0xFFF0F0F0);
+  /// 중간 강조 서피스: Warm Gray (surfaceContainerHigh 대체)
+  static const Color surfaceHigh = Color(0xFFE8E5E2);
 
-  /// 가장 강조된 서피스: 중립 회색 (surfaceContainerHighest 대체)
-  static const Color surfaceHighest = Color(0xFFE8E8E8);
+  /// 가장 강조된 서피스: Warm Gray Highest (surfaceContainerHighest 대체)
+  static const Color surfaceHighest = Color(0xFFE0DEDC);
 
   /// 재고 삭제 스와이프 배경: dangerRed 10% 틴트
   static const Color dismissSurface = Color(0xFFFFEBEB);
@@ -68,8 +72,8 @@ abstract final class AppTheme {
   /// 대시보드 카드 그라디언트 끝 색상 (Soft Coral)
   static const Color gradientEnd = Color(0xFFE88A5A);
 
-  /// Primary 계열 그림자
-  static const Color shadowPrimary = Color(0x40F04E23);
+  /// Primary 계열 그림자 (Graphite Warm)
+  static const Color shadowPrimary = Color(0x40584D48);
 
   // ─── API 키 배너 ─────────────────────────────────────────────────────────
 
@@ -85,15 +89,10 @@ abstract final class AppTheme {
   /// API 키 안내 배너 본문 색상: 갈색
   static const Color bannerWarningBody = Color(0xFF795548);
 
-  /// 이모지 폰트 폴백.
-  /// Pretendard에 없는 이모지 글리프를 TwemojiMozilla로 렌더링한다.
-  static const List<String> emojiFallback = <String>['TwemojiMozilla'];
-
   /// 화면 공통 AppBar 타이틀 스타일.
-  /// 홈 'WhipUp'과 동일하게 Black(900) + Flame Orange로 통일한다.
   static const TextStyle screenTitleStyle = TextStyle(
     fontFamily: 'Pretendard',
-    fontWeight: FontWeight.w900,
+    fontWeight: FontWeight.w700,
     fontSize: 24,
     color: primaryColor,
     letterSpacing: -0.25,
@@ -101,16 +100,16 @@ abstract final class AppTheme {
 
   // ─── 테마 ─────────────────────────────────────────────────────────────────
 
-  /// 라이트 테마.
-  static ThemeData get light => FlexThemeData.light(
+  /// 라이트 테마 (static final로 캐시 — 최초 1회만 계산).
+  static final ThemeData light = FlexThemeData.light(
         colors: const FlexSchemeColor(
           primary: primaryColor,
           primaryContainer: primaryContainerColor,
-          secondary: Color(0xFFFF7043),
-          secondaryContainer: Color(0xFFFAFAFA),
+          secondary: flameOrange,
+          secondaryContainer: Color(0xFFFDD0C0),
           tertiary: Color(0xFF795548),
-          tertiaryContainer: Color(0xFFF5F5F5),
-          appBarColor: primaryColor,
+          tertiaryContainer: Color(0xFFF5EFE6),
+          appBarColor: backgroundColor,
           error: dangerRed,
         ),
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
@@ -168,26 +167,49 @@ abstract final class AppTheme {
         // ─── 텍스트 스타일 오버라이드 ────────────────────────────────────────
         scaffoldBackgroundColor: backgroundColor,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: backgroundColor,
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
         ),
         textTheme: _buildTextTheme(Brightness.light),
-        navigationBarTheme: const NavigationBarThemeData(
-          backgroundColor: Color(0xFFFFFFFF),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: backgroundColor,
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
+          indicatorColor: const Color(0xFFFDE4DE), // flame orange 10% tint
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData?>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(color: flameOrange);
+            }
+            return const IconThemeData(color: iconGrey);
+          }),
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                color: flameOrange,
+              );
+            }
+            return const TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+              color: iconGrey,
+            );
+          }),
         ),
         cardTheme: const CardThemeData(
-          color: Color(0xFFFAFAFA),
+          color: cardColor,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFFAFAFA),
+          fillColor: cardColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -211,8 +233,8 @@ abstract final class AppTheme {
         ),
       );
 
-  /// 다크 테마.
-  static ThemeData get dark => FlexThemeData.dark(
+  /// 다크 테마 (static final로 캐시 — 최초 1회만 계산).
+  static final ThemeData dark = FlexThemeData.dark(
         colors: const FlexSchemeColor(
           primary: primaryDarkColor,
           primaryContainer: primaryContainerColor,
@@ -243,9 +265,9 @@ abstract final class AppTheme {
           dialogRadius: 20.0,
           bottomSheetRadius: 20.0,
           snackBarRadius: 8,
-          navigationBarSelectedLabelSchemeColor: SchemeColor.primary,
-          navigationBarSelectedIconSchemeColor: SchemeColor.primary,
-          navigationBarIndicatorSchemeColor: SchemeColor.primaryContainer,
+          navigationBarSelectedLabelSchemeColor: SchemeColor.secondary,
+          navigationBarSelectedIconSchemeColor: SchemeColor.secondary,
+          navigationBarIndicatorSchemeColor: SchemeColor.secondaryContainer,
           navigationBarBackgroundSchemeColor: SchemeColor.surface,
           navigationBarElevation: 0,
           tabBarIndicatorSchemeColor: SchemeColor.primary,
@@ -263,8 +285,7 @@ abstract final class AppTheme {
         useMaterial3: true,
         fontFamily: 'Pretendard',
       ).copyWith(
-        textTheme: _buildTextTheme(Brightness.dark)
-            .apply(fontFamilyFallback: emojiFallback),
+        textTheme: _buildTextTheme(Brightness.dark),
       );
 
   // ─── 헬퍼 ─────────────────────────────────────────────────────────────────
@@ -282,13 +303,13 @@ abstract final class AppTheme {
     return TextTheme(
       displayLarge: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
         fontSize: 57,
         color: baseColor,
       ),
       displayMedium: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         fontSize: 45,
         color: baseColor,
       ),
@@ -300,13 +321,13 @@ abstract final class AppTheme {
       ),
       headlineLarge: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
         fontSize: 32,
         color: baseColor,
       ),
       headlineMedium: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         fontSize: 28,
         color: baseColor,
       ),
@@ -360,20 +381,16 @@ abstract final class AppTheme {
       ),
       labelMedium: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 12,
         color: subtleColor,
       ),
       labelSmall: TextStyle(
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 11,
         color: subtleColor,
       ),
-    ).apply(
-      // 모든 이모지를 Twemoji 컬러 폰트로 폴백 렌더링하여
-      // iOS/Android/Web에서 동일한 모양을 보장한다.
-      fontFamilyFallback: const ['TwemojiMozilla'],
     );
   }
 }

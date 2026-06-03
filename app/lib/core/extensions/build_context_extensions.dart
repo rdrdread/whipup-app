@@ -1,5 +1,49 @@
 import 'package:flutter/material.dart';
 
+/// 중앙 토스트 위젯 (1.5초 자동 소멸).
+class _CenterToastWidget extends StatefulWidget {
+  const _CenterToastWidget({required this.message});
+  final String message;
+
+  @override
+  State<_CenterToastWidget> createState() => _CenterToastWidgetState();
+}
+
+class _CenterToastWidgetState extends State<_CenterToastWidget> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xE6222222),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text(
+            widget.message,
+            style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// BuildContext 편의 확장 메서드 모음.
 extension BuildContextX on BuildContext {
   // ─── 테마 ─────────────────────────────────────────────────────────────────
@@ -9,6 +53,19 @@ extension BuildContextX on BuildContext {
 
   /// TextTheme
   TextTheme get textTheme => Theme.of(this).textTheme;
+
+  // ─── Toast ────────────────────────────────────────────────────────────────
+
+  /// 화면 중앙에 1.5초짜리 토스트를 표시한다. 루트 네비게이터 레벨로 띄워 화면 전환 후에도 유지.
+  void showCenterToast(String message) {
+    showDialog<void>(
+      context: this,
+      useRootNavigator: true,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder: (_) => _CenterToastWidget(message: message),
+    );
+  }
 
   // ─── SnackBar ─────────────────────────────────────────────────────────────
 

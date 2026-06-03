@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/reward_providers.dart';
@@ -19,12 +20,22 @@ class RecipeDetailScreen extends ConsumerWidget {
   const RecipeDetailScreen({
     super.key,
     required this.recipeId,
+    this.initialRecipe,
   });
 
   final String recipeId;
 
+  /// 빠른 레시피/시간대별 레시피 플로우에서 직접 전달받은 레시피.
+  /// 제공 시 Isar 조회 없이 즉시 화면을 표시한다.
+  final Recipe? initialRecipe;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // extra로 전달된 레시피가 있으면 Isar 조회 없이 바로 표시
+    if (initialRecipe != null) {
+      return _RecipeDetailContent(recipe: initialRecipe!);
+    }
+
     final repoAsync = ref.watch(recipeRepositoryProvider);
 
     return repoAsync.when(
@@ -73,6 +84,21 @@ class _RecipeDetailContent extends ConsumerStatefulWidget {
 
 class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
   bool _isCompleted = false;
+  late int _displayServings;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayServings = widget.recipe.servings;
+  }
+
+  @override
+  void didUpdateWidget(_RecipeDetailContent old) {
+    super.didUpdateWidget(old);
+    if (old.recipe.id != widget.recipe.id) {
+      _displayServings = widget.recipe.servings;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,10 +156,17 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${recipe.cookingTimeMinutes}분 · ${recipe.difficulty.label} · ${recipe.servings}인분',
+                  '${recipe.cookingTimeMinutes}분 · ${recipe.difficulty.label}',
                   style: tt.bodyMedium?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
+                ),
+                const SizedBox(height: 12),
+                // ─── 인분 수 조절 스테퍼 ────────────────────────
+                _ServingsStepper(
+                  value: _displayServings,
+                  enabled: !_isCompleted,
+                  onChanged: (v) => setState(() => _displayServings = v),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -173,6 +206,8 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
           IngredientCheckList(
             ingredients: recipe.ingredients,
             ownedItems: ownedItems,
+            baseServings: recipe.servings,
+            displayServings: _displayServings,
           ),
 
           const SizedBox(height: 28),
@@ -304,5 +339,101 @@ class _RecipeDetailContentState extends ConsumerState<_RecipeDetailContent> {
       await AchievementUnlockDialog.show(context, achievement);
     }
     ref.read(newlyUnlockedAchievementsProvider.notifier).clear();
+
+    // 리워드 화면으로 이동
+    if (!mounted) return;
+    context.push('/my/reward'); // ignore: use_build_context_synchronously
+  }
+}
+
+/// 인분 수 조절 스테퍼 위젯.
+class _ServingsStepper extends StatelessWidget {
+  const _ServingsStepper({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final int value;
+  final bool enabled;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _StepperButton(
+            icon: Icons.remove_rounded,
+            enabled: enabled && value > 1,
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onChanged(value - 1);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              '$value인분',
+              style: tt.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: enabled ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+          _StepperButton(
+            icon: Icons.add_rounded,
+            enabled: enabled && value < 20,
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onChanged(value + 1);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({
+    required this.icon,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled ? cs.primary : cs.surfaceContainerHighest,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled ? cs.onPrimary : cs.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
+    );
   }
 }

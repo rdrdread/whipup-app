@@ -6,21 +6,24 @@ import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/repositories/recipe_repository.dart';
 import 'package:whipup/services/recipe_generation_service.dart';
+import 'package:whipup/services/recipe_server_service.dart';
 import 'isar_cached_recipe.dart';
 
 /// [RecipeRepository] Isar 구현체.
 ///
-/// 레시피를 JSON 문자열로 로컬 캐시에 저장하고 조회한다.
-/// AI 생성은 [RecipeGenerationService]에 위임한다.
+/// 캐싱 레이어: Local(Isar) → Server([RecipeServerService]) → AI([RecipeGenerationService])
 class IsarRecipeRepository implements RecipeRepository {
   const IsarRecipeRepository({
     required Isar isar,
     required RecipeGenerationService generationService,
+    RecipeServerService? serverService,
   })  : _isar = isar, // ignore: prefer_initializing_formals
-        _generation = generationService;
+        _generation = generationService,
+        _server = serverService;
 
   final Isar _isar;
   final RecipeGenerationService _generation;
+  final RecipeServerService? _server;
 
   @override
   Future<Result<Recipe, AppError>> generateFromStock(
@@ -151,6 +154,47 @@ class IsarRecipeRepository implements RecipeRepository {
     } catch (e) {
       return Result.failure(AppError.database('레시피 완료 처리 실패: $e'));
     }
+  }
+
+  @override
+  Future<Result<Recipe, AppError>> generateByName(
+    String dishName, {
+    int servings = 2,
+  }) async {
+    // 1. 로컬 캐시 조회
+    try {
+      final cached = await _isar.isarCachedRecipes
+          .where()
+          .titleEqualTo(dishName)
+          .findFirst();
+      if (cached != null) {
+        final recipe = _toDomain(cached);
+        if (recipe != null) return Result.success(recipe);
+      }
+    } catch (_) {}
+
+    // 2. 서버 큐레이션 레시피 조회
+    // 지역 변수로 받아야 Dart null-promotion이 작동한다 (클래스 필드는 미지원).
+    final server = _server;
+    if (server != null) {
+      final serverResult = await server.fetchByName(dishName);
+      if (serverResult != null) {
+        final recipe = serverResult.valueOrNull;
+        if (recipe != null) {
+          await saveToCache(recipe);
+          return serverResult;
+        }
+      }
+    }
+
+    // 3. AI 생성 폴백
+    final result = await _generation.generateByDishName(
+      dishName,
+      servings: servings,
+    );
+    final recipe = result.valueOrNull;
+    if (recipe != null) await saveToCache(recipe);
+    return result;
   }
 
   Recipe? _toDomain(IsarCachedRecipe item) {

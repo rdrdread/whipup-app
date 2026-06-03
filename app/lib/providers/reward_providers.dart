@@ -7,6 +7,7 @@ import 'package:whipup/models/user_reward_stats.dart';
 import 'package:whipup/providers/isar_provider.dart';
 import 'package:whipup/repositories/impl/isar_reward_repository.dart';
 import 'package:whipup/repositories/reward_repository.dart';
+import 'package:whipup/services/points_service.dart';
 import 'package:whipup/services/reward_trigger_service.dart';
 
 part 'reward_providers.g.dart';
@@ -90,6 +91,9 @@ Future<void> handleRecipeCompleted(
   );
   if (repository == null) return;
 
+  // 레시피 완료 포인트 적립
+  await PointsService.addRecipePoints();
+
   // 레시피 완료 처리
   final result = await repository.onRecipeCompleted(recipeType);
   final unlocked = result.valueOrNull ?? [];
@@ -105,6 +109,9 @@ Future<void> handleRecipeCompleted(
 
 /// 재고 추가 이벤트를 처리한다.
 Future<void> handleStockAdded(WidgetRef ref) async {
+  // 재고 추가 포인트 적립
+  await PointsService.addStockPoints();
+
   final repository = await ref
       .read(rewardRepositoryProvider)
       .whenOrNull(data: (r) async => r);

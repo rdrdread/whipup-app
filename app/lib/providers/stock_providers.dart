@@ -16,16 +16,29 @@ class StockSummary {
     required this.pantryCount,
     required this.drawerCount,
     required this.expiringCount,
+    required this.expiredCount,
+    required this.topCategories,
   });
 
   final int fridgeCount;
   final int freezerCount;
   final int pantryCount;
   final int drawerCount;
+
+  /// 유통기한 임박 (3일 이내) 수량.
   final int expiringCount;
+
+  /// 유통기한 초과 수량.
+  final int expiredCount;
+
+  /// 보유량 상위 카테고리 (최대 4개, count 내림차순).
+  final List<(StockCategory, int)> topCategories;
 
   /// 전체 재고 수량.
   int get totalCount => fridgeCount + freezerCount + pantryCount + drawerCount;
+
+  /// 신선 재고 수량 (임박·초과 제외).
+  int get freshCount => (totalCount - expiringCount - expiredCount).clamp(0, totalCount);
 }
 
 // ─── 필터 Provider ─────────────────────────────────────────────────────────
@@ -80,6 +93,14 @@ class StockFilterNotifier extends _$StockFilterNotifier {
       state = state.copyWith(sortBy: sortBy, sortAscending: false);
     }
   }
+
+  /// 유통기한 임박 재고 확인용: 전체 탭 + 유통기한 오름차순으로 초기화.
+  void setExpiryAscending() {
+    state = const StockFilter(
+      sortBy: SortType.expiryDate,
+      sortAscending: true,
+    );
+  }
 }
 
 // ─── 재고 목록 Stream Provider ─────────────────────────────────────────────
@@ -126,26 +147,33 @@ Stream<List<StockItem>> allStock(Ref ref) async* {
 Future<StockSummary> stockSummary(Ref ref) async {
   final repository = await ref.watch(stockRepositoryProvider.future);
 
-  final fridgeResult = await repository.getAll(
-    const StockFilter(storageLocation: StorageLocation.fridge),
-  );
-  final freezerResult = await repository.getAll(
-    const StockFilter(storageLocation: StorageLocation.freezer),
-  );
-  final pantryResult = await repository.getAll(
-    const StockFilter(storageLocation: StorageLocation.pantry),
-  );
-  final drawerResult = await repository.getAll(
-    const StockFilter(storageLocation: StorageLocation.drawer),
-  );
-  final expiringResult = await repository.getExpiringSoon();
+  final allResult = await repository.getAll(const StockFilter());
+  final all = allResult.valueOrNull ?? [];
+
+  final fridgeCount = all.where((i) => i.storageLocation == StorageLocation.fridge).length;
+  final freezerCount = all.where((i) => i.storageLocation == StorageLocation.freezer).length;
+  final pantryCount = all.where((i) => i.storageLocation == StorageLocation.pantry).length;
+  final drawerCount = all.where((i) => i.storageLocation == StorageLocation.drawer).length;
+  final expiringCount = all.where((i) => i.expiryStatus == ExpiryStatus.warning).length;
+  final expiredCount = all.where((i) => i.expiryStatus == ExpiryStatus.danger).length;
+
+  final catMap = <StockCategory, int>{};
+  for (final item in all) {
+    catMap[item.category] = (catMap[item.category] ?? 0) + 1;
+  }
+  final topCategories = (catMap.entries.map((e) => (e.key, e.value)).toList()
+    ..sort((a, b) => b.$2.compareTo(a.$2)))
+    .take(4)
+    .toList();
 
   return StockSummary(
-    fridgeCount: fridgeResult.valueOrNull?.length ?? 0,
-    freezerCount: freezerResult.valueOrNull?.length ?? 0,
-    pantryCount: pantryResult.valueOrNull?.length ?? 0,
-    drawerCount: drawerResult.valueOrNull?.length ?? 0,
-    expiringCount: expiringResult.valueOrNull?.length ?? 0,
+    fridgeCount: fridgeCount,
+    freezerCount: freezerCount,
+    pantryCount: pantryCount,
+    drawerCount: drawerCount,
+    expiringCount: expiringCount,
+    expiredCount: expiredCount,
+    topCategories: topCategories,
   );
 }
 
