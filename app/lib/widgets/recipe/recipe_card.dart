@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/recipe.dart';
 import 'recipe_type_badge.dart';
 
@@ -36,7 +37,7 @@ class RecipeCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? cs.primaryContainer : cs.surfaceContainerLow,
+          color: isSelected ? cs.primaryContainer : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? cs.primary : cs.outlineVariant,
@@ -75,7 +76,7 @@ class RecipeCard extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
+                color: AppTheme.surfaceHigh,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(

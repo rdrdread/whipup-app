@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/stock_category.dart';
@@ -85,9 +85,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // 마지막 페이지 → 재고함 설정 단계로 이동 (완료 플래그는 거기서 기록).
-      context.go('/storage-setup');
+      // 마지막 페이지 → 보관 위치 저장 후 재고함 설정 화면으로 이동.
+      _saveLocationsAndNavigate();
     }
+  }
+
+  Future<void> _saveLocationsAndNavigate() async {
+    final storage = const FlutterSecureStorage();
+    await storage.write(
+      key: _kActiveLocationsKey,
+      value: _selectedLocations.map((l) => l.name).join(','),
+    );
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
+    context.go('/storage-setup');
   }
 
   @override
@@ -113,7 +124,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 14,
-                            color: Color(0x992C2C2C),
+                            color: AppTheme.iconSubtle,
                           ),
                         ),
                       ),
@@ -152,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? AppTheme.primaryColor
-                        : const Color(0x332C2C2C),
+                        : AppTheme.textFaint,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -245,7 +256,7 @@ class _ContainerSetupPage extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               height: 1.6,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
           const SizedBox(height: 28),
@@ -288,7 +299,7 @@ class _LocationToggleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryColor.withAlpha(18)
-              : const Color(0xFFFFFAF3),
+              : AppTheme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
@@ -322,7 +333,7 @@ class _LocationToggleCard extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
-                      color: Color(0x992C2C2C),
+                      color: AppTheme.iconSubtle,
                     ),
                   ),
                 ],
@@ -334,7 +345,7 @@ class _LocationToggleCard extends StatelessWidget {
                   : Icons.radio_button_unchecked_rounded,
               color: isSelected
                   ? AppTheme.primaryColor
-                  : const Color(0x332C2C2C),
+                  : AppTheme.textFaint,
               size: 22,
             ),
           ],
@@ -402,7 +413,7 @@ class _OnboardingPage extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               height: 1.6,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
         ],

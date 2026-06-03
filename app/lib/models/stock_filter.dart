@@ -16,6 +16,9 @@ abstract class StockFilter with _$StockFilter {
     /// 보관 위치 필터. null이면 전체 (탭과 연동).
     StorageLocation? storageLocation,
 
+    /// 재고함 인덱스 필터. null이면 해당 위치의 전체.
+    int? containerIndex,
+
     /// 정렬 기준.
     @Default(SortType.addedAt) SortType sortBy,
 

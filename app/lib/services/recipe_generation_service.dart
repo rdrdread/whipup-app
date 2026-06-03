@@ -5,28 +5,24 @@ import 'package:whipup/core/result.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/recipe_type.dart';
 import 'package:whipup/models/stock_item.dart';
-import 'package:whipup/repositories/recipe_repository.dart';
 import 'package:whipup/services/gemini_service.dart';
 import 'package:whipup/services/prompt_builder.dart';
 
 /// 레시피 생성 서비스.
 ///
-/// 캐시 우선순위: Local(Isar) → AI(Gemini)
-/// Phase 2.0+에서 Server Cache 계층이 중간에 추가된다.
+/// AI(Gemini)를 통해 레시피를 생성하고 파싱만 담당한다.
+/// 캐시 저장은 [IsarRecipeRepository]가 담당하여 순환 의존을 방지한다.
 ///
 /// 데이터 흐름: `docs/core/product_map.md §6.1`
 class RecipeGenerationService {
   RecipeGenerationService({
     required GeminiService geminiService,
     required PromptBuilder promptBuilder,
-    required RecipeRepository recipeRepository,
   })  : _gemini = geminiService,
-        _promptBuilder = promptBuilder, // ignore: prefer_initializing_formals
-        _repository = recipeRepository;
+        _promptBuilder = promptBuilder;
 
   final GeminiService _gemini;
   final PromptBuilder _promptBuilder;
-  final RecipeRepository _repository;
 
   /// 재고 재료 기반 레시피를 생성하거나 캐시에서 반환한다.
   Future<Result<Recipe, AppError>> generateRecipe({
@@ -49,13 +45,26 @@ class RecipeGenerationService {
     final aiResult = await _gemini.generateContent(prompt);
 
     return aiResult.when(
-      success: (jsonText) => _parseAndCache(jsonText),
+      success: (jsonText) => _parseRecipe(jsonText),
       failure: (error) => Result.failure(error),
     );
   }
 
-  /// JSON 텍스트를 Recipe로 파싱하고 캐시에 저장한다.
-  Future<Result<Recipe, AppError>> _parseAndCache(String jsonText) async {
+  /// 요리명 기반 레시피를 AI로 생성한다.
+  Future<Result<Recipe, AppError>> generateByDishName(
+    String dishName, {
+    int servings = 2,
+  }) async {
+    final prompt = _promptBuilder.buildByDishName(dishName, servings: servings);
+    final aiResult = await _gemini.generateContent(prompt);
+    return aiResult.when(
+      success: (jsonText) => _parseRecipe(jsonText),
+      failure: (error) => Result.failure(error),
+    );
+  }
+
+  /// JSON 텍스트를 Recipe로 파싱한다. 캐시 저장은 호출자가 담당한다.
+  Future<Result<Recipe, AppError>> _parseRecipe(String jsonText) async {
     try {
       // 마크다운 코드 블록 제거
       var cleanJson = jsonText.trim();
@@ -77,9 +86,6 @@ class RecipeGenerationService {
       // snake_case → camelCase 변환
       final normalized = _normalizeJson(jsonMap);
       final recipe = Recipe.fromJson(normalized);
-
-      // 로컬 캐시 저장
-      await _repository.saveToCache(recipe);
 
       return Result.success(recipe);
     } on FormatException catch (e) {

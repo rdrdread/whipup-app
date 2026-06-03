@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:whipup/providers/app_settings_providers.dart';
+import 'package:whipup/repositories/impl/isar_achievement.dart';
+import 'package:whipup/repositories/impl/isar_cached_recipe.dart';
+import 'package:whipup/repositories/impl/isar_reward_stats.dart';
+import 'package:whipup/repositories/impl/isar_stock_item.dart';
 import 'package:whipup/router/app_router.dart';
 import 'package:whipup/theme/app_theme.dart';
 
@@ -10,18 +18,66 @@ import 'package:whipup/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // System UI 스타일 설정
+  // Windows에서 모바일 비율 창 크기로 고정한다.
+  await windowManager.ensureInitialized();
+  await windowManager.waitUntilReadyToShow(
+    const WindowOptions(
+      size: Size(390, 844),
+      minimumSize: Size(390, 844),
+      center: true,
+      title: 'WhipUp',
+    ),
+    () async {
+      await windowManager.show();
+      await windowManager.focus();
+    },
+  );
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
   ));
 
+  // Isar 초기화와 SecureStorage 읽기를 병렬로 실행해 시작 시간을 단축한다.
+  final storage = const FlutterSecureStorage();
+  final results = await Future.wait([
+    _initIsar(),
+    storage.read(key: 'app_theme_mode'),
+    storage.read(key: 'gemini_api_key'),
+  ]);
+  preloadThemeMode(results[1] as String?);
+
+  // API 키가 없을 때만 기본 키를 설정한다.
+  final existingKey = results[2] as String?;
+  if (existingKey == null || existingKey.isEmpty) {
+    await storage.write(
+      key: 'gemini_api_key',
+      value: 'AIzaSyBZNZwSgkNfmntEG63ep52sI02TH6S52B4',
+    );
+  }
+
   runApp(
     const ProviderScope(
       child: WhipUpApp(),
     ),
   );
+}
+
+Future<void> _initIsar() async {
+  if (Isar.instanceNames.isEmpty) {
+    final dir = await getApplicationDocumentsDirectory();
+    await Isar.open(
+      [
+        IsarStockItemSchema,
+        IsarCachedRecipeSchema,
+        IsarAchievementSchema,
+        IsarRewardStatsSchema,
+      ],
+      directory: dir.path,
+      name: 'whipup_db',
+    );
+  }
 }
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
@@ -36,7 +92,7 @@ class WhipUpApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeModeAsync = ref.watch(themeModeNotifierProvider);
+    final themeModeAsync = ref.watch(themeModeProvider);
     final themeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return MaterialApp.router(

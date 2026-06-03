@@ -13,8 +13,8 @@ class EmptyStateWidget extends StatelessWidget {
     this.hasFilter = false,
   });
 
-  /// 현재 선택된 보관 위치 탭
-  final StorageLocation storageLocation;
+  /// 현재 선택된 보관 위치 탭. null이면 전체 탭.
+  final StorageLocation? storageLocation;
 
   /// 카테고리 필터 적용 중 여부
   final bool hasFilter;
@@ -57,6 +57,11 @@ class EmptyStateWidget extends StatelessWidget {
 
   (String, String, String) _getContent() {
     return switch (storageLocation) {
+      null => (
+          '📦',
+          '재고가 없어요',
+          '재료를 추가해서\n요리를 시작해 보세요!',
+        ),
       StorageLocation.fridge => (
           '🧊',
           '냉장고가 비어있어요',

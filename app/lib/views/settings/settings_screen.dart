@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:whipup/providers/app_settings_providers.dart';
+import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
 
 /// 앱 설정 화면.
@@ -19,10 +22,10 @@ class SettingsScreen extends ConsumerStatefulWidget {
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen>
+    with WidgetsBindingObserver {
   static const _storage = FlutterSecureStorage();
   static const _kGeminiApiKey = 'gemini_api_key';
-  static const _kExpiryAlert = 'notif_expiry_on';
   static const _kColumnAlert = 'notif_column_on';
   static const _kAlertDays = 'notif_days_before';
 
@@ -32,27 +35,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _loadingApiKey = true;
 
   // 알림 설정 (로컬 영속).
-  bool _expiryAlertOn = true;
   bool _columnAlertOn = true;
   int _alertDaysBefore = 3;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadSettings();
+  }
+
+  /// 브라우저에서 돌아올 때 클립보드에 API 키가 있으면 자동 감지한다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _tryPasteFromClipboard();
+    }
   }
 
   /// 저장된 설정(API 키 + 알림)을 불러온다.
   Future<void> _loadSettings() async {
     final apiKey = await _storage.read(key: _kGeminiApiKey);
-    final expiry = await _storage.read(key: _kExpiryAlert);
     final column = await _storage.read(key: _kColumnAlert);
     final days = await _storage.read(key: _kAlertDays);
     if (!mounted) return;
     setState(() {
       if (apiKey != null) _apiKeyController.text = apiKey;
       _loadingApiKey = false;
-      _expiryAlertOn = expiry != 'false';
       _columnAlertOn = column != 'false';
       _alertDaysBefore = int.tryParse(days ?? '') ?? 3;
     });
@@ -63,9 +72,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final key = _apiKeyController.text.trim();
     if (key.isEmpty) return;
     await _storage.write(key: _kGeminiApiKey, value: key);
+    // 레시피 화면 API 키 상태 배너를 즉시 갱신한다.
+    ref.invalidate(geminiApiKeyStatusProvider);
     if (!mounted) return;
     setState(() => _apiKeySaved = true);
-    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('API 키가 저장되었어요 ✅')),
     );
@@ -73,9 +83,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (mounted) setState(() => _apiKeySaved = false);
   }
 
-  Future<void> _setExpiryAlert(bool value) async {
-    setState(() => _expiryAlertOn = value);
-    await _storage.write(key: _kExpiryAlert, value: '$value');
+  /// AI Studio 페이지를 외부 브라우저로 연다.
+  Future<void> _openAiStudio() async {
+    final uri = Uri.parse('https://aistudio.google.com/apikey');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// 클립보드에 Gemini API 키 패턴(AIza...)이 있으면 자동 붙여넣기한다.
+  Future<void> _tryPasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    // Gemini API 키는 'AIza'로 시작하며 39자
+    if (!text.startsWith('AIza') || text.length < 30) return;
+    // 이미 같은 값이면 무시
+    if (_apiKeyController.text.trim() == text) return;
+    if (!mounted) return;
+    setState(() => _apiKeyController.text = text);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('클립보드에서 API 키를 감지했어요'),
+        action: SnackBarAction(label: '저장', onPressed: _saveApiKey),
+        duration: const Duration(seconds: 5),
+      ),
+    );
   }
 
   Future<void> _setColumnAlert(bool value) async {
@@ -90,13 +122,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _apiKeyController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeModeAsync = ref.watch(themeModeNotifierProvider);
+    final themeModeAsync = ref.watch(themeModeProvider);
     final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Scaffold(
@@ -145,15 +178,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _SettingsCard(
             child: Column(
               children: [
-                _SwitchRow(
-                  label: '유통기한 알림',
-                  value: _expiryAlertOn,
-                  onChanged: _setExpiryAlert,
-                ),
-                const Divider(height: 1, indent: 16),
                 _AlertDaysRow(
                   value: _alertDaysBefore,
-                  enabled: _expiryAlertOn,
+                  enabled: true,
                   onChanged: _setAlertDays,
                 ),
                 const Divider(height: 1, indent: 16),
@@ -174,21 +201,55 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Gemini API 키',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  // ── 헤더 + 발급받기 링크 ──────────────────────────────
+                  Row(
+                    children: [
+                      const Text(
+                        'Gemini API 키',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: _openAiStudio,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppTheme.flameOrange,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.open_in_new_rounded,
+                                  size: 13, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text(
+                                '발급받기',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   const Text(
-                    'AI 레시피 추천을 사용하려면\nGoogle AI Studio에서 발급한 API 키를 입력하세요.',
+                    'Google AI Studio에서 발급 → 복사 후 앱으로 돌아오면\n자동으로 붙여넣어요.',
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 12,
-                      color: Color(0x992C2C2C),
+                      color: AppTheme.iconSubtle,
                       height: 1.5,
                     ),
                   ),
@@ -203,8 +264,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     )
                   else
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // ── 입력 필드 ──────────────────────────────────
                         Expanded(
                           child: TextField(
                             controller: _apiKeyController,
@@ -214,7 +276,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               hintStyle: const TextStyle(
                                 fontFamily: 'Pretendard',
                                 fontSize: 14,
-                                color: Color(0x662C2C2C),
+                                color: AppTheme.textDisabled,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -242,7 +304,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
+                        // ── 클립보드 붙여넣기 ───────────────────────────
+                        SizedBox(
+                          height: 48,
+                          width: 48,
+                          child: IconButton.outlined(
+                            onPressed: _tryPasteFromClipboard,
+                            icon: const Icon(Icons.content_paste_rounded,
+                                size: 20),
+                            tooltip: '클립보드에서 붙여넣기',
+                            style: IconButton.styleFrom(
+                              foregroundColor: AppTheme.primaryColor,
+                              side: const BorderSide(
+                                  color: AppTheme.primaryColor, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        // ── 저장 버튼 ──────────────────────────────────
                         SizedBox(
                           height: 48,
                           child: FilledButton(
@@ -254,9 +337,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                             ),
                             child: Text(
                               _apiKeySaved ? '저장됨' : '저장',
@@ -306,7 +388,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _setTheme(ThemeMode mode) {
-    ref.read(themeModeNotifierProvider.notifier).setThemeMode(mode);
+    ref.read(themeModeProvider.notifier).setThemeMode(mode);
   }
 }
 
@@ -327,7 +409,7 @@ class _SectionHeader extends StatelessWidget {
           fontFamily: 'Pretendard',
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Color(0x992C2C2C),
+          color: AppTheme.iconSubtle,
           letterSpacing: 0.8,
         ),
       ),
@@ -345,11 +427,11 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFAF3),
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F000000),
+            color: AppTheme.dividerSubtle,
             blurRadius: 4,
             offset: Offset(0, 1),
           ),
@@ -384,7 +466,7 @@ class _ThemeChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? AppTheme.primaryColor
-                : const Color(0xFFF5F0E8),
+                : AppTheme.surfaceHighest,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -393,7 +475,7 @@ class _ThemeChip extends StatelessWidget {
               fontFamily: 'Pretendard',
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : const Color(0xFF2C2C2C),
+              color: selected ? Colors.white : AppTheme.textDark,
             ),
           ),
         ),
@@ -465,7 +547,7 @@ class _AlertDaysRow extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 15,
-              color: enabled ? const Color(0xFF2C2C2C) : const Color(0x662C2C2C),
+              color: enabled ? AppTheme.textDark : AppTheme.textDisabled,
             ),
           ),
           PopupMenuButton<int>(
@@ -489,14 +571,14 @@ class _AlertDaysRow extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: enabled
                         ? AppTheme.primaryColor
-                        : const Color(0x662C2C2C),
+                        : AppTheme.textDisabled,
                   ),
                 ),
                 Icon(
                   Icons.arrow_drop_down,
                   size: 20,
                   color:
-                      enabled ? AppTheme.primaryColor : const Color(0x662C2C2C),
+                      enabled ? AppTheme.primaryColor : AppTheme.textDisabled,
                 ),
               ],
             ),
@@ -533,7 +615,7 @@ class _InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 14,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ),
         ],
@@ -568,7 +650,7 @@ class _NavRow extends StatelessWidget {
             const Icon(
               Icons.chevron_right,
               size: 18,
-              color: Color(0x992C2C2C),
+              color: AppTheme.iconSubtle,
             ),
           ],
         ),

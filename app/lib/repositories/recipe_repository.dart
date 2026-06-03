@@ -36,4 +36,13 @@ abstract class RecipeRepository {
 
   /// 레시피 완료 처리 (이벤트 발행 — Reward 연동용).
   Future<Result<void, AppError>> markCompleted(String recipeId);
+
+  /// 요리명으로 레시피 조회 또는 AI 생성.
+  ///
+  /// 1. 제목으로 캐시 조회 → Hit: 반환
+  /// 2. AI 생성 → 캐시 저장 → 반환
+  Future<Result<Recipe, AppError>> generateByName(
+    String dishName, {
+    int servings = 2,
+  });
 }

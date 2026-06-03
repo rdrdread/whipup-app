@@ -7,13 +7,21 @@ import 'package:whipup/core/extensions/build_context_extensions.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/reward_providers.dart';
+import 'package:whipup/providers/storage_config_provider.dart';
+import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/services/sub_category_service.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
 
+/// 마지막으로 선택한 보관 위치 — 앱 세션 내 유지.
+class _LastStorage {
+  static StorageLocation location = StorageLocation.fridge;
+  static int containerIndex = 0;
+}
+
 /// 재료 추가/수정 화면.
 ///
-/// - 카테고리 → 서브 카테고리 → 부위 캐스케이딩 선택 (US-6)
+/// - 카테고리 → 서브 카테고리 → 부위/종류 캐스케이딩 선택 (US-6)
 /// - 재료명 자동 입력 (AC-10)
 /// - 단위 자동 설정 (AC-11)
 /// - 사용자 수동 변경 가능 (AC-12)
@@ -25,20 +33,20 @@ class StockAddScreen extends ConsumerStatefulWidget {
     super.key,
     this.itemId,
     this.initialStorageLocationName,
+    this.initialContainerIndex = 0,
+    this.initialCategoryName,
   });
 
-  /// null이면 추가 모드, 값이 있으면 수정 모드
   final int? itemId;
-
-  /// 초기 보관 위치 (StockScreen FAB에서 진입 시 전달)
   final String? initialStorageLocationName;
+  final int initialContainerIndex;
+  final String? initialCategoryName;
 
   @override
   ConsumerState<StockAddScreen> createState() => _StockAddScreenState();
 }
 
 class _StockAddScreenState extends ConsumerState<StockAddScreen> {
-  // ─── 폼 상태 ───────────────────────────────────────────────────────────────
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _quantityController = TextEditingController(text: '1');
@@ -48,30 +56,39 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
   String? _selectedSubCategory;
   String? _selectedPart;
   StorageLocation _selectedLocation = StorageLocation.fridge;
+  int _containerIndex = 0;
   DateTime? _expiryDate;
   bool _isUnitAutoSet = false;
   bool _isNameAutoSet = false;
   bool _isSaving = false;
 
-  // 수정 모드에서 기존 아이템 보관
   StockItem? _existingItem;
 
   @override
   void initState() {
     super.initState();
-    // 초기 보관 위치 설정
     if (widget.initialStorageLocationName != null) {
       final loc = StorageLocation.values.where(
         (l) => l.name == widget.initialStorageLocationName,
       );
-      if (loc.isNotEmpty) {
-        _selectedLocation = loc.first;
+      if (loc.isNotEmpty) _selectedLocation = loc.first;
+      _containerIndex = widget.initialContainerIndex;
+    } else {
+      // 마지막으로 사용한 보관 위치 복원
+      _selectedLocation = _LastStorage.location;
+      _containerIndex = _LastStorage.containerIndex;
+    }
+    if (widget.initialCategoryName != null) {
+      final cat = StockCategory.values.where(
+        (c) => c.name == widget.initialCategoryName,
+      );
+      if (cat.isNotEmpty) {
+        _selectedCategory = cat.first;
+        _unitController.text = SubCategoryService.getDefaultUnit(cat.first);
+        _isUnitAutoSet = true;
       }
     }
-    // 수정 모드: 기존 데이터 로드
-    if (widget.itemId != null) {
-      _loadExistingItem();
-    }
+    if (widget.itemId != null) _loadExistingItem();
   }
 
   Future<void> _loadExistingItem() async {
@@ -91,6 +108,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
             _selectedSubCategory = item.subCategory;
             _selectedPart = item.itemPart;
             _selectedLocation = item.storageLocation;
+            _containerIndex = item.containerIndex;
             _expiryDate = item.expiryDate;
           });
         }
@@ -109,19 +127,15 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     super.dispose();
   }
 
-  // ─── 카테고리 선택 ──────────────────────────────────────────────────────────
-
   void _onCategorySelected(StockCategory category) {
     HapticFeedback.selectionClick();
     setState(() {
       _selectedCategory = category;
       _selectedSubCategory = null;
       _selectedPart = null;
-      // 단위 자동 설정
       final unit = SubCategoryService.getDefaultUnit(category);
       _unitController.text = unit;
       _isUnitAutoSet = true;
-      // 재료명 초기화
       if (_isNameAutoSet) {
         _nameController.text = '';
         _isNameAutoSet = false;
@@ -134,19 +148,14 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     setState(() {
       _selectedSubCategory = subCategory;
       _selectedPart = null;
-      // 단위 자동 갱신
       final unit = SubCategoryService.getDefaultUnit(
         _selectedCategory!,
         subCategory: subCategory,
       );
       _unitController.text = unit;
       _isUnitAutoSet = true;
-      // 재료명 자동 입력
-      _nameController.text = SubCategoryService.buildAutoName(
-        subCategory: subCategory,
-      );
+      _nameController.text = SubCategoryService.buildAutoName(subCategory: subCategory);
       _isNameAutoSet = true;
-      // 수량 자동 입력 (추가 모드만)
       if (widget.itemId == null) {
         final qty = SubCategoryService.getDefaultQuantity(
           _selectedCategory!,
@@ -154,6 +163,12 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         );
         _quantityController.text =
             qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
+        // 추천 유통기한 자동 선택 (수정 모드 제외)
+        final days = SubCategoryService.getDefaultExpiryDays(
+          _selectedCategory!,
+          subCategory: subCategory,
+        );
+        _expiryDate = DateTime.now().add(Duration(days: days));
       }
     });
   }
@@ -162,7 +177,6 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     HapticFeedback.selectionClick();
     setState(() {
       _selectedPart = part;
-      // 재료명 자동 갱신 (부위 포함)
       if (_selectedSubCategory != null) {
         _nameController.text = SubCategoryService.buildAutoName(
           subCategory: _selectedSubCategory!,
@@ -173,7 +187,25 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     });
   }
 
-  // ─── 저장 ──────────────────────────────────────────────────────────────────
+  void _adjustQuantity(double delta) {
+    HapticFeedback.selectionClick();
+    final current = double.tryParse(_quantityController.text) ?? 0;
+    final step = delta.abs();
+    double next;
+    if (step >= 10) {
+      // 무게·부피 단위(g, ml 등): 배수로 스냅해서 0으로 끝나게 함
+      next = delta > 0
+          ? ((current / step).floor() + 1) * step
+          : ((current / step).ceil() - 1) * step;
+    } else {
+      next = current + delta;
+    }
+    next = next.clamp(0.0, 9999.0);
+    setState(() {
+      _quantityController.text =
+          next % 1 == 0 ? next.toInt().toString() : next.toStringAsFixed(1);
+    });
+  }
 
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -205,6 +237,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         subCategory: _selectedSubCategory,
         itemPart: _selectedPart,
         storageLocation: _selectedLocation,
+        containerIndex: _containerIndex,
         quantity: quantity,
         unit: unit,
         expiryDate: _expiryDate,
@@ -220,14 +253,17 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
       result.when(
         success: (_) {
           HapticFeedback.lightImpact();
-          // 재고 추가 시 리워드 트리거 (fire-and-forget)
+          // 마지막 보관 위치 저장
+          _LastStorage.location = _selectedLocation;
+          _LastStorage.containerIndex = _containerIndex;
           if (widget.itemId == null) {
             handleStockAdded(ref);
+            ref.invalidate(stockSummaryProvider);
           }
-          context.pop();
-          context.showSnackBar(
+          context.showCenterToast(
             widget.itemId != null ? '재료가 수정되었어요 ✅' : '재료가 추가되었어요 🎉',
           );
+          context.pop();
         },
         failure: (err) {
           context.showSnackBar('저장 실패: ${err.message}');
@@ -238,11 +274,11 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
     }
   }
 
-  // ─── 빌드 ──────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     final isEditMode = widget.itemId != null;
+    final partLabel = _selectedCategory == StockCategory.meat ? '부위' : '종류';
+    final unit = _unitController.text;
 
     return Scaffold(
       appBar: AppBar(
@@ -255,7 +291,6 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
           onPressed: () => context.pop(),
         ),
         actions: [
-          // 저장 버튼
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilledButton(
@@ -282,18 +317,31 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            // ─── 1. 카테고리 ────────────────────────────────────────────
-            _SectionLabel(
-              label: '카테고리',
-              required: true,
+            // ─── 1. 보관 위치 (최상단) ─────────────────────────────────
+            _SectionLabel(label: '보관 위치', required: true),
+            const SizedBox(height: 8),
+            _LocationSelector(
+              selectedLocation: _selectedLocation,
+              selectedContainerIndex: _containerIndex,
+              onSelected: (loc, containerIndex) {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _selectedLocation = loc;
+                  _containerIndex = containerIndex;
+                });
+              },
             ),
+
+            // ─── 2. 카테고리 ────────────────────────────────────────────
+            const SizedBox(height: 20),
+            _SectionLabel(label: '카테고리', required: true),
             const SizedBox(height: 8),
             _CategorySelector(
               selectedCategory: _selectedCategory,
               onSelected: _onCategorySelected,
             ),
 
-            // ─── 2. 서브 카테고리 ─────────────────────────────────────
+            // ─── 3. 서브 카테고리 ─────────────────────────────────────
             if (_selectedCategory != null) ...[
               const SizedBox(height: 20),
               _SectionLabel(label: '종류'),
@@ -305,11 +353,11 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
               ),
             ],
 
-            // ─── 3. 부위 ─────────────────────────────────────────────
+            // ─── 4. 부위/종류 (카테고리에 따라 라벨 변경) ──────────────
             if (_selectedSubCategory != null &&
                 SubCategoryService.getParts(_selectedSubCategory!).isNotEmpty) ...[
               const SizedBox(height: 20),
-              _SectionLabel(label: '부위'),
+              _SectionLabel(label: partLabel),
               const SizedBox(height: 8),
               _PartSelector(
                 subCategory: _selectedSubCategory!,
@@ -318,7 +366,7 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
               ),
             ],
 
-            // ─── 4. 재료명 ────────────────────────────────────────────
+            // ─── 5. 재료명 ────────────────────────────────────────────
             const SizedBox(height: 20),
             _SectionLabel(label: '재료명', required: true),
             const SizedBox(height: 8),
@@ -329,18 +377,6 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
                 if (_isNameAutoSet && val != _nameController.text) {
                   setState(() => _isNameAutoSet = false);
                 }
-              },
-            ),
-
-            // ─── 5. 보관 위치 ────────────────────────────────────────
-            const SizedBox(height: 20),
-            _SectionLabel(label: '보관 위치', required: true),
-            const SizedBox(height: 8),
-            _LocationSelector(
-              selectedLocation: _selectedLocation,
-              onSelected: (loc) {
-                HapticFeedback.selectionClick();
-                setState(() => _selectedLocation = loc);
               },
             ),
 
@@ -356,7 +392,11 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
                     children: [
                       _SectionLabel(label: '수량', required: true),
                       const SizedBox(height: 8),
-                      _QuantityField(controller: _quantityController),
+                      _QuantityWithStepper(
+                        controller: _quantityController,
+                        unit: unit,
+                        onStep: _adjustQuantity,
+                      ),
                     ],
                   ),
                 ),
@@ -366,38 +406,43 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionLabel(label: '단위'),
-                      if (_isUnitAutoSet)
-                        Container(
-                          margin: const EdgeInsets.only(left: 4),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '자동',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 10,
-                                ),
-                          ),
-                        ),
+                      Row(
+                        children: [
+                          _SectionLabel(label: '단위'),
+                          if (_isUnitAutoSet) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '자동',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 10,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       _UnitField(
                         controller: _unitController,
-                        onUnitSelected: (unit) {
+                        onUnitSelected: (u) {
                           setState(() {
-                            _unitController.text = unit;
+                            _unitController.text = u;
                             _isUnitAutoSet = false;
                           });
                         },
@@ -429,9 +474,8 @@ class _StockAddScreenState extends ConsumerState<StockAddScreen> {
   }
 }
 
-// ─── 재사용 컴포넌트들 ──────────────────────────────────────────────────────────
+// ─── 재사용 컴포넌트 ────────────────────────────────────────────────────────────
 
-/// 섹션 라벨
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label, this.required = false});
 
@@ -461,7 +505,6 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-/// 카테고리 선택 그리드 (2행 수평 스크롤)
 class _CategorySelector extends StatelessWidget {
   const _CategorySelector({
     required this.selectedCategory,
@@ -482,18 +525,16 @@ class _CategorySelector extends StatelessWidget {
           onTap: () => onSelected(cat),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(10),
               border: isSelected
                   ? null
                   : Border.all(
-                      color:
-                          Theme.of(context).colorScheme.outlineVariant,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       width: 0.5,
                     ),
             ),
@@ -508,9 +549,8 @@ class _CategorySelector extends StatelessWidget {
                         color: isSelected
                             ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
                 ),
               ],
@@ -522,7 +562,6 @@ class _CategorySelector extends StatelessWidget {
   }
 }
 
-/// 서브 카테고리 선택 칩
 class _SubCategorySelector extends StatelessWidget {
   const _SubCategorySelector({
     required this.category,
@@ -559,13 +598,12 @@ class _SubCategorySelector extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
               border: isSelected
                   ? null
                   : Border.all(
-                      color:
-                          Theme.of(context).colorScheme.outlineVariant,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       width: 0.5,
                     ),
             ),
@@ -586,7 +624,6 @@ class _SubCategorySelector extends StatelessWidget {
   }
 }
 
-/// 부위/종류 선택 칩
 class _PartSelector extends StatelessWidget {
   const _PartSelector({
     required this.subCategory,
@@ -610,18 +647,16 @@ class _PartSelector extends StatelessWidget {
           onTap: () => onSelected(part),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.tertiary
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                  : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
               border: isSelected
                   ? null
                   : Border.all(
-                      color:
-                          Theme.of(context).colorScheme.outlineVariant,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       width: 0.5,
                     ),
             ),
@@ -642,7 +677,6 @@ class _PartSelector extends StatelessWidget {
   }
 }
 
-/// 재료명 입력 필드
 class _NameField extends StatelessWidget {
   const _NameField({
     required this.controller,
@@ -683,71 +717,89 @@ class _NameField extends StatelessWidget {
   }
 }
 
-/// 보관 위치 선택
-class _LocationSelector extends StatelessWidget {
+/// 보관 위치 선택 — 동적 슬롯 목록.
+class _LocationSelector extends ConsumerWidget {
   const _LocationSelector({
     required this.selectedLocation,
+    required this.selectedContainerIndex,
     required this.onSelected,
   });
 
   final StorageLocation selectedLocation;
-  final void Function(StorageLocation) onSelected;
+  final int selectedContainerIndex;
+  final void Function(StorageLocation location, int containerIndex) onSelected;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: StorageLocation.values.map((loc) {
-        final isSelected = selectedLocation == loc;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: GestureDetector(
-              onTap: () => onSelected(loc),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(10),
-                  border: isSelected
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1.5,
-                        )
-                      : Border.all(
-                          color:
-                              Theme.of(context).colorScheme.outlineVariant,
-                          width: 0.5,
-                        ),
-                ),
-                child: Column(
-                  children: [
-                    TwemojiIcon(loc.emoji, size: 20),
-                    const SizedBox(height: 4),
-                    Text(
-                      loc.label,
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                                color: isSelected
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
-                              ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slotsAsync = ref.watch(storageContainerSlotsProvider);
+    return slotsAsync.when(
+      loading: () => const SizedBox(
+        height: 64,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, __) => _buildSlotGrid(
+        context,
+        StorageLocation.values
+            .map((l) => StorageContainerSlot(
+                location: l, index: 0, totalCount: 1))
+            .toList(),
+      ),
+      data: (slots) => _buildSlotGrid(context, slots),
+    );
+  }
+
+  Widget _buildSlotGrid(
+      BuildContext context, List<StorageContainerSlot> slots) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: slots.map((slot) {
+        final isSelected = selectedLocation == slot.location &&
+            selectedContainerIndex == slot.index;
+        return GestureDetector(
+          onTap: () => onSelected(slot.location, slot.index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : AppTheme.surfaceHigh,
+              borderRadius: BorderRadius.circular(10),
+              border: isSelected
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.5,
+                    )
+                  : Border.all(
+                      color:
+                          Theme.of(context).colorScheme.outlineVariant,
+                      width: 0.5,
                     ),
-                  ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TwemojiIcon(slot.emoji, size: 20),
+                const SizedBox(height: 4),
+                Text(
+                  slot.label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w400,
+                        color: isSelected
+                            ? Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              ],
             ),
           ),
         );
@@ -756,37 +808,119 @@ class _LocationSelector extends StatelessWidget {
   }
 }
 
-/// 수량 입력 필드
-class _QuantityField extends StatelessWidget {
-  const _QuantityField({required this.controller});
+/// 수량 입력 + +/- 스테퍼.
+///
+/// 단위에 따라 스텝 크기가 달라진다:
+/// g→50, kg→0.1, ml→100, L→0.5, 나머지→1
+class _QuantityWithStepper extends StatelessWidget {
+  const _QuantityWithStepper({
+    required this.controller,
+    required this.unit,
+    required this.onStep,
+  });
+
   final TextEditingController controller;
+  final String unit;
+  final void Function(double delta) onStep;
+
+  double get _step {
+    switch (unit) {
+      case 'g':
+        return 50;
+      case 'kg':
+        return 0.1;
+      case 'ml':
+        return 100;
+      case 'L':
+        return 0.5;
+      default:
+        return 1;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+    final cs = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        // — 버튼
+        _StepButton(
+          icon: Icons.remove_rounded,
+          color: cs.primary,
+          onTap: () => onStep(-_step),
+        ),
+        const SizedBox(width: 8),
+        // 직접 입력 필드
+        Expanded(
+          child: TextFormField(
+            controller: controller,
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+            ],
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w700,
+                ),
+            decoration: const InputDecoration(
+              hintText: '0',
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return '입력해 주세요';
+              }
+              if (double.tryParse(value) == null) {
+                return '숫자만';
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        // + 버튼
+        _StepButton(
+          icon: Icons.add_rounded,
+          color: cs.primary,
+          onTap: () => onStep(_step),
+        ),
       ],
-      style: const TextStyle(fontFamily: 'Pretendard'),
-      decoration: const InputDecoration(
-        hintText: '0',
-      ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return '수량을 입력해 주세요';
-        }
-        if (double.tryParse(value) == null) {
-          return '올바른 숫자를 입력해 주세요';
-        }
-        return null;
-      },
     );
   }
 }
 
-/// 단위 입력 + 드롭다운 선택
+class _StepButton extends StatelessWidget {
+  const _StepButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: color),
+      ),
+    );
+  }
+}
+
 class _UnitField extends StatelessWidget {
   const _UnitField({
     required this.controller,
@@ -806,12 +940,12 @@ class _UnitField extends StatelessWidget {
             style: const TextStyle(fontFamily: 'Pretendard'),
             decoration: const InputDecoration(
               hintText: '단위',
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             ),
           ),
         ),
         const SizedBox(width: 4),
-        // 단위 드롭다운 버튼
         PopupMenuButton<String>(
           icon: Icon(
             Icons.arrow_drop_down_rounded,
@@ -835,7 +969,7 @@ class _UnitField extends StatelessWidget {
   }
 }
 
-/// 유통기한 날짜 선택 + 빠른 선택 칩
+/// 유통기한 날짜 선택 + 빠른 선택 칩.
 class _ExpiryDatePicker extends StatelessWidget {
   const _ExpiryDatePicker({
     required this.selectedDate,
@@ -854,37 +988,45 @@ class _ExpiryDatePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 빠른 선택 칩 (카테고리 선택 시 노출)
         if (category != null) ...[
           _ExpiryQuickChips(
             category: category!,
             subCategory: subCategory,
+            selectedDate: selectedDate,
             onSelected: (days) {
               onDateSelected(DateTime.now().add(Duration(days: days)));
             },
           ),
           const SizedBox(height: 10),
         ],
-        // 날짜 직접 선택 행
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
               context: context,
               initialDate: selectedDate ?? DateTime.now(),
-              firstDate: DateTime.now().subtract(const Duration(days: 365)),
-              lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
+              firstDate:
+                  DateTime.now().subtract(const Duration(days: 365)),
+              lastDate:
+                  DateTime.now().add(const Duration(days: 365 * 3)),
             );
-            if (picked != null) {
-              onDateSelected(picked);
-            }
+            if (picked != null) onDateSelected(picked);
           },
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
+              color: selectedDate != null
+                  ? Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withValues(alpha: 0.4)
+                  : null,
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline,
+                color: selectedDate != null
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: selectedDate != null ? 1.5 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -893,7 +1035,9 @@ class _ExpiryDatePicker extends StatelessWidget {
                 Icon(
                   Icons.calendar_today_rounded,
                   size: 18,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: selectedDate != null
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -903,15 +1047,24 @@ class _ExpiryDatePicker extends StatelessWidget {
                         : '직접 날짜 선택',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: selectedDate != null
-                              ? null
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                          fontWeight: selectedDate != null
+                              ? FontWeight.w600
+                              : null,
                         ),
                   ),
                 ),
                 if (selectedDate != null)
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    onPressed: () => onDateSelected(null),
+                  GestureDetector(
+                    onTap: () => onDateSelected(null),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
               ],
             ),
@@ -921,21 +1074,24 @@ class _ExpiryDatePicker extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.year}년 ${date.month}월 ${date.day}일';
-  }
+  String _formatDate(DateTime date) =>
+      '${date.year}년 ${date.month}월 ${date.day}일';
 }
 
-/// 유통기한 빠른 선택 칩 목록
+/// 유통기한 빠른 선택 칩.
+///
+/// [selectedDate]가 해당 칩의 날짜와 일치하면 primary 색으로 하이라이트.
 class _ExpiryQuickChips extends StatelessWidget {
   const _ExpiryQuickChips({
     required this.category,
     required this.subCategory,
+    required this.selectedDate,
     required this.onSelected,
   });
 
   final StockCategory category;
   final String? subCategory;
+  final DateTime? selectedDate;
   final void Function(int days) onSelected;
 
   static const _options = [
@@ -947,8 +1103,19 @@ class _ExpiryQuickChips extends StatelessWidget {
     (180, '6개월'),
   ];
 
+  bool _isChipSelected(int days) {
+    if (selectedDate == null) return false;
+    final target = DateTime.now().add(Duration(days: days));
+    return selectedDate!.year == target.year &&
+        selectedDate!.month == target.month &&
+        selectedDate!.day == target.day;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final defaultDays = SubCategoryService.getDefaultExpiryDays(
       category,
       subCategory: subCategory,
@@ -963,59 +1130,66 @@ class _ExpiryQuickChips extends StatelessWidget {
       runSpacing: 6,
       children: _options.map((option) {
         final (days, label) = option;
-        final isRecommended = days == recommendedDays;
+        final isSelected = _isChipSelected(days);
+        final isRecommended = days == recommendedDays && !isSelected;
+
         return GestureDetector(
           onTap: () {
             HapticFeedback.selectionClick();
             onSelected(days);
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isRecommended
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+              color: isSelected
+                  ? cs.primary
+                  : isRecommended
+                      ? cs.primaryContainer
+                      : AppTheme.surfaceHigh,
               borderRadius: BorderRadius.circular(20),
-              border: isRecommended
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1,
-                    )
-                  : Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      width: 0.5,
-                    ),
+              border: isSelected
+                  ? null
+                  : isRecommended
+                      ? Border.all(color: cs.primary, width: 1)
+                      : Border.all(
+                          color: cs.outlineVariant,
+                          width: 0.5,
+                        ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   label,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: isRecommended
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: isRecommended
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                      ),
+                  style: tt.labelMedium?.copyWith(
+                    color: isSelected
+                        ? cs.onPrimary
+                        : isRecommended
+                            ? cs.onPrimaryContainer
+                            : cs.onSurface,
+                    fontWeight: (isSelected || isRecommended)
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                  ),
                 ),
                 if (isRecommended) ...[
                   const SizedBox(width: 4),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 5, vertical: 1),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: cs.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       '추천',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onPrimary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],

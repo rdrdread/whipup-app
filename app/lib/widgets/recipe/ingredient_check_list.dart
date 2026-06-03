@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/core/utils/ingredient_scaler.dart' show scaleAndFormat;
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 
@@ -13,12 +15,20 @@ class IngredientCheckList extends StatelessWidget {
     super.key,
     required this.ingredients,
     this.ownedItems = const [],
+    required this.baseServings,
+    required this.displayServings,
   });
 
   final List<RecipeIngredient> ingredients;
 
   /// 사용자 보유 재료 목록 (보유 여부 판단에 사용).
   final List<StockItem> ownedItems;
+
+  /// AI가 레시피를 생성한 기준 인분 수.
+  final int baseServings;
+
+  /// 사용자가 선택한 현재 인분 수.
+  final int displayServings;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +49,7 @@ class IngredientCheckList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isOwned
                       ? cs.primaryContainer
-                      : cs.surfaceContainerHigh,
+                      : AppTheme.surfaceHigh,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -70,7 +80,13 @@ class IngredientCheckList extends StatelessWidget {
 
               // 수량
               Text(
-                '${ingredient.amount}${ingredient.unit}',
+                scaleAndFormat(
+                  ingredient.amount,
+                  baseServings,
+                  displayServings,
+                  ingredient.unit,
+                  ingredientName: ingredient.name,
+                ),
                 style: tt.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
@@ -84,7 +100,7 @@ class IngredientCheckList extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHigh,
+                    color: AppTheme.surfaceHigh,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

@@ -22,7 +22,8 @@ class IsarStockRepository implements StockRepository {
   Future<Result<List<StockItem>, AppError>> getAll(StockFilter filter) async {
     try {
       final items = await _buildQuery(filter).findAll();
-      return Result.success(items.map(_toDomain).toList());
+      final domain = items.map(_toDomain).toList();
+      return Result.success(_applyContainerFilter(domain, filter));
     } catch (e) {
       return Result.failure(AppError.database('재고 조회 실패: $e'));
     }
@@ -104,35 +105,54 @@ class IsarStockRepository implements StockRepository {
   Stream<List<StockItem>> watchAll(StockFilter filter) {
     return _buildQuery(filter)
         .watch(fireImmediately: true)
-        .map((items) => items.map(_toDomain).toList());
+        .map((items) => _applyContainerFilter(items.map(_toDomain).toList(), filter));
   }
 
   // ─── 내부 헬퍼 ─────────────────────────────────────────────────────────────
 
   /// 필터 조건을 적용한 Isar 쿼리를 빌드한다.
+  ///
+  /// storageLocation은 인덱스를 활용한 startsWith 조회를 사용한다.
+  /// containerIndex 필터는 인메모리에서 처리한다.
   QueryBuilder<IsarStockItem, IsarStockItem, QAfterFilterCondition>
       _buildQuery(StockFilter filter) {
-    // 항상 QAfterFilterCondition을 반환하기 위해 base 조건으로 시작
-    var query = _isar.isarStockItems
-        .where()
-        .filter()
-        .addedAtGreaterThan(DateTime.fromMillisecondsSinceEpoch(0));
-
-    // 보관 위치 필터
     if (filter.storageLocation != null) {
-      query = query.and().storageLocationEqualTo(filter.storageLocation!.name);
+      // 인덱스를 활용한 prefix 조회: "fridge", "fridge:0", "fridge:1" 모두 매칭
+      var query = _isar.isarStockItems
+          .where()
+          .storageLocationStartsWith(filter.storageLocation!.name)
+          .filter()
+          .addedAtGreaterThan(DateTime.fromMillisecondsSinceEpoch(0));
+      if (filter.category != null) {
+        query = query.and().categoryEqualTo(filter.category!.name);
+      }
+      return query;
+    } else {
+      var query = _isar.isarStockItems
+          .where()
+          .filter()
+          .addedAtGreaterThan(DateTime.fromMillisecondsSinceEpoch(0));
+      if (filter.category != null) {
+        query = query.and().categoryEqualTo(filter.category!.name);
+      }
+      return query;
     }
+  }
 
-    // 카테고리 필터
-    if (filter.category != null) {
-      query = query.and().categoryEqualTo(filter.category!.name);
-    }
-
-    return query;
+  /// containerIndex 인메모리 필터 적용.
+  List<StockItem> _applyContainerFilter(List<StockItem> items, StockFilter filter) {
+    if (filter.containerIndex == null) return items;
+    return items.where((item) => item.containerIndex == filter.containerIndex).toList();
   }
 
   /// [IsarStockItem] → [StockItem] 변환.
+  ///
+  /// storageLocation 형식: `"fridge"` (구버전) 또는 `"fridge:0"` (신버전).
   StockItem _toDomain(IsarStockItem item) {
+    final parts = item.storageLocation.split(':');
+    final locationName = parts[0];
+    final containerIdx = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+
     return StockItem(
       id: item.id,
       name: item.name,
@@ -143,9 +163,10 @@ class IsarStockRepository implements StockRepository {
       subCategory: item.subCategory,
       itemPart: item.itemPart,
       storageLocation: StorageLocation.values.firstWhere(
-        (l) => l.name == item.storageLocation,
+        (l) => l.name == locationName,
         orElse: () => StorageLocation.fridge,
       ),
+      containerIndex: containerIdx,
       quantity: item.quantity,
       unit: item.unit,
       expiryDate: item.expiryDate,
@@ -154,14 +175,16 @@ class IsarStockRepository implements StockRepository {
   }
 
   /// [StockItem] → [IsarStockItem] 변환.
+  ///
+  /// storageLocation을 `"fridge:0"` 형식으로 인코딩하여 저장한다.
   IsarStockItem _toIsar(StockItem item) {
     return IsarStockItem()
-      ..id = item.id
+      ..id = item.id == 0 ? Isar.autoIncrement : item.id
       ..name = item.name
       ..category = item.category.name
       ..subCategory = item.subCategory
       ..itemPart = item.itemPart
-      ..storageLocation = item.storageLocation.name
+      ..storageLocation = '${item.storageLocation.name}:${item.containerIndex}'
       ..quantity = item.quantity
       ..unit = item.unit
       ..expiryDate = item.expiryDate

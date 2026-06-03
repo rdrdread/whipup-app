@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/achievement.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
 
@@ -35,7 +36,7 @@ class AchievementCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: isUnlocked
                 ? cs.primaryContainer.withValues(alpha: 0.6)
-                : cs.surfaceContainerLow,
+                : AppTheme.cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isUnlocked

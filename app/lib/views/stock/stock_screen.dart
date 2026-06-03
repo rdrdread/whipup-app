@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/core/extensions/build_context_extensions.dart';
-import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_category.dart';
 import 'package:whipup/models/stock_filter.dart';
 import 'package:whipup/models/stock_item.dart';
+import 'package:whipup/providers/storage_config_provider.dart';
 import 'package:whipup/providers/stock_providers.dart';
 import 'package:whipup/providers/stock_repository_provider.dart';
 import 'package:whipup/widgets/stock/category_chip.dart';
@@ -30,22 +30,45 @@ class StockScreen extends ConsumerStatefulWidget {
 }
 
 class _StockScreenState extends ConsumerState<StockScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
-
-  static const _tabs = StorageLocation.values;
+  late List<StorageContainerSlot> _slots;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        ref
-            .read(stockFilterProvider.notifier)
-            .setStorageLocation(_tabs[_tabController.index]);
+    // 기본값으로 초기화 (각 위치 1개씩)
+    _slots = StorageLocation.values
+        .map((l) => StorageContainerSlot(location: l, index: 0, totalCount: 1))
+        .toList();
+    // 탭 0 = 전체, 탭 1..n = 슬롯
+    _tabController = TabController(length: _slots.length + 1, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      if (_tabController.index == 0) {
+        ref.read(stockFilterProvider.notifier).clearContainer();
+      } else {
+        final slot = _slots[_tabController.index - 1];
+        ref.read(stockFilterProvider.notifier).setContainer(slot.location, slot.index);
       }
-    });
+    }
+  }
+
+  void _rebuildController(List<StorageContainerSlot> slots) {
+    final prevIndex = _tabController.index;
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    _slots = slots;
+    final length = slots.length + 1; // +1 for 전체 탭
+    _tabController = TabController(
+      length: length,
+      initialIndex: prevIndex.clamp(0, length - 1),
+      vsync: this,
+    );
+    _tabController.addListener(_onTabChanged);
   }
 
   @override
@@ -54,83 +77,145 @@ class _StockScreenState extends ConsumerState<StockScreen>
     super.dispose();
   }
 
+  bool _slotsEqual(List<StorageContainerSlot> a, List<StorageContainerSlot> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].label != b[i].label ||
+          a[i].location != b[i].location ||
+          a[i].index != b[i].index) return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // ref.watch로 초기값과 이후 변경 모두 감지 (ref.listen은 초기값 놓침)
+    final slotsAsync = ref.watch(storageContainerSlotsProvider);
+    slotsAsync.whenData((slots) {
+      if (!_slotsEqual(_slots, slots)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            if (_slots.length != slots.length) {
+              _rebuildController(slots);
+            } else {
+              _slots = slots;
+            }
+          });
+        });
+      }
+    });
+
+    return _buildScaffold();
+  }
+
+  Widget _buildScaffold() {
+    final slots = _slots;
+    final tc = _tabController;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '재고',
-          style: AppTheme.screenTitleStyle,
-        ),
+        title: const Text('재고', style: AppTheme.screenTitleStyle),
         centerTitle: false,
         actions: [
-          // 검색 버튼 (후속 개발중)
+          // 재고함 설정
+          IconButton(
+            icon: const Icon(Icons.tune_rounded),
+            onPressed: () async {
+              await context.push('/storage-setup');
+              // 설정 변경 후 슬롯 목록 갱신
+              if (mounted) ref.invalidate(storageContainerSlotsProvider);
+            },
+            tooltip: '재고함 설정',
+          ),
           IconButton(
             icon: const Icon(Icons.search_rounded),
             onPressed: () => context.showComingSoon(),
             tooltip: '검색',
           ),
-          // OCR 스캔 버튼 (Phase 1.2)
           IconButton(
             icon: const Icon(Icons.document_scanner_outlined),
             onPressed: () => context.showComingSoon(),
             tooltip: '영수증 스캔',
           ),
         ],
-        // ─── 보관 위치 탭 바 ──────────────────────────────────────────────
         bottom: TabBar(
-          controller: _tabController,
-          isScrollable: false,
+          controller: tc,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           dividerColor: Colors.transparent,
-          tabs: _tabs
-              .map(
-                (loc) => Tab(
-                  height: 44,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TwemojiIcon(loc.emoji, size: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          loc.label,
-                          style: const TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+          tabs: [
+            // 전체 탭
+            const Tab(
+              height: 44,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TwemojiIcon('📦', size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    '전체',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
+                ],
+              ),
+            ),
+            // 슬롯 탭들
+            ...slots.map(
+              (slot) => Tab(
+                height: 44,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TwemojiIcon(slot.emoji, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      slot.label,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          ],
         ),
       ),
       body: TabBarView(
-        controller: _tabController,
-        children: _tabs
-            .map((loc) => _StockTabContent(storageLocation: loc))
-            .toList(),
+        controller: tc,
+        children: [
+          const _AllStockTabContent(),
+          ...slots.map((slot) => _StockTabContent(slot: slot)),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          final currentLoc =
-              _tabs[_tabController.index];
-          context.push(
-            '/stock/add?location=${currentLoc.name}',
+        onPressed: () async {
+          if (slots.isEmpty) return;
+          // 전체 탭(0)이면 첫 번째 슬롯으로 추가
+          final slotIndex = tc.index == 0 ? 0 : tc.index - 1;
+          final slot = slots[slotIndex.clamp(0, slots.length - 1)];
+          final filter = ref.read(stockFilterProvider);
+          final catParam = filter.category != null
+              ? '&category=${filter.category!.name}'
+              : '';
+          await context.push(
+            '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}$catParam',
           );
+          // 카테고리 필터 초기화: 새로 추가한 재료가 보이도록
+          if (mounted) {
+            ref.read(stockFilterProvider.notifier).clearCategory();
+          }
         },
         icon: const Icon(Icons.add_rounded),
         label: const Text(
           '재료 추가',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -139,18 +224,20 @@ class _StockScreenState extends ConsumerState<StockScreen>
 
 // ─── 탭별 콘텐츠 ──────────────────────────────────────────────────────────────
 
-/// 각 보관 위치 탭의 콘텐츠 (카테고리 필터 + 재고 목록).
+/// 각 재고함 슬롯 탭의 콘텐츠 (카테고리 필터 + 재고 목록).
 class _StockTabContent extends ConsumerWidget {
-  const _StockTabContent({required this.storageLocation});
-  final StorageLocation storageLocation;
+  const _StockTabContent({required this.slot});
+  final StorageContainerSlot slot;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(stockFilterProvider);
-    final isCurrentTab = filter.storageLocation == storageLocation;
+    final isCurrentTab = filter.storageLocation == slot.location &&
+        (filter.containerIndex ?? 0) == slot.index;
 
     final effectiveFilter = StockFilter(
-      storageLocation: storageLocation,
+      storageLocation: slot.location,
+      containerIndex: slot.index,
       category: isCurrentTab ? filter.category : null,
       sortBy: isCurrentTab ? filter.sortBy : SortType.addedAt,
       sortAscending: isCurrentTab ? filter.sortAscending : false,
@@ -188,7 +275,7 @@ class _StockTabContent extends ConsumerWidget {
         Expanded(
           child: _StockList(
             filter: effectiveFilter,
-            storageLocation: storageLocation,
+            storageLocation: slot.location,
           ),
         ),
       ],
@@ -269,7 +356,7 @@ class _SortBar extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Pretendard',
                         fontSize: 13,
-                        color: Color(0x992C2C2C),
+                        color: AppTheme.iconSubtle,
                       ),
                     ),
                   ],
@@ -290,8 +377,8 @@ class _SortBar extends StatelessWidget {
                                 ? FontWeight.w600
                                 : FontWeight.w500,
                             color: currentSort == sort
-                                ? const Color(0xFFF04E23)
-                                : const Color(0x992C2C2C),
+                                ? AppTheme.primaryColor
+                                : AppTheme.iconSubtle,
                           ),
                         ),
                         if (currentSort == sort) ...[
@@ -301,7 +388,7 @@ class _SortBar extends StatelessWidget {
                                 ? Icons.keyboard_arrow_up_rounded
                                 : Icons.keyboard_arrow_down_rounded,
                             size: 14,
-                            color: const Color(0xFFF04E23),
+                            color: AppTheme.primaryColor,
                           ),
                         ],
                       ],
@@ -314,6 +401,71 @@ class _SortBar extends StatelessWidget {
   }
 }
 
+// ─── 전체 탭 콘텐츠 ──────────────────────────────────────────────────────────────
+
+/// 전체 탭: 모든 위치의 재고를 표시한다.
+class _AllStockTabContent extends ConsumerWidget {
+  const _AllStockTabContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(stockFilterProvider);
+    final isCurrentTab = filter.storageLocation == null;
+
+    final effectiveFilter = StockFilter(
+      category: isCurrentTab ? filter.category : null,
+      sortBy: isCurrentTab ? filter.sortBy : SortType.addedAt,
+      sortAscending: isCurrentTab ? filter.sortAscending : false,
+    );
+
+    return Column(
+      children: [
+        _CategoryFilterBar(
+          selectedCategory: isCurrentTab ? filter.category : null,
+          onCategoryTap: isCurrentTab
+              ? (cat) => ref.read(stockFilterProvider.notifier).toggleCategory(cat!)
+              : (_) {},
+          onAllTap: isCurrentTab
+              ? () => ref.read(stockFilterProvider.notifier).clearCategory()
+              : () {},
+        ),
+        _SortBar(
+          currentSort: isCurrentTab ? filter.sortBy : SortType.addedAt,
+          ascending: isCurrentTab ? filter.sortAscending : false,
+          onSortChanged: isCurrentTab
+              ? (sort) => ref.read(stockFilterProvider.notifier).setSortBy(sort)
+              : (_) {},
+        ),
+        Expanded(
+          child: _StockList(filter: effectiveFilter, storageLocation: null),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── 정렬 헬퍼 (stock_providers.dart의 private 함수와 동일) ─────────────────
+
+List<StockItem> _applySortToList(List<StockItem> items, StockFilter filter) {
+  final result = List<StockItem>.from(items);
+  result.sort((a, b) {
+    final cmp = switch (filter.sortBy) {
+      SortType.name => a.name.compareTo(b.name),
+      SortType.expiryDate => _cmpExpiry(a.expiryDate, b.expiryDate),
+      SortType.addedAt => a.addedAt.compareTo(b.addedAt),
+    };
+    return filter.sortAscending ? cmp : -cmp;
+  });
+  return result;
+}
+
+int _cmpExpiry(DateTime? a, DateTime? b) {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return a.compareTo(b);
+}
+
 // ─── 재고 목록 ────────────────────────────────────────────────────────────────
 
 class _StockList extends ConsumerWidget {
@@ -323,7 +475,7 @@ class _StockList extends ConsumerWidget {
   });
 
   final StockFilter filter;
-  final StorageLocation storageLocation;
+  final StorageLocation? storageLocation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -338,11 +490,11 @@ class _StockList extends ConsumerWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final items = snapshot.data ?? [];
+            final items = _applySortToList(snapshot.data ?? [], filter);
 
             if (items.isEmpty) {
               return EmptyStateWidget(
-                storageLocation: storageLocation,
+                storageLocation: storageLocation, // _StockList 생성자에서 전달
                 hasFilter: filter.category != null,
               );
             }
@@ -353,11 +505,11 @@ class _StockList extends ConsumerWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFAF3),
+                    color: AppTheme.cardColor,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x0F000000),
+                        color: AppTheme.dividerSubtle,
                         blurRadius: 4,
                         offset: Offset(0, 1),
                       ),

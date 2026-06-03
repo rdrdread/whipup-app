@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/achievement.dart';
 import 'package:whipup/models/user_reward_stats.dart';
 import 'package:whipup/providers/reward_providers.dart';
+import 'package:whipup/services/points_service.dart';
 import 'package:whipup/widgets/reward/achievement_card.dart';
 import 'package:whipup/widgets/reward/achievement_unlock_dialog.dart';
 import 'package:whipup/widgets/common/twemoji_icon.dart';
@@ -31,6 +32,9 @@ class _RewardScreenState extends ConsumerState<RewardScreen> {
   }
 
   Future<void> _handleDailyOpen() async {
+    // 일별 오픈 포인트 적립 (하루 1회)
+    await PointsService.addDailyOpenPoints();
+
     final repoAsync = ref.read(rewardRepositoryProvider);
     final repo = await repoAsync.whenOrNull(data: (r) async => r);
     if (repo == null) return;
@@ -89,6 +93,149 @@ class _Body extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // ─── 포인트 & 리워드 섹션 ─────────────────────────────────
+        FutureBuilder<int>(
+          future: PointsService.getPoints(),
+          builder: (context, snapshot) {
+            final points = snapshot.data ?? 0;
+            final next = PointsService.nextTier(points);
+            final maxPoints = next?.points ?? PointsService.rewardTiers.last.points;
+            final progress = (points / maxPoints).clamp(0.0, 1.0);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '💎 포인트',
+                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.4)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$points P',
+                            style: tt.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: cs.primary,
+                            ),
+                          ),
+                          if (next != null)
+                            Text(
+                              '목표 ${next.points}P',
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 10,
+                          backgroundColor: cs.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation(cs.primary),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (next != null)
+                        Text(
+                          '${next.emoji} ${next.title}까지 ${next.points - points}P 남았어요',
+                          style: tt.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        )
+                      else
+                        Text(
+                          '🎉 모든 리워드를 달성했어요!',
+                          style: tt.bodySmall?.copyWith(
+                            color: cs.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // 리워드 구간 목록
+                ...PointsService.rewardTiers.map((tier) {
+                  final reached = points >= tier.points;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: reached
+                                ? cs.primaryContainer
+                                : AppTheme.surfaceHigh,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: reached
+                                ? Icon(Icons.check_rounded,
+                                    size: 18, color: cs.primary)
+                                : Text(
+                                    '${tier.points}P',
+                                    style: tt.labelSmall?.copyWith(
+                                      fontSize: 9,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${tier.emoji} ${tier.title}',
+                                style: tt.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: reached
+                                      ? cs.primary
+                                      : cs.onSurface,
+                                ),
+                              ),
+                              Text(
+                                tier.desc,
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                Text(
+                  '요리 완료 +50P · 재료 추가 +10P · 매일 접속 +5P',
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 24),
+              ],
+            );
+          },
+        ),
         // ─── 연속 기록 카드 ───────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(20),
@@ -215,7 +362,7 @@ class _Body extends StatelessWidget {
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.75,
                   ),
                   itemCount: achievements.length,
                   itemBuilder: (context, index) => AchievementCard(
@@ -258,7 +405,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border:
             Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),

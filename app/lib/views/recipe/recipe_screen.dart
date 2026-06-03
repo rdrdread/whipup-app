@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/recipe_type.dart';
-import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/providers/stock_providers.dart';
@@ -76,6 +75,8 @@ class _IngredientSelectionView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
     final stockAsync = ref.watch(allStockProvider);
+    final apiKeyAsync = ref.watch(geminiApiKeyStatusProvider);
+    final hasApiKey = apiKeyAsync.asData?.value ?? true; // 로딩 중엔 배너 미표시
 
     return stockAsync.when(
       data: (allItems) {
@@ -129,6 +130,9 @@ class _IngredientSelectionView extends ConsumerWidget {
         return ListView(
           padding: EdgeInsets.zero,
           children: [
+            // ─── API 키 미설정 배너 ──────────────────────────────────
+            if (!hasApiKey) const _ApiKeyBanner(),
+
             // ─── 선택 헤더 ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -261,7 +265,7 @@ class _IngredientChip extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? cs.primary : cs.surfaceContainerHigh,
+          color: isSelected ? cs.primary : AppTheme.surfaceHigh,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -295,7 +299,7 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final options = ref.watch(recipeOptionsProvider);
 
     return Material(
-      color: const Color(0xFFFFFAF3),
+      color: AppTheme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
@@ -488,7 +492,7 @@ class _SelectButton extends StatelessWidget {
             fontFamily: 'Pretendard',
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: Color(0x992C2C2C),
+            color: AppTheme.iconSubtle,
           ),
         ),
       ),
@@ -580,6 +584,75 @@ class _RecipeLoadingView extends StatelessWidget {
   }
 }
 
+// ─── API 키 미설정 배너 ────────────────────────────────────────────────────────
+
+class _ApiKeyBanner extends StatelessWidget {
+  const _ApiKeyBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.bannerWarningBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.bannerWarningBorder, width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('🔑', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'AI 레시피를 사용하려면 API 키가 필요해요',
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.bannerWarningTitle,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Google AI Studio에서 Gemini API 키를 발급받아\n설정에 입력해 주세요.',
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 12,
+                    color: AppTheme.bannerWarningBody,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.push('/my/settings'),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: AppTheme.primaryColor,
+            ),
+            child: const Text(
+              '설정',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─── 에러 화면 ─────────────────────────────────────────────────────────────────
 
 class _RecipeErrorView extends StatelessWidget {
@@ -591,22 +664,28 @@ class _RecipeErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
+  bool get _isApiKeyError => message.contains('API 키') || message.contains('키가 설정');
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('😅', style: TextStyle(fontSize: 56)),
+            Text(
+              _isApiKeyError ? '🔑' : '😅',
+              style: const TextStyle(fontSize: 56),
+            ),
             const SizedBox(height: 16),
             Text(
-              '앗, 뭔가 엎질렀어요',
+              _isApiKeyError ? 'API 키를 설정해 주세요' : '앗, 뭔가 엎질렀어요',
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
@@ -615,10 +694,16 @@ class _RecipeErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('다시 시도'),
-            ),
+            if (_isApiKeyError)
+              FilledButton(
+                onPressed: () => context.push('/my/settings'),
+                child: const Text('설정으로 이동'),
+              )
+            else
+              FilledButton(
+                onPressed: onRetry,
+                child: const Text('다시 시도'),
+              ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/recipe.dart';
 
 /// 조리 단계 아이템 위젯.
@@ -33,7 +34,7 @@ class CookingStepItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isActive ? cs.primaryContainer : cs.surfaceContainerLow,
+        color: isActive ? cs.primaryContainer : AppTheme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
@@ -52,7 +53,7 @@ class CookingStepItem extends StatelessWidget {
                 width: isCooking ? 52 : 40,
                 height: isCooking ? 52 : 40,
                 decoration: BoxDecoration(
-                  color: isActive ? cs.primary : cs.surfaceContainerHigh,
+                  color: isActive ? cs.primary : AppTheme.surfaceHigh,
                   shape: BoxShape.circle,
                 ),
                 child: Center(

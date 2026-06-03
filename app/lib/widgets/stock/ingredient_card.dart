@@ -54,7 +54,7 @@ class IngredientCard extends StatelessWidget {
         await onDelete();
       },
       child: Material(
-        color: const Color(0xFFFFFAF3),
+        color: AppTheme.cardColor,
         child: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
@@ -62,12 +62,12 @@ class IngredientCard extends StatelessWidget {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFAF3),
+              color: AppTheme.cardColor,
               border: Border(
                 left: BorderSide(color: leftColor, width: 4),
                 top: showTopBorder
                     ? const BorderSide(
-                        color: Color(0x0A000000),
+                        color: AppTheme.dividerSubtle,
                         width: 1,
                       )
                     : BorderSide.none,
@@ -104,7 +104,7 @@ class IngredientCard extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 14,
-                          color: Color(0x992C2C2C),
+                          color: AppTheme.iconSubtle,
                         ),
                       ),
                     ],
@@ -146,7 +146,7 @@ class _DismissBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFFFEBEB),
+      color: AppTheme.dismissSurface,
       padding: const EdgeInsets.only(right: 24),
       alignment: Alignment.centerRight,
       child: Column(

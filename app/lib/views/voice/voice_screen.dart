@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -144,7 +144,7 @@ class _VoiceScreenState extends ConsumerState<VoiceScreen>
             flex: 2,
             child: Container(
               width: double.infinity,
-              color: cs.surfaceContainerLow,
+              color: AppTheme.cardColor,
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

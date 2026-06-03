@@ -28,6 +28,7 @@ class _CameraScreenState extends State<CameraScreen>
   bool _isInitialized = false;
   bool _isProcessing = false;
   OcrResult? _ocrResult;
+  CameraDescription? _lastCameraDescription;
 
   @override
   void initState() {
@@ -48,9 +49,15 @@ class _CameraScreenState extends State<CameraScreen>
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     if (state == AppLifecycleState.inactive) {
+      // description을 먼저 저장한 뒤 dispose
+      final desc = controller.description;
+      _controller = null;
+      setState(() => _isInitialized = false);
       controller.dispose();
+      _lastCameraDescription = desc;
     } else if (state == AppLifecycleState.resumed) {
-      _initCameraController(controller.description);
+      final desc = _lastCameraDescription;
+      if (desc != null) _initCameraController(desc);
     }
   }
 

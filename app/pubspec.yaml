@@ -55,11 +55,15 @@ dependencies:
   isar_flutter_libs: any
   path_provider: ^2.1.4
 
+  # Window management (Desktop)
+  window_manager: ^0.4.3
+
   # Security & Monitoring
   flutter_secure_storage: ^10.3.0
   sentry_flutter: ^8.9.0
   flutter_twemoji: ^1.1.0
   flutter_svg: ^2.3.0
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -95,16 +99,7 @@ flutter:
       fonts:
         - asset: assets/fonts/Pretendard-Regular.otf
           weight: 400
-        - asset: assets/fonts/Pretendard-Medium.otf
-          weight: 500
         - asset: assets/fonts/Pretendard-SemiBold.otf
           weight: 600
         - asset: assets/fonts/Pretendard-Bold.otf
           weight: 700
-        - asset: assets/fonts/Pretendard-ExtraBold.otf
-          weight: 800
-        - asset: assets/fonts/Pretendard-Black.otf
-          weight: 900
-    - family: TwemojiMozilla
-      fonts:
-        - asset: assets/fonts/TwemojiMozilla.ttf
