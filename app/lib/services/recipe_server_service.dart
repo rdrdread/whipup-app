@@ -8,9 +8,10 @@ import 'package:whipup/services/mock_recipe_data.dart';
 /// 레시피 서버 서비스 추상 인터페이스.
 ///
 /// 캐싱 레이어: Local(Isar) → Server → AI(Gemini)
-/// `null` 반환 시 다음 레이어(AI)로 폴백한다.
+/// fetchByName: `null` 반환 시 다음 레이어(AI)로 폴백한다.
 abstract class RecipeServerService {
   Future<Result<Recipe, AppError>?> fetchByName(String dishName);
+  Future<void> cacheRecipe(Recipe recipe);
 }
 
 // ─── 실 백엔드 클라이언트 ──────────────────────────────────────────────────────
@@ -43,6 +44,18 @@ class WhipupRecipeApiClient implements RecipeServerService {
       return null;
     }
   }
+
+  @override
+  Future<void> cacheRecipe(Recipe recipe) async {
+    try {
+      await _dio.post(
+        '$_baseUrl/recipes',
+        data: {'recipe_data': recipe.toJson()},
+      );
+    } catch (_) {
+      // 서버 캐시 실패는 무시 — 로컬 캐시가 primary
+    }
+  }
 }
 
 // ─── 개발용 Mock 서버 ──────────────────────────────────────────────────────────
@@ -65,4 +78,7 @@ class MockRecipeServerService implements RecipeServerService {
       return null;
     }
   }
+
+  @override
+  Future<void> cacheRecipe(Recipe recipe) async {}
 }

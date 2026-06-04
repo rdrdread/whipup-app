@@ -44,10 +44,9 @@ RecipeGenerationService recipeGenerationService(Ref ref) {
 }
 
 /// RecipeServerService Provider.
-///
-/// MockRecipeServerService 를 기본으로 사용. 운영 배포 시 WhipupRecipeApiClient 로 교체.
 @riverpod
-RecipeServerService recipeServerService(Ref ref) => const MockRecipeServerService();
+RecipeServerService recipeServerService(Ref ref) =>
+    WhipupRecipeApiClient(Dio());
 
 /// RecipeRepository Provider (keepAlive).
 @Riverpod(keepAlive: true)

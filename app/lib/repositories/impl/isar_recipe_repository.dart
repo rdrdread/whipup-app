@@ -39,7 +39,10 @@ class IsarRecipeRepository implements RecipeRepository {
       servings: servings,
     );
     final recipe = result.valueOrNull;
-    if (recipe != null) await saveToCache(recipe);
+    if (recipe != null) {
+      await saveToCache(recipe);
+      await _server?.cacheRecipe(recipe);
+    }
     return result;
   }
 
@@ -193,7 +196,10 @@ class IsarRecipeRepository implements RecipeRepository {
       servings: servings,
     );
     final recipe = result.valueOrNull;
-    if (recipe != null) await saveToCache(recipe);
+    if (recipe != null) {
+      await saveToCache(recipe);
+      await server?.cacheRecipe(recipe); // 서버 캐시 write-back (fire-and-forget)
+    }
     return result;
   }
 
