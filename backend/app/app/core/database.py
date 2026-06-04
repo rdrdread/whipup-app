@@ -20,6 +20,10 @@ async def create_tables() -> None:
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         from app.models import recipe  # noqa: F401
         await conn.run_sync(Base.metadata.create_all)
+        # 기존 테이블에 embedding 컬럼이 없으면 추가 (idempotent)
+        await conn.execute(text(
+            "ALTER TABLE recipes ADD COLUMN IF NOT EXISTS embedding vector(768)"
+        ))
 
 
 async def get_db():
