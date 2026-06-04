@@ -23,7 +23,8 @@ fi
 
 # ── 백엔드 소스 복사 ────────────────────────────────────────────────────────────
 log "백엔드 소스 복사 중..."
-rsync -av --exclude='__pycache__' --exclude='*.pyc' \
+rsync -av --no-perms --no-owner --no-group \
+    --exclude='__pycache__' --exclude='*.pyc' \
     "$REPO_DIR/backend/app/" "$APP_DIR/"
 
 # ── 컨테이너 재빌드 및 재시작 (DB·Redis 유지) ──────────────────────────────────
