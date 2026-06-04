@@ -11,6 +11,7 @@ abstract final class AppConstants {
   static const int isarSchemaVersion = 1;
 
   // ─── API ──────────────────────────────────────────────
+  static const String baseUrl = 'https://whipup.synology.me';
   static const Duration networkTimeout = Duration(seconds: 15);
   static const int maxRetryCount = 3;
 }
