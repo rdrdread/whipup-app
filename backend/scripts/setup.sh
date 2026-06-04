@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # whipup 백엔드 시놀로지 자동 설치 스크립트
 # 사용법: curl -fsSL https://raw.githubusercontent.com/rdrdread/whipup-app/main/backend/scripts/setup.sh | sudo bash
 
