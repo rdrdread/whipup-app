@@ -83,7 +83,7 @@ services:
     container_name: whipup_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_PASSWORD+whipup}
+      POSTGRES_USER: whipup
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: whipup
     command: >
