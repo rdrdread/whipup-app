@@ -20,8 +20,6 @@ class GeminiService {
   final FlutterSecureStorage _storage;
 
   static const String _storageKey = 'gemini_api_key';
-  // 개발/테스트용 폴백 키: 설정화면에서 키를 저장하지 않은 경우 사용.
-  static const String _kDevFallbackKey = 'AIzaSyBZNZwSgkNfmntEG63ep52sI02TH6S52B4';
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
   static const int _maxRetries = 2;
@@ -45,9 +43,12 @@ class GeminiService {
   /// - API 키 미설정 시 [AppError.network] 반환
   Future<Result<String, AppError>> generateContent(String prompt) async {
     final stored = await _storage.read(key: _storageKey);
-    final apiKey = (stored == null || stored.trim().isEmpty)
-        ? _kDevFallbackKey
-        : stored.trim();
+    final apiKey = stored?.trim() ?? '';
+    if (apiKey.isEmpty) {
+      return const Result.failure(
+        AppError.network('Gemini API 키가 설정되지 않았습니다. 설정 화면에서 키를 입력해 주세요.'),
+      );
+    }
 
     for (int attempt = 0; attempt <= _maxRetries; attempt++) {
       try {

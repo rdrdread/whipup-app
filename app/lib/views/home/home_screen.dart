@@ -137,12 +137,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 const TwemojiIcon('🍳', size: 18),
                 const SizedBox(width: 6),
-                const Text(
-                  '빠른 레시피 추천',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17,
+                const Flexible(
+                  child: Text(
+                    '빠른 레시피 추천',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const Spacer(),
@@ -792,20 +795,23 @@ class _RecipeSlideCard extends StatelessWidget {
               children: [
                 TwemojiIcon(emoji, size: 26),
                 const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: badgeBg,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    badge,
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 9,
-                      fontWeight: FontWeight.w500,
-                      color: badgeColor,
+                Flexible(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      badge,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                        color: badgeColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
