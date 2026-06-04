@@ -32,6 +32,17 @@ class IsarRecipeRepository implements RecipeRepository {
     String? difficulty,
     int servings = 2,
   }) async {
+    // 서버 벡터 유사도 검색 (재료 조합 기반)
+    final server = _server;
+    if (server != null) {
+      final names = items.map((e) => e.name).toList();
+      final similar = await server.findSimilar(names);
+      if (similar != null) {
+        await saveToCache(similar);
+        return Result.success(similar);
+      }
+    }
+
     final result = await _generation.generateRecipe(
       items: items,
       recipeType: recipeType,
@@ -40,8 +51,9 @@ class IsarRecipeRepository implements RecipeRepository {
     );
     final recipe = result.valueOrNull;
     if (recipe != null) {
+      final names = items.map((e) => e.name).toList();
       await saveToCache(recipe);
-      await _server?.cacheRecipe(recipe);
+      await server?.cacheRecipe(recipe, ingredients: names);
     }
     return result;
   }
@@ -198,7 +210,7 @@ class IsarRecipeRepository implements RecipeRepository {
     final recipe = result.valueOrNull;
     if (recipe != null) {
       await saveToCache(recipe);
-      await server?.cacheRecipe(recipe); // 서버 캐시 write-back (fire-and-forget)
+      await server?.cacheRecipe(recipe); // fire-and-forget
     }
     return result;
   }

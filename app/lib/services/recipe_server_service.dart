@@ -8,10 +8,11 @@ import 'package:whipup/services/mock_recipe_data.dart';
 /// 레시피 서버 서비스 추상 인터페이스.
 ///
 /// 캐싱 레이어: Local(Isar) → Server → AI(Gemini)
-/// fetchByName: `null` 반환 시 다음 레이어(AI)로 폴백한다.
+/// 각 메서드가 `null` 또는 빈 결과를 반환하면 다음 레이어로 폴백한다.
 abstract class RecipeServerService {
   Future<Result<Recipe, AppError>?> fetchByName(String dishName);
-  Future<void> cacheRecipe(Recipe recipe);
+  Future<Recipe?> findSimilar(List<String> ingredients);
+  Future<void> cacheRecipe(Recipe recipe, {List<String> ingredients = const []});
 }
 
 // ─── 실 백엔드 클라이언트 ──────────────────────────────────────────────────────
@@ -46,11 +47,32 @@ class WhipupRecipeApiClient implements RecipeServerService {
   }
 
   @override
-  Future<void> cacheRecipe(Recipe recipe) async {
+  Future<Recipe?> findSimilar(List<String> ingredients) async {
+    try {
+      final response = await _dio.post(
+        '$_baseUrl/recipes/similar',
+        data: {'ingredients': ingredients, 'limit': 1, 'threshold': 0.85},
+      );
+      final list = response.data as List<dynamic>?;
+      if (list == null || list.isEmpty) return null;
+      return Recipe.fromJson(list.first as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> cacheRecipe(
+    Recipe recipe, {
+    List<String> ingredients = const [],
+  }) async {
     try {
       await _dio.post(
         '$_baseUrl/recipes',
-        data: {'recipe_data': recipe.toJson()},
+        data: {
+          'recipe_data': recipe.toJson(),
+          'ingredients': ingredients,
+        },
       );
     } catch (_) {
       // 서버 캐시 실패는 무시 — 로컬 캐시가 primary
@@ -80,5 +102,11 @@ class MockRecipeServerService implements RecipeServerService {
   }
 
   @override
-  Future<void> cacheRecipe(Recipe recipe) async {}
+  Future<Recipe?> findSimilar(List<String> ingredients) async => null;
+
+  @override
+  Future<void> cacheRecipe(
+    Recipe recipe, {
+    List<String> ingredients = const [],
+  }) async {}
 }

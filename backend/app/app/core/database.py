@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from app.core.config import settings
@@ -16,6 +17,7 @@ class Base(DeclarativeBase):
 
 async def create_tables() -> None:
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         from app.models import recipe  # noqa: F401
         await conn.run_sync(Base.metadata.create_all)
 
