@@ -32,7 +32,7 @@ read -p "DB 비밀번호 (영문+숫자 조합 권장): " DB_PASSWORD
 read -p "Gemini API 키: " GEMINI_API_KEY
 [[ -z "$GEMINI_API_KEY" ]] && err "Gemini API 키는 필수입니다."
 
-SECRET_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
+SECRET_KEY=$(openssl rand -hex 32)
 log "SECRET_KEY 자동 생성 완료"
 
 # ── 디렉토리 생성 ──────────────────────────────────────────────────────────────
