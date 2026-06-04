@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:whipup/core/constants/app_constants.dart';
 import 'package:whipup/core/errors/app_error.dart';
 import 'package:whipup/core/result.dart';
 import 'package:whipup/models/recipe.dart';
@@ -19,7 +20,7 @@ abstract class RecipeServerService {
 /// 엔드포인트: GET /v1/recipes/by-name?q={dishName}
 /// 응답 스키마: Recipe.fromJson 과 동일한 camelCase JSON
 class WhipupRecipeApiClient implements RecipeServerService {
-  static const _baseUrl = 'https://api.whipup.app/v1';
+  static final _baseUrl = '${AppConstants.baseUrl}/v1';
 
   const WhipupRecipeApiClient(this._dio);
   final Dio _dio;
