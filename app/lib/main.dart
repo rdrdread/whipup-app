@@ -44,18 +44,8 @@ void main() async {
   final results = await Future.wait([
     _initIsar(),
     storage.read(key: 'app_theme_mode'),
-    storage.read(key: 'gemini_api_key'),
   ]);
   preloadThemeMode(results[1] as String?);
-
-  // API 키가 없을 때만 기본 키를 설정한다.
-  final existingKey = results[2] as String?;
-  if (existingKey == null || existingKey.isEmpty) {
-    await storage.write(
-      key: 'gemini_api_key',
-      value: 'AIzaSyBZNZwSgkNfmntEG63ep52sI02TH6S52B4',
-    );
-  }
 
   runApp(
     const ProviderScope(
@@ -102,6 +92,12 @@ class WhipUpApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       routerConfig: appRouter,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: const TextScaler.linear(1.12),
+        ),
+        child: child!,
+      ),
     );
   }
 }
