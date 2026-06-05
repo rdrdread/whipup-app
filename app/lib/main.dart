@@ -97,7 +97,7 @@ class WhipUpApp extends ConsumerWidget {
       routerConfig: appRouter,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
-          textScaler: const TextScaler.linear(1.25),
+          textScaler: const TextScaler.linear(1.12),
         ),
         child: child!,
       ),
