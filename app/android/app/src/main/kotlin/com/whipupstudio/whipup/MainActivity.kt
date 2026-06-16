@@ -1,4 +1,4 @@
-package com.whipup.whipup
+package com.whipupstudio.whipup
 
 import io.flutter.embedding.android.FlutterActivity
 

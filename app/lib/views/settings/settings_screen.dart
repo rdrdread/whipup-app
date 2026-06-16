@@ -2,8 +2,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:whipup/providers/app_settings_providers.dart';
+import 'package:whipup/providers/auth_providers.dart';
+import 'package:whipup/providers/household_providers.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
 
@@ -24,7 +26,9 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen>
     with WidgetsBindingObserver {
-  static const _storage = FlutterSecureStorage();
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
   static const _kGeminiApiKey = 'gemini_api_key';
   static const _kColumnAlert = 'notif_column_on';
   static const _kAlertDays = 'notif_days_before';
@@ -129,9 +133,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final themeModeAsync = ref.watch(themeModeProvider);
-    final currentThemeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -144,34 +145,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
-          // ─── 테마 설정 (칩 선택형) ─────────────────────────────────────
-          const _SectionHeader(label: '테마'),
-          _SettingsCard(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  _ThemeChip(
-                    label: '시스템',
-                    selected: currentThemeMode == ThemeMode.system,
-                    onTap: () => _setTheme(ThemeMode.system),
-                  ),
-                  const SizedBox(width: 8),
-                  _ThemeChip(
-                    label: '라이트',
-                    selected: currentThemeMode == ThemeMode.light,
-                    onTap: () => _setTheme(ThemeMode.light),
-                  ),
-                  const SizedBox(width: 8),
-                  _ThemeChip(
-                    label: '다크',
-                    selected: currentThemeMode == ThemeMode.dark,
-                    onTap: () => _setTheme(ThemeMode.dark),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // ─── 계정 ─────────────────────────────────────────────────────
+          const _SectionHeader(label: '계정'),
+          const _AccountSection(storage: _storage),
+
+          // ─── 가구 공유 ────────────────────────────────────────────────
+          const _SectionHeader(label: '가구 공유'),
+          const _HouseholdSection(),
 
           // ─── 알림 설정 ────────────────────────────────────────────────
           const _SectionHeader(label: '알림'),
@@ -387,12 +367,123 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     );
   }
 
-  void _setTheme(ThemeMode mode) {
-    ref.read(themeModeProvider.notifier).setThemeMode(mode);
-  }
 }
 
 // ─── 헬퍼 위젯 ─────────────────────────────────────────────────────────────────
+
+/// 계정 섹션 — 로그인된 사용자 정보 + 로그아웃 버튼.
+class _AccountSection extends ConsumerWidget {
+  const _AccountSection({required this.storage});
+  final FlutterSecureStorage storage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appUser = ref.watch(appUserProvider).asData?.value;
+
+    return _SettingsCard(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: appUser?.photoUrl != null
+                      ? NetworkImage(appUser!.photoUrl!)
+                      : null,
+                  child: appUser?.photoUrl == null
+                      ? const Icon(Icons.person_rounded, size: 22)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appUser?.displayName ?? '로그인 중...',
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (appUser?.email != null)
+                        Text(
+                          appUser!.email,
+                          style: const TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 12,
+                            color: AppTheme.iconSubtle,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, indent: 16),
+          _NavRow(
+            label: '로그아웃',
+            onTap: () => _confirmSignOut(context, ref),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃 하면 로그인 화면으로 이동해요.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            child: const Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    await ref.read(authServiceProvider).signOut();
+    await storage.delete(key: 'onboarding_done');
+    if (context.mounted) context.go('/login');
+  }
+}
+
+/// 가구 공유 섹션 — 현재 가구 상태 + 관리 화면 진입.
+class _HouseholdSection extends ConsumerWidget {
+  const _HouseholdSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final householdAsync = ref.watch(currentHouseholdProvider);
+
+    return _SettingsCard(
+      child: _NavRow(
+        label: '가구 관리',
+        subtitle: householdAsync.when(
+          data: (h) => h != null ? h.name : '가구에 속해 있지 않아요',
+          loading: () => '로딩 중...',
+          error: (_, __) => '오류',
+        ),
+        onTap: () => context.push('/household'),
+      ),
+    );
+  }
+}
 
 /// 섹션 헤더 라벨.
 class _SectionHeader extends StatelessWidget {
@@ -439,47 +530,6 @@ class _SettingsCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: child,
-    );
-  }
-}
-
-/// 테마 선택 칩 (알약형).
-class _ThemeChip extends StatelessWidget {
-  const _ThemeChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 40,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected
-                ? AppTheme.primaryColor
-                : AppTheme.surfaceHighest,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : AppTheme.textDark,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -626,9 +676,10 @@ class _InfoRow extends StatelessWidget {
 
 /// 탭하면 이동하는 행 (chevron 표시).
 class _NavRow extends StatelessWidget {
-  const _NavRow({required this.label, required this.onTap});
+  const _NavRow({required this.label, required this.onTap, this.subtitle});
   final String label;
   final VoidCallback onTap;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -639,12 +690,28 @@ class _NavRow extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 12,
+                        color: AppTheme.iconSubtle,
+                      ),
+                    ),
+                ],
               ),
             ),
             const Icon(

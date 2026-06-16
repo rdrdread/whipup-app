@@ -4,7 +4,7 @@ import 'package:whipup/core/errors/app_error.dart';
 import 'package:whipup/core/result.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
-import 'package:whipup/repositories/recipe_repository.dart';
+import 'package:whipup/repositories/recipe_repository.dart'; // RecipeHistoryEntry 포함
 import 'package:whipup/services/recipe_generation_service.dart';
 import 'package:whipup/services/recipe_server_service.dart';
 import 'isar_cached_recipe.dart';
@@ -162,6 +162,7 @@ class IsarRecipeRepository implements RecipeRepository {
             .findFirst();
         if (item != null) {
           item.isCompleted = true;
+          item.completedAt ??= DateTime.now();
           await _isar.isarCachedRecipes.put(item);
         }
       });
@@ -213,6 +214,78 @@ class IsarRecipeRepository implements RecipeRepository {
       await server?.cacheRecipe(recipe); // fire-and-forget
     }
     return result;
+  }
+
+  @override
+  Future<Result<Recipe, AppError>> generateFromVideo(String videoUrl) async {
+    final result = await _generation.generateFromVideoUrl(videoUrl);
+    final recipe = result.valueOrNull;
+    if (recipe != null) {
+      await saveToCache(recipe);
+      await _server?.cacheRecipe(recipe);
+    }
+    return result;
+  }
+
+  @override
+  Future<Result<void, AppError>> updateCompletionData(
+    String recipeId, {
+    String? photoPath,
+    DateTime? completedAt,
+  }) async {
+    try {
+      await _isar.writeTxn(() async {
+        final item = await _isar.isarCachedRecipes
+            .where()
+            .recipeIdEqualTo(recipeId)
+            .findFirst();
+        if (item != null) {
+          if (photoPath != null) item.photoPath = photoPath;
+          if (completedAt != null) item.completedAt ??= completedAt;
+          await _isar.isarCachedRecipes.put(item);
+        }
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppError.database('완료 데이터 업데이트 실패: $e'));
+    }
+  }
+
+  @override
+  Future<Result<List<RecipeHistoryEntry>, AppError>> getHistory() async {
+    try {
+      final items = await _isar.isarCachedRecipes
+          .where()
+          .filter()
+          .isCompletedEqualTo(true)
+          .sortByCachedAtDesc()
+          .findAll();
+      final entries = items.map((item) {
+        final recipe = _toDomain(item);
+        if (recipe == null) return null;
+        return RecipeHistoryEntry(
+          recipe: recipe,
+          cookedAt: item.completedAt ?? item.cachedAt,
+          photoPath: item.photoPath,
+        );
+      }).whereType<RecipeHistoryEntry>().toList();
+      return Result.success(entries);
+    } catch (e) {
+      return Result.failure(AppError.database('요리 히스토리 조회 실패: $e'));
+    }
+  }
+
+  @override
+  Future<Result<Recipe, AppError>> updateRecipe(Recipe recipe) async {
+    try {
+      // 로컬 캐시 업데이트
+      await saveToCache(recipe);
+      // 서버 업데이트 (fire-and-forget, 실패해도 로컬은 이미 저장됨)
+      await _server?.updateRecipe(recipe);
+      return Result.success(recipe);
+    } catch (e) {
+      return Result.failure(AppError.unknown(e));
+    }
   }
 
   Recipe? _toDomain(IsarCachedRecipe item) {

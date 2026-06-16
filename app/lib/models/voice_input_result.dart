@@ -37,6 +37,15 @@ abstract class VoiceIngredientCandidate with _$VoiceIngredientCandidate {
     /// 추정 카테고리
     @Default(StockCategory.other) StockCategory category,
 
+    /// 서브 카테고리 (유통기한 추천에 사용)
+    String? subCategory,
+
+    /// 보관 위치 (Gemini 추론 + 사용자 수정 가능)
+    @Default(StorageLocation.fridge) StorageLocation storageLocation,
+
+    /// 추천 유통기한 (SubCategoryService 기준)
+    DateTime? expiryDate,
+
     /// 사용자가 선택했는지 여부
     @Default(true) bool isSelected,
   }) = _VoiceIngredientCandidate;

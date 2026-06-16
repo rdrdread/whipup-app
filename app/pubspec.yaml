@@ -45,6 +45,8 @@ dependencies:
 
   # Mobile Core: Vision
   camera: ^0.12.0+1
+  image_picker: ^1.1.2
+  path: ^1.9.0
   google_mlkit_text_recognition: ^0.15.1
 
   # Mobile Core: Audio
@@ -58,12 +60,19 @@ dependencies:
   # Window management (Desktop)
   window_manager: ^0.4.3
 
+  # Firebase (Auth + Firestore)
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.2
+  google_sign_in: ^6.2.2
+  cloud_firestore: ^5.6.7
+
   # Security & Monitoring
   flutter_secure_storage: ^10.3.0
   sentry_flutter: ^8.9.0
   flutter_twemoji: ^1.1.0
   flutter_svg: ^2.3.0
   url_launcher: ^6.3.1
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:

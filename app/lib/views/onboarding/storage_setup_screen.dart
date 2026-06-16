@@ -26,7 +26,9 @@ class StorageSetupScreen extends StatefulWidget {
 }
 
 class _StorageSetupScreenState extends State<StorageSetupScreen> {
-  static const _storage = FlutterSecureStorage();
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   /// 보관 위치별 개수 (기본 각 1개).
   final Map<StorageLocation, int> _counts = {
@@ -371,11 +373,11 @@ class _NameFieldState extends State<_NameField> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0x1A000000)),
+          borderSide: const BorderSide(color: AppTheme.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0x1A000000)),
+          borderSide: const BorderSide(color: AppTheme.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

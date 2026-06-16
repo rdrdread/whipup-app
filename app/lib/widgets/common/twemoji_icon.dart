@@ -3,33 +3,71 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 /// 단일 이모지를 Twemoji(Twitter 이모지) SVG로 렌더링하는 위젯.
 ///
-/// `Twemoji` 위젯의 내부 regex 매처를 우회하여 SVG 파일 경로를
-/// 직접 생성하므로, 일부 이모지(🧊·🧂·🥬 등)가 매칭 실패로
-/// 깨지는 문제를 방지한다.
-class TwemojiIcon extends StatelessWidget {
+/// SVG 에셋이 없거나 로드 실패 시 시스템 폰트 이모지로 자동 폴백하여
+/// 구형 OS나 지원 범위 외 유니코드 이모지(🫘 등)도 깨지지 않도록 한다.
+class TwemojiIcon extends StatefulWidget {
   const TwemojiIcon(this.emoji, {super.key, this.size = 20});
 
   final String emoji;
   final double size;
 
-  /// 이모지 문자열 → Twemoji 파일명용 codepoint 문자열 변환.
-  ///
-  /// '️'(variation selector-16)를 제거 후 rune별 16진수를
-  /// '-'로 연결한다. (예: '🧊' → '1f9ca', '❄️' → '2744')
-  String _assetCode() {
-    final stripped = emoji.replaceAll('️', '');
+  @override
+  State<TwemojiIcon> createState() => _TwemojiIconState();
+}
+
+class _TwemojiIconState extends State<TwemojiIcon> {
+  /// SVG 에셋 로드 성공 여부 캐시 (앱 생명주기 동안 유지).
+  static final Map<String, bool> _cache = {};
+
+  late Future<bool> _available;
+
+  String get _code {
+    final stripped = widget.emoji.replaceAll('️', '');
     return stripped.runes.map((cp) => cp.toRadixString(16)).join('-');
   }
 
   @override
+  void initState() {
+    super.initState();
+    _available = _checkAvailable();
+  }
+
+  Future<bool> _checkAvailable() async {
+    final code = _code;
+    if (code.isEmpty) return false;
+    if (_cache.containsKey(code)) return _cache[code]!;
+    try {
+      await DefaultAssetBundle.of(context)
+          .load('packages/flutter_twemoji/assets/svg/$code.svg');
+      _cache[code] = true;
+      return true;
+    } catch (_) {
+      _cache[code] = false;
+      return false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final code = _assetCode();
-    if (code.isEmpty) return SizedBox(width: size, height: size);
-    return SvgPicture.asset(
-      'assets/svg/$code.svg',
-      width: size,
-      height: size,
-      package: 'flutter_twemoji',
+    final code = _code;
+    if (code.isEmpty) return SizedBox(width: widget.size, height: widget.size);
+
+    return FutureBuilder<bool>(
+      future: _available,
+      builder: (context, snapshot) {
+        if (snapshot.data == true) {
+          return SvgPicture.asset(
+            'assets/svg/$code.svg',
+            width: widget.size,
+            height: widget.size,
+            package: 'flutter_twemoji',
+          );
+        }
+        return Text(
+          widget.emoji,
+          style: TextStyle(fontSize: widget.size * 0.85),
+        );
+      },
     );
   }
 }

@@ -2,26 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whipup/views/auth/login_screen.dart';
 import 'package:whipup/views/camera/camera_screen.dart';
 import 'package:whipup/views/column/column_browse_screen.dart';
 import 'package:whipup/views/column/column_detail_screen.dart';
 import 'package:whipup/views/column/column_screen.dart';
 import 'package:whipup/views/home/home_screen.dart';
+import 'package:whipup/views/household/household_screen.dart';
 import 'package:whipup/views/my/my_screen.dart';
 import 'package:whipup/views/onboarding/onboarding_screen.dart';
 import 'package:whipup/views/onboarding/storage_setup_screen.dart';
 import 'package:whipup/views/settings/settings_screen.dart';
 import 'package:whipup/views/splash/splash_screen.dart';
+import 'package:whipup/views/recipe/favorite_recipes_screen.dart';
 import 'package:whipup/views/recipe/quick_recipe_screen.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/views/recipe/recipe_detail_screen.dart';
+import 'package:whipup/views/recipe/recipe_edit_screen.dart';
 import 'package:whipup/views/recipe/recipe_review_screen.dart';
 import 'package:whipup/views/recipe/recipe_screen.dart';
 import 'package:whipup/views/recipe/time_based_recipe_screen.dart';
+import 'package:whipup/views/my/cooking_history_screen.dart';
 import 'package:whipup/views/reward/reward_screen.dart';
 import 'package:whipup/views/stock/stock_add_screen.dart';
 import 'package:whipup/views/stock/stock_screen.dart';
 import 'package:whipup/views/voice/voice_screen.dart';
+
+// ─── 전환 헬퍼 ───────────────────────────────────────────────────────────────
+
+/// 빠른 페이드 전환 (120ms) — push 화면용.
+Page<void> _fadePage(GoRouterState state, Widget child) => CustomTransitionPage(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 120),
+      reverseTransitionDuration: const Duration(milliseconds: 100),
+      transitionsBuilder: (_, animation, __, child) =>
+          FadeTransition(opacity: animation, child: child),
+    );
+
+/// 전환 없음 — 탭 전환용.
+Page<void> _noTransition(GoRouterState state, Widget child) =>
+    NoTransitionPage(key: state.pageKey, child: child);
+
+// ─── 라우터 ──────────────────────────────────────────────────────────────────
 
 /// WhipUp 앱 라우터.
 ///
@@ -35,38 +58,49 @@ final appRouter = GoRouter(
     // ─── 스플래시 (Shell 밖) ──────────────────────────────────────────────
     GoRoute(
       path: '/splash',
-      builder: (context, state) => const SplashScreen(),
+      pageBuilder: (_, state) => _noTransition(state, const SplashScreen()),
+    ),
+
+    // ─── 로그인 (Shell 밖) ───────────────────────────────────────────────
+    GoRoute(
+      path: '/login',
+      pageBuilder: (_, state) => _fadePage(state, const LoginScreen()),
     ),
 
     // ─── 온보딩 (Shell 밖) ───────────────────────────────────────────────
     GoRoute(
       path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const OnboardingScreen()),
     ),
     GoRoute(
       path: '/storage-setup',
-      builder: (context, state) => const StorageSetupScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const StorageSetupScreen()),
     ),
 
     // ─── Shell (BottomNavigation) ────────────────────────────────────────
     ShellRoute(
-      builder: (context, state, child) => _MainShell(child: child),
+      pageBuilder: (_, state, child) =>
+          _noTransition(state, _MainShell(child: child)),
       routes: [
         GoRoute(
           path: '/home',
-          builder: (context, state) => const HomeScreen(),
+          pageBuilder: (_, state) => _noTransition(state, const HomeScreen()),
         ),
         GoRoute(
           path: '/stock',
-          builder: (context, state) => const StockScreen(),
+          pageBuilder: (_, state) {
+            final expiry = state.uri.queryParameters['expiry'] == 'true';
+            return _noTransition(state, StockScreen(initialExpiry: expiry));
+          },
         ),
         GoRoute(
           path: '/recipe',
-          builder: (context, state) => const RecipeScreen(),
+          pageBuilder: (_, state) =>
+              _noTransition(state, const RecipeScreen()),
         ),
         GoRoute(
           path: '/my',
-          builder: (context, state) => const MyScreen(),
+          pageBuilder: (_, state) => _noTransition(state, const MyScreen()),
         ),
       ],
     ),
@@ -74,56 +108,55 @@ final appRouter = GoRouter(
     // ─── 재고 관련 ───────────────────────────────────────────────────────
     GoRoute(
       path: '/stock/add',
-      builder: (context, state) {
+      pageBuilder: (_, state) {
         final location = state.uri.queryParameters['location'];
         final containerIndex =
-            int.tryParse(state.uri.queryParameters['containerIndex'] ?? '0') ?? 0;
+            int.tryParse(state.uri.queryParameters['containerIndex'] ?? '0') ??
+                0;
         final categoryName = state.uri.queryParameters['category'];
-        return StockAddScreen(
-          initialStorageLocationName: location,
-          initialContainerIndex: containerIndex,
-          initialCategoryName: categoryName,
+        return _fadePage(
+          state,
+          StockAddScreen(
+            initialStorageLocationName: location,
+            initialContainerIndex: containerIndex,
+            initialCategoryName: categoryName,
+          ),
         );
       },
     ),
     GoRoute(
       path: '/stock/edit/:id',
-      builder: (context, state) {
+      pageBuilder: (_, state) {
         final id = int.tryParse(state.pathParameters['id'] ?? '');
-        return StockAddScreen(itemId: id);
+        return _fadePage(state, StockAddScreen(itemId: id));
       },
     ),
 
-    // ─── 레시피 관련 (Phase 1.1) ─────────────────────────────────────────
-    GoRoute(
-      path: '/recipe/:id',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        // extra로 Recipe 객체가 전달되면 Isar 조회 없이 직접 렌더링
-        final recipe = state.extra is Recipe ? state.extra as Recipe : null;
-        return RecipeDetailScreen(recipeId: id, initialRecipe: recipe);
-      },
-    ),
+    // ─── 레시피 관련 (구체적 경로 먼저, :id 파라미터 마지막) ───────────────────
     GoRoute(
       path: '/recipe/favorites',
-      builder: (context, state) => const RecipeScreen(),
+      pageBuilder: (_, state) =>
+          _fadePage(state, const FavoriteRecipesScreen()),
     ),
     GoRoute(
       path: '/recipe/review',
-      builder: (context, state) {
+      pageBuilder: (_, state) {
         final title = state.extra as String? ?? '요리';
-        return RecipeReviewScreen(recipeTitle: title);
+        return _fadePage(state, RecipeReviewScreen(recipeTitle: title));
       },
     ),
 
     // ─── 빠른 레시피 (요리명 기반 AI 생성) ──────────────────────────────────
     GoRoute(
       path: '/recipe/quick',
-      builder: (context, state) {
+      pageBuilder: (_, state) {
         final extra = state.extra as Map<String, dynamic>? ?? {};
-        return QuickRecipeScreen(
-          dishName: extra['name'] as String? ?? '레시피',
-          emoji: extra['emoji'] as String? ?? '🍽️',
+        return _fadePage(
+          state,
+          QuickRecipeScreen(
+            dishName: extra['name'] as String? ?? '레시피',
+            emoji: extra['emoji'] as String? ?? '🍽️',
+          ),
         );
       },
     ),
@@ -131,45 +164,75 @@ final appRouter = GoRouter(
     // ─── 시간대별 추천 레시피 ────────────────────────────────────────────────
     GoRoute(
       path: '/recipe/time',
-      builder: (context, state) {
+      pageBuilder: (_, state) {
         final period = state.uri.queryParameters['period'] ?? 'dinner';
-        return TimeBasedRecipeScreen(period: period);
+        return _fadePage(state, TimeBasedRecipeScreen(period: period));
+      },
+    ),
+
+    // ─── 레시피 편집 ─────────────────────────────────────────────────────────
+    GoRoute(
+      path: '/recipe/:id/edit',
+      pageBuilder: (_, state) {
+        final recipe = state.extra as Recipe?;
+        if (recipe == null) return _fadePage(state, const SizedBox.shrink());
+        return _fadePage(state, RecipeEditScreen(recipe: recipe));
+      },
+    ),
+
+    // ─── 레시피 상세 (파라미터 경로는 구체적 경로 뒤에 위치) ────────────────────
+    GoRoute(
+      path: '/recipe/:id',
+      pageBuilder: (_, state) {
+        final id = state.pathParameters['id'] ?? '';
+        final recipe = state.extra is Recipe ? state.extra as Recipe : null;
+        return _fadePage(
+            state, RecipeDetailScreen(recipeId: id, initialRecipe: recipe));
       },
     ),
 
     // ─── 카메라 OCR (Phase 1.2) ──────────────────────────────────────────
     GoRoute(
       path: '/camera',
-      builder: (context, state) => const CameraScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const CameraScreen()),
     ),
 
     // ─── 음성 입력 (Phase 1.3) ───────────────────────────────────────────
     GoRoute(
       path: '/voice',
-      builder: (context, state) => const VoiceScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const VoiceScreen()),
     ),
 
     // ─── 마이 하위 화면 ──────────────────────────────────────────────────
     GoRoute(
+      path: '/my/cooking-history',
+      pageBuilder: (_, state) =>
+          _fadePage(state, const CookingHistoryScreen()),
+    ),
+    GoRoute(
       path: '/my/reward',
-      builder: (context, state) => const RewardScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const RewardScreen()),
     ),
     GoRoute(
       path: '/my/settings',
-      builder: (context, state) => const SettingsScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const SettingsScreen()),
+    ),
+    GoRoute(
+      path: '/household',
+      pageBuilder: (_, state) => _fadePage(state, const HouseholdScreen()),
     ),
     GoRoute(
       path: '/my/column',
-      builder: (context, state) => const ColumnScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const ColumnScreen()),
     ),
     GoRoute(
       path: '/my/column/:id',
-      builder: (context, state) =>
-          ColumnDetailScreen(columnId: state.pathParameters['id']!),
+      pageBuilder: (_, state) => _fadePage(
+          state, ColumnDetailScreen(columnId: state.pathParameters['id']!)),
     ),
     GoRoute(
       path: '/columns',
-      builder: (context, state) => const ColumnBrowseScreen(),
+      pageBuilder: (_, state) => _fadePage(state, const ColumnBrowseScreen()),
     ),
   ],
 );

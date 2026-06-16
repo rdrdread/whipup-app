@@ -9,14 +9,15 @@
 
 | Phase | 기능 | 핵심 가치 | Status |
 |-------|------|----------|--------|
-| **1.0** | 재고 관리 (수동 입력) | 냉장고 속 재료를 한눈에 | 🔲 TODO |
-| **1.1** | AI 레시피 추천 | 재료 → 근사한 한 끼 | 🔲 TODO |
-| **1.2** | 카메라 OCR 영수증 인식 | 영수증 찍으면 재고 자동 등록 | 🔲 TODO |
-| **1.3** | 음성 재료 입력 | 말로 재료 추가 | 🔲 TODO |
-| **1.4** | 리워드 시스템 | 요리의 즐거움을 보상으로 | 🔲 TODO |
-| **2.0** | 백엔드 연동 (FastAPI) | 서버 기반 확장 | 🔲 TODO |
-| **2.1** | 레시피 벡터 캐시 (pgvector) | 유사 레시피 재활용 | 🔲 TODO |
-| **2.6** | Weekly Column 발행 | 요리 지식 콘텐츠 | 🔲 TODO |
+| **1.0** | 재고 관리 (수동 입력) | 냉장고 속 재료를 한눈에 | ✅ 완료 |
+| **1.1** | AI 레시피 추천 | 재료 → 근사한 한 끼 | ✅ 완료 |
+| **1.2** | 카메라 OCR 영수증 인식 | 영수증 찍으면 재고 자동 등록 | ✅ 완료 |
+| **1.3** | 음성 재료 입력 | 말로 재료 추가 | ✅ 완료 |
+| **1.4** | 리워드 시스템 | 요리의 즐거움을 보상으로 | ✅ 완료 |
+| **1.5** | 영상 URL 레시피 추출 | YouTube·영상 링크로 레시피 뚝딱 | ✅ 완료 |
+| **2.0** | 백엔드 연동 (FastAPI) | 서버 기반 확장 | ✅ 완료 |
+| **2.1** | 레시피 벡터 캐시 (pgvector) | 유사 레시피 재활용 | ✅ 완료 |
+| **2.6** | Weekly Column 발행 | 요리 지식 콘텐츠 | ✅ 완료 |
 
 ---
 
@@ -132,12 +133,42 @@
 
 ---
 
-## 6. Phase 1.4 — 리워드 시스템
+## 6. Phase 1.5 — 영상 URL 레시피 추출
+
+> **목표:** YouTube 또는 요리 영상 URL을 입력하면 Gemini가 영상을 분석해 레시피를 자동 추출.
+
+### 6.1. 에이전트별 산출물
+
+| 에이전트 | 산출물 | 파일 |
+|---------|--------|------|
+| **Architect** | `Recipe.videoUrl` 필드 추가 | `lib/models/recipe.dart` |
+| **Artisan** | `_VideoRecipeSection` 위젯 (홈 화면 내 URL 입력 UI) | `lib/views/home/home_screen.dart` |
+| | `YoutubePlayerCard` 위젯 (레시피 상세 내 영상 재생) | `lib/widgets/recipe/youtube_player_card.dart` |
+| **Bridge** | `GeminiService.generateFromVideoUrl()` (YouTube → fileData, 일반 URL → 텍스트) | `lib/services/gemini_service.dart` |
+| | `PromptBuilder.buildVideoRecipePrompt()` | `lib/services/prompt_builder.dart` |
+| | `RecipeGenerationService.generateFromVideoUrl()` | `lib/services/recipe_generation_service.dart` |
+
+### 6.2. 동작 방식
+
+- **YouTube URL:** Gemini `fileData` 파라미터로 영상을 직접 분석 (`youtu.be` / `youtube.com` 자동 판별)
+- **일반 URL:** 프롬프트 텍스트에 URL을 포함해 컨텍스트로 처리
+- 추출 완료 후 `Recipe.videoUrl`에 원본 URL 저장, 레시피 상세에서 플레이어 표시
+
+### 6.3. 완료 기준
+
+- [x] YouTube URL 입력 → Gemini 영상 분석 → 7단계 레시피 추출
+- [x] 일반 영상 URL 텍스트 컨텍스트 처리
+- [x] 레시피 상세 화면에서 원본 영상 재생 (`YoutubePlayerCard`)
+- [x] 홈 화면 `_VideoRecipeSection`에서 URL 입력 진입점 제공
+
+---
+
+## 7. Phase 1.4 — 리워드 시스템
 
 > **목표:** 요리 활동에 보상을 부여하여 지속적 사용 동기 부여.
 > **Feature Doc:** `docs/features/reward_system.md`
 
-### 6.1. 에이전트별 산출물
+### 7.1. 에이전트별 산출물
 
 | 에이전트 | 산출물 |
 |---------|--------|
@@ -145,17 +176,17 @@
 | **Artisan** | 리워드 대시보드, 업적 카드, 축하 애니메이션 |
 | **Bridge** | 리워드 로직 트리거 서비스 (Phase 2.0+에서 서버 동기화) |
 
-### 6.2. 선행 조건
+### 7.2. 선행 조건
 
 - Phase 1.0 + 1.1 완료 (재고 등록·레시피 완료 이벤트 필요)
 
 ---
 
-## 7. Phase 2.0 — 백엔드 연동
+## 8. Phase 2.0 — 백엔드 연동
 
 > **목표:** FastAPI 서버를 구축하여 데이터 동기화 및 서버사이드 AI 처리 기반 마련.
 
-### 7.1. 에이전트별 산출물
+### 8.1. 에이전트별 산출물
 
 | 에이전트 | 산출물 |
 |---------|--------|
@@ -166,7 +197,7 @@
 | | Retrofit 기반 API 클라이언트 (`lib/services/`) |
 | | GitHub Actions CI/CD (`infra/`) |
 
-### 7.2. Backend 구조
+### 8.2. Backend 구조
 
 ```
 backend/
@@ -183,11 +214,11 @@ backend/
 
 ---
 
-## 8. Phase 2.1 — 레시피 벡터 캐시
+## 9. Phase 2.1 — 레시피 벡터 캐시
 
 > **목표:** pgvector로 재료 조합 유사도를 계산하여 기존 레시피를 재활용.
 
-### 8.1. 에이전트별 산출물
+### 9.1. 에이전트별 산출물
 
 | 에이전트 | 산출물 |
 |---------|--------|
@@ -196,12 +227,12 @@ backend/
 
 ---
 
-## 9. Phase 2.6 — Weekly Column 발행
+## 10. Phase 2.6 — Weekly Column 발행
 
 > **목표:** 검수된 요리 지식 칼럼을 앱 내에서 발행·소비.
 > **Feature Doc:** `docs/features/weekly_column.md` (작성 예정)
 
-### 9.1. 에이전트별 산출물
+### 10.1. 에이전트별 산출물
 
 | 에이전트 | 산출물 |
 |---------|--------|
@@ -210,7 +241,7 @@ backend/
 | **Bridge** | 칼럼 API 클라이언트, 개인화 헤드라인 생성 (Gemini) |
 | **Editor** | 시드 칼럼 8편 (`app/assets/columns/columns.json`), 출처 검증 |
 
-### 9.2. Editor 콘텐츠 운영
+### 10.2. Editor 콘텐츠 운영
 
 - **MVP:** 시드 번들 (앱 내장 JSON) → Editor 사전 작성·검수
 - **Phase 2.6+:** 서버 발행 (`backend/columns/`) → 정기 칼럼 배포
@@ -218,12 +249,14 @@ backend/
 
 ---
 
-## 10. Phase 의존성 다이어그램
+## 11. Phase 의존성 다이어그램
 
 ```
 Phase 1.0 (재고)
     │
     ├──→ Phase 1.1 (레시피) ──→ Phase 1.4 (리워드)
+    │         │
+    │         └──→ Phase 1.5 (영상 URL 레시피)
     │
     ├──→ Phase 1.2 (OCR)
     │

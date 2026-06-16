@@ -377,13 +377,13 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final options = [null, ...RecipeType.values];
     showDialog<String?>(
       context: context,
-      builder: (_) => SimpleDialog(
+      builder: (dialogContext) => SimpleDialog(
         title: const Text('레시피 종류'),
         children: options.map((t) {
           return SimpleDialogOption(
             onPressed: () {
               ref.read(recipeOptionsProvider.notifier).setRecipeType(t?.name);
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text(t == null ? '제한 없음' : t.label),
           );
@@ -396,13 +396,13 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
     final options = [null, ...RecipeDifficulty.values];
     showDialog<String?>(
       context: context,
-      builder: (_) => SimpleDialog(
+      builder: (dialogContext) => SimpleDialog(
         title: const Text('난이도'),
         children: options.map((d) {
           return SimpleDialogOption(
             onPressed: () {
               ref.read(recipeOptionsProvider.notifier).setDifficulty(d?.name);
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text(d == null ? '제한 없음' : d.label),
           );
@@ -414,13 +414,13 @@ class _RecipeOptionsPanelState extends ConsumerState<_RecipeOptionsPanel> {
   void _showServingsDialog(BuildContext context) {
     showDialog<int>(
       context: context,
-      builder: (_) => SimpleDialog(
+      builder: (dialogContext) => SimpleDialog(
         title: const Text('인분 수'),
         children: [1, 2, 3, 4, 5, 6].map((s) {
           return SimpleDialogOption(
             onPressed: () {
               ref.read(recipeOptionsProvider.notifier).setServings(s);
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text('$s인분'),
           );
@@ -479,10 +479,10 @@ class _SelectButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: AppTheme.borderLight,
             width: 1.5,
           ),
         ),

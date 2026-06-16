@@ -38,4 +38,10 @@ class IsarCachedRecipe {
 
   /// 완료 처리 여부
   bool isCompleted = false;
+
+  /// 요리 완료 시각 (null이면 미완료 또는 이전 버전 데이터)
+  DateTime? completedAt;
+
+  /// 완료 시 촬영한 사진 파일 경로 (null이면 사진 없음)
+  String? photoPath;
 }

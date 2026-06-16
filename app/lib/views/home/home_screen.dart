@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/models/column_article.dart';
@@ -79,6 +80,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _recipePage = 0;
 
+  Future<void> _onRefresh() async {
+    ref.invalidate(stockSummaryProvider);
+    ref.invalidate(cookingHistoryProvider);
+    ref.invalidate(favoriteRecipesProvider);
+    ref.invalidate(recentColumnsProvider);
+    await Future.delayed(const Duration(milliseconds: 600));
+  }
+
   static const _pageSize = 5;
   static int get _totalPages =>
       (_kQuickRecipes.length + _pageSize - 1) ~/ _pageSize;
@@ -86,12 +95,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final summaryAsync = ref.watch(stockSummaryProvider);
-    final recipesAsync = ref.watch(cachedRecipesProvider);
+    final historyAsync = ref.watch(cookingHistoryProvider);
     final favoritesAsync = ref.watch(favoriteRecipesProvider);
     final columnsAsync = ref.watch(recentColumnsProvider);
 
     final favoriteCount = favoritesAsync.asData?.value.length ?? 0;
-    final cookedCount = recipesAsync.asData?.value.length ?? 0;
+    final cookedCount = historyAsync.asData?.value.length ?? 0;
 
     final pageStart = (_recipePage % _totalPages) * _pageSize;
     final pageRecipes =
@@ -124,11 +133,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      body: ListView(
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: AppTheme.primaryColor,
+        child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 24),
         children: [
           // ─── 시간대별 감성 멘트 ─────────────────────────────────────────
           const _TimeTagline(),
+
+          // ─── 보유 재료 대시보드 ─────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: GestureDetector(
+              onTap: () => context.go('/stock'),
+              child: Row(
+                children: [
+                  const TwemojiIcon('📦', size: 18),
+                  const SizedBox(width: 6),
+                  const Text(
+                    '보유 재료',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (summaryAsync.asData?.value != null)
+                    Text(
+                      '총 ${summaryAsync.asData!.value.totalCount}개',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        color: AppTheme.iconGrey,
+                      ),
+                    ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.chevron_right_rounded,
+                      size: 18, color: AppTheme.iconGrey),
+                ],
+              ),
+            ),
+          ),
+          summaryAsync.when(
+            data: (s) => _StockDashboard(
+              summary: s,
+              onExpiryTap: () => context.go('/stock?expiry=true'),
+            ),
+            loading: () => const _StockDashboard(summary: null),
+            error: (_, __) => const _StockDashboard(summary: null),
+          ),
 
           // ─── 빠른 레시피 추천 ───────────────────────────────────────────
           Padding(
@@ -188,56 +244,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
+          // ─── 영상 레시피 추출 ──────────────────────────────────────
+          const _VideoRecipeSection(),
+
           // ─── 나의 요리 ─────────────────────────────────────────────────
           _MyRecipesSection(
             cookedCount: cookedCount,
             favoriteCount: favoriteCount,
-          ),
-
-          // ─── 보유 재료 대시보드 ─────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: GestureDetector(
-              onTap: () => context.go('/stock'),
-              child: Row(
-                children: [
-                  const TwemojiIcon('📦', size: 18),
-                  const SizedBox(width: 6),
-                  const Text(
-                    '보유 재료',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 17,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (summaryAsync.asData?.value != null)
-                    Text(
-                      '총 ${summaryAsync.asData!.value.totalCount}개',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 13,
-                        color: AppTheme.iconGrey,
-                      ),
-                    ),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.chevron_right_rounded,
-                      size: 18, color: AppTheme.iconGrey),
-                ],
-              ),
-            ),
-          ),
-          summaryAsync.when(
-            data: (s) => _StockDashboard(
-              summary: s,
-              onExpiryTap: () {
-                ref.read(stockFilterProvider.notifier).setExpiryAscending();
-                context.go('/stock');
-              },
-            ),
-            loading: () => const _StockDashboard(summary: null),
-            error: (_, __) => const _StockDashboard(summary: null),
           ),
 
           // ─── 콘텐츠 ────────────────────────────────────────────────────
@@ -296,6 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 8),
         ],
       ),
+      ),
     );
   }
 }
@@ -333,14 +347,12 @@ class _TimeTagline extends StatelessWidget {
     };
 
     return GestureDetector(
-      onTap: () => context.push(
-        '/recipe/time?period=${_periodFromHour(hour)}',
-      ),
+      onTap: () => context.push('/recipe/time?period=${_periodFromHour(hour)}'),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 16)),
+            TwemojiIcon(emoji, size: 16),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -397,20 +409,28 @@ class _MyRecipesSection extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _MyStatCard(
-                  emoji: '🍳',
-                  label: '했던 요리',
-                  count: cookedCount,
-                  unit: '회',
+                child: GestureDetector(
+                  onTap: () => context.push('/my/cooking-history'),
+                  child: _MyStatCard(
+                    emoji: '🍳',
+                    label: '했던 요리',
+                    count: cookedCount,
+                    unit: '회',
+                    hasChevron: true,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _MyStatCard(
-                  emoji: '📌',
-                  label: '찜',
-                  count: favoriteCount,
-                  unit: '개',
+                child: GestureDetector(
+                  onTap: () => context.push('/recipe/favorites'),
+                  child: _MyStatCard(
+                    emoji: '❤️',
+                    label: '나의 요리 찜',
+                    count: favoriteCount,
+                    unit: '개',
+                    hasChevron: true,
+                  ),
                 ),
               ),
             ],
@@ -427,12 +447,14 @@ class _MyStatCard extends StatelessWidget {
     required this.label,
     required this.count,
     required this.unit,
+    this.hasChevron = false,
   });
 
   final String emoji;
   final String label;
   final int count;
   final String unit;
+  final bool hasChevron;
 
   @override
   Widget build(BuildContext context) {
@@ -453,12 +475,21 @@ class _MyStatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$emoji $label',
-            style: tt.labelSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textDark,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '$emoji $label',
+                  style: tt.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+              ),
+              if (hasChevron)
+                const Icon(Icons.chevron_right_rounded,
+                    size: 16, color: AppTheme.iconSubtle),
+            ],
           ),
           const SizedBox(height: 6),
           Row(
@@ -625,7 +656,7 @@ class _CatBadge extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 13)),
+        TwemojiIcon(emoji, size: 13),
         const SizedBox(width: 3),
         Text('$label $count',
             style: tt.labelSmall?.copyWith(color: AppTheme.textDark)),
@@ -742,6 +773,270 @@ class _ExpiryDot extends StatelessWidget {
                 .textTheme
                 .labelSmall
                 ?.copyWith(color: AppTheme.textDark)),
+      ],
+    );
+  }
+}
+
+// ─── 영상 레시피 섹션 ───────────────────────────────────────────────────────────
+
+/// 재고 섹션 아래 위치하는 영상 URL → 레시피 추출 섹션.
+///
+/// YouTube 등 요리 영상 URL을 입력하면 Gemini가 레시피를 추출하고
+/// 레시피 상세 화면으로 이동한다.
+class _VideoRecipeSection extends ConsumerStatefulWidget {
+  const _VideoRecipeSection();
+
+  @override
+  ConsumerState<_VideoRecipeSection> createState() =>
+      _VideoRecipeSectionState();
+}
+
+class _VideoRecipeSectionState extends ConsumerState<_VideoRecipeSection> {
+  final _urlController = TextEditingController();
+  bool _isExtracting = false;
+  String? _errorText;
+  bool _hasUrl = false;
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _extract() async {
+    final url = _urlController.text.trim();
+    if (url.isEmpty) return;
+    if (!Uri.tryParse(url)!.hasScheme) {
+      setState(() => _errorText = '올바른 URL을 입력해 주세요');
+      return;
+    }
+
+    setState(() {
+      _isExtracting = true;
+      _errorText = null;
+    });
+
+    try {
+      final repo = await ref.read(recipeRepositoryProvider.future);
+      final result = await repo.generateFromVideo(url);
+      if (!mounted) return;
+      result.when(
+        success: (recipe) {
+          setState(() {
+            _urlController.clear();
+            _hasUrl = false;
+          });
+          context.push('/recipe/${recipe.id}', extra: recipe);
+        },
+        failure: (e) => setState(() => _errorText = e.message),
+      );
+    } catch (e) {
+      if (mounted) setState(() => _errorText = e.toString());
+    } finally {
+      if (mounted) setState(() => _isExtracting = false);
+    }
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    if (text.isNotEmpty && mounted) {
+      setState(() {
+        _urlController.text = text;
+        _hasUrl = true;
+        _errorText = null;
+      });
+    }
+  }
+
+  void _clear() {
+    setState(() {
+      _urlController.clear();
+      _hasUrl = false;
+      _errorText = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ─── 섹션 헤더 ──────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: Row(
+            children: [
+              const TwemojiIcon('🎬', size: 18),
+              const SizedBox(width: 6),
+              const Text(
+                '영상으로 레시피',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'YouTube · 인스타 · 틱톡',
+                style: tt.labelSmall?.copyWith(color: AppTheme.iconGrey),
+              ),
+            ],
+          ),
+        ),
+
+        // ─── 입력 카드 ───────────────────────────────────────────────
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppTheme.cardColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.dividerSubtle),
+            boxShadow: const [
+              BoxShadow(
+                color: AppTheme.dividerSubtle,
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ─── URL 입력 행 ──────────────────────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _urlController,
+                      enabled: !_isExtracting,
+                      keyboardType: TextInputType.url,
+                      textInputAction: TextInputAction.go,
+                      onSubmitted: (_) => _extract(),
+                      onChanged: (val) {
+                        final hasUrl = val.trim().isNotEmpty;
+                        if (hasUrl != _hasUrl || _errorText != null) {
+                          setState(() {
+                            _hasUrl = hasUrl;
+                            if (_errorText != null) _errorText = null;
+                          });
+                        }
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'https://youtube.com/watch?v=...',
+                        hintStyle: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 13,
+                          color: AppTheme.textDisabled,
+                        ),
+                        errorText: _errorText,
+                        errorStyle: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 11,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: IconButton.outlined(
+                      onPressed: _isExtracting ? null : _paste,
+                      icon: const Icon(Icons.content_paste_rounded, size: 18),
+                      tooltip: '클립보드에서 붙여넣기',
+                      style: IconButton.styleFrom(
+                        foregroundColor: AppTheme.primaryColor,
+                        side: const BorderSide(
+                            color: AppTheme.primaryColor, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  AnimatedOpacity(
+                    opacity: _hasUrl ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: IconButton.outlined(
+                        onPressed: (_hasUrl && !_isExtracting) ? _clear : null,
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        tooltip: '지우기',
+                        style: IconButton.styleFrom(
+                          foregroundColor: AppTheme.iconGrey,
+                          side: const BorderSide(
+                              color: AppTheme.dividerSubtle, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // ─── 추출 버튼 ────────────────────────────────────────
+              SizedBox(
+                height: 44,
+                child: FilledButton.icon(
+                  onPressed: _isExtracting ? null : _extract,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.flameOrange,
+                    disabledBackgroundColor:
+                        AppTheme.flameOrange.withValues(alpha: 0.4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: _isExtracting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.auto_awesome_rounded, size: 18),
+                  label: Text(
+                    _isExtracting ? '레시피 추출 중...' : '레시피 추출하기',
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

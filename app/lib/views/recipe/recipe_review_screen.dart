@@ -147,7 +147,7 @@ class _RecipeReviewScreenState extends State<RecipeReviewScreen>
                 child: Icon(
                   filled ? Icons.star_rounded : Icons.star_outline_rounded,
                   size: 42,
-                  color: filled ? const Color(0xFFFFC107) : cs.outlineVariant,
+                  color: filled ? AppTheme.warningAmber : cs.outlineVariant,
                 ),
               ),
             );

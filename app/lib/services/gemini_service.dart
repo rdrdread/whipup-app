@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:whipup/core/errors/app_error.dart';
 import 'package:whipup/core/result.dart';
@@ -24,7 +25,8 @@ class GeminiService {
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
   static const int _maxRetries = 2;
   static const double _temperature = 0.7;
-  static const int _maxTokens = 2048;
+  static const int _maxTokens = 8192;
+  static const int _chatMaxTokens = 512;
 
   /// Gemini API 키를 FlutterSecureStorage에 저장한다.
   Future<void> saveApiKey(String apiKey) async {
@@ -89,8 +91,7 @@ class GeminiService {
         return Result.success(text as String);
       } on DioException catch (e) {
         final status = e.response?.statusCode;
-        // ignore: avoid_print
-        print('[GeminiService] HTTP $status | body: ${e.response?.data}');
+        if (kDebugMode) debugPrint('[GeminiService] HTTP $status');
         if (status == 401 || status == 403 || status == 400) {
           return Result.failure(_mapDioError(e));
         }
@@ -98,8 +99,7 @@ class GeminiService {
         if (status == 429) {
           final delaySecs = _parseRetryDelay(e.response?.data);
           if (delaySecs != null && delaySecs <= 90 && attempt < _maxRetries) {
-            // ignore: avoid_print
-            print('[GeminiService] 429 → ${delaySecs}s 대기 후 재시도');
+            if (kDebugMode) debugPrint('[GeminiService] 429 → ${delaySecs}s 대기 후 재시도');
             await Future.delayed(Duration(seconds: delaySecs));
             continue;
           }
@@ -109,6 +109,164 @@ class GeminiService {
           return Result.failure(_mapDioError(e));
         }
         // 지수 백오프: 2s, 4s (5xx·timeout 등 일시적 오류)
+        await Future.delayed(Duration(seconds: (attempt + 1) * 2));
+      } catch (e) {
+        return Result.failure(AppError.unknown(e));
+      }
+    }
+
+    return const Result.failure(AppError.unknown('알 수 없는 오류'));
+  }
+
+  /// 요리 영상 URL 기반 레시피 추출 요청을 Gemini API에 전송한다.
+  ///
+  /// YouTube URL이면 [fileData]로 영상을 직접 분석하고,
+  /// 그 외 URL은 [prompt] 텍스트에 URL을 포함하여 전송한다.
+  Future<Result<String, AppError>> generateFromVideoUrl(
+    String videoUrl,
+    String prompt,
+  ) async {
+    final stored = await _storage.read(key: _storageKey);
+    final apiKey = stored?.trim() ?? '';
+    if (apiKey.isEmpty) {
+      return const Result.failure(
+        AppError.network('Gemini API 키가 설정되지 않았습니다. 설정 화면에서 키를 입력해 주세요.'),
+      );
+    }
+
+    final isYouTube = _isYouTubeUrl(videoUrl);
+    final List<Map<String, dynamic>> parts = [];
+    if (isYouTube) {
+      parts.add({'fileData': {'fileUri': videoUrl}});
+    }
+    parts.add({
+      'text': isYouTube ? prompt : '요리 영상 URL: $videoUrl\n\n$prompt',
+    });
+
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '$_baseUrl?key=$apiKey',
+          data: {
+            'contents': [
+              {'parts': parts},
+            ],
+            'generationConfig': {
+              'temperature': _temperature,
+              'maxOutputTokens': _maxTokens,
+              'responseMimeType': 'application/json',
+              'thinkingConfig': {'thinkingBudget': 0},
+            },
+          },
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {'Content-Type': 'application/json'},
+          ),
+        );
+
+        final text = response.data?['candidates']?[0]?['content']?['parts']
+            ?[0]?['text'];
+        if (text == null) {
+          return const Result.failure(
+            AppError.parsing('Gemini 응답이 비어있습니다.'),
+          );
+        }
+        return Result.success(text as String);
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (kDebugMode) debugPrint('[GeminiService.video] HTTP $status');
+        if (status == 401 || status == 403 || status == 400) {
+          return Result.failure(_mapDioError(e));
+        }
+        if (status == 429) {
+          final delaySecs = _parseRetryDelay(e.response?.data);
+          if (delaySecs != null && delaySecs <= 90 && attempt < _maxRetries) {
+            await Future.delayed(Duration(seconds: delaySecs));
+            continue;
+          }
+          return Result.failure(_mapDioError(e));
+        }
+        if (attempt >= _maxRetries) {
+          return Result.failure(_mapDioError(e));
+        }
+        await Future.delayed(Duration(seconds: (attempt + 1) * 2));
+      } catch (e) {
+        return Result.failure(AppError.unknown(e));
+      }
+    }
+
+    return const Result.failure(AppError.unknown('알 수 없는 오류'));
+  }
+
+  /// YouTube URL 여부를 판별한다.
+  bool _isYouTubeUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    final host = uri.host.toLowerCase();
+    return host.contains('youtube.com') || host == 'youtu.be';
+  }
+
+  /// 자연어 질문을 Gemini API에 전송하고 텍스트 응답을 반환한다.
+  ///
+  /// 채팅/QA 전용. [generateContent]와 달리 JSON 스키마 없이 text/plain으로 응답받는다.
+  Future<Result<String, AppError>> generateText(String prompt) async {
+    final stored = await _storage.read(key: _storageKey);
+    final apiKey = stored?.trim() ?? '';
+    if (apiKey.isEmpty) {
+      return const Result.failure(
+        AppError.network('Gemini API 키가 설정되지 않았습니다. 설정 화면에서 키를 입력해 주세요.'),
+      );
+    }
+
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '$_baseUrl?key=$apiKey',
+          data: {
+            'contents': [
+              {
+                'parts': [
+                  {'text': prompt},
+                ],
+              },
+            ],
+            'generationConfig': {
+              'temperature': 0.5,
+              'maxOutputTokens': _chatMaxTokens,
+              'thinkingConfig': {'thinkingBudget': 0},
+            },
+          },
+          options: Options(
+            receiveTimeout: const Duration(seconds: 30),
+            headers: {'Content-Type': 'application/json'},
+          ),
+        );
+
+        final text = response.data?['candidates']?[0]?['content']?['parts']
+            ?[0]?['text'];
+        if (text == null) {
+          return const Result.failure(
+            AppError.parsing('Gemini 응답이 비어있습니다.'),
+          );
+        }
+        return Result.success(text as String);
+      } on DioException catch (e) {
+        final status = e.response?.statusCode;
+        if (kDebugMode) debugPrint('[GeminiService.generateText] HTTP $status');
+        if (status == 401 || status == 403 || status == 400) {
+          return Result.failure(_mapDioError(e));
+        }
+        if (status == 429) {
+          final delaySecs = _parseRetryDelay(e.response?.data);
+          if (delaySecs != null && delaySecs <= 90 && attempt < _maxRetries) {
+            await Future.delayed(Duration(seconds: delaySecs));
+            continue;
+          }
+          return Result.failure(_mapDioError(e));
+        }
+        if (attempt >= _maxRetries) {
+          return Result.failure(_mapDioError(e));
+        }
         await Future.delayed(Duration(seconds: (attempt + 1) * 2));
       } catch (e) {
         return Result.failure(AppError.unknown(e));

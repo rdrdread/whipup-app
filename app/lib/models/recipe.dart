@@ -53,6 +53,12 @@ abstract class Recipe with _$Recipe {
 
     /// 출처 목록
     @Default([]) List<String> sources,
+
+    /// 요리 결과물 이미지 URL (선택)
+    String? imageUrl,
+
+    /// 원본 요리 영상 URL (선택 — 영상 기반 레시피 추출 시 설정)
+    String? videoUrl,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
@@ -114,6 +120,9 @@ abstract class RecipeStep with _$RecipeStep {
 
     /// 미디어 타입 ('image' | 'video')
     String? mediaType,
+
+    /// 영상 내 이 단계가 시작되는 타임스탬프 (초). null이면 영상 싱크 없음.
+    int? videoTimestampSeconds,
   }) = _RecipeStep;
 
   factory RecipeStep.fromJson(Map<String, dynamic> json) =>

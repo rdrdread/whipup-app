@@ -47,7 +47,9 @@ class StorageContainerSlot {
 /// 미설정 시 각 위치별 1개씩 기본값으로 반환.
 @riverpod
 Future<List<StorageContainerSlot>> storageContainerSlots(Ref ref) async {
-  const storage = FlutterSecureStorage();
+  const storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
   final rawConfig = await storage.read(key: 'storage_config');
   final rawNames = await storage.read(key: kContainerNamesKey);
 

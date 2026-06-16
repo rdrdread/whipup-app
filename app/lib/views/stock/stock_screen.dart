@@ -21,9 +21,14 @@ import 'package:whipup/widgets/stock/ingredient_card.dart';
 /// - 중간: 카테고리 필터 칩 + 정렬 드롭다운 — US-4, US-5
 /// - 하단: IngredientCard 목록 + FAB — US-1, US-3
 ///
+/// [initialExpiry]가 true이면 진입 시 유통기한 오름차순 정렬을 즉시 적용한다.
+///
 /// 레이아웃: `docs/core/screen_layout.md §3.2`
 class StockScreen extends ConsumerStatefulWidget {
-  const StockScreen({super.key});
+  const StockScreen({super.key, this.initialExpiry = false});
+
+  /// 진입 시 유통기한 오름차순 정렬 적용 여부 (홈 화면 임박 재료 확인 시 true).
+  final bool initialExpiry;
 
   @override
   ConsumerState<StockScreen> createState() => _StockScreenState();
@@ -44,6 +49,15 @@ class _StockScreenState extends ConsumerState<StockScreen>
     // 탭 0 = 전체, 탭 1..n = 슬롯
     _tabController = TabController(length: _slots.length + 1, vsync: this);
     _tabController.addListener(_onTabChanged);
+
+    // 홈 화면 임박 재료 확인에서 진입하면 유통기한 오름차순 정렬 즉시 적용
+    if (widget.initialExpiry) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(stockFilterProvider.notifier).setExpiryAscending();
+        }
+      });
+    }
   }
 
   void _onTabChanged() {
@@ -194,29 +208,47 @@ class _StockScreenState extends ConsumerState<StockScreen>
           ...slots.map((slot) => _StockTabContent(slot: slot)),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          if (slots.isEmpty) return;
-          // 전체 탭(0)이면 첫 번째 슬롯으로 추가
-          final slotIndex = tc.index == 0 ? 0 : tc.index - 1;
-          final slot = slots[slotIndex.clamp(0, slots.length - 1)];
-          final filter = ref.read(stockFilterProvider);
-          final catParam = filter.category != null
-              ? '&category=${filter.category!.name}'
-              : '';
-          await context.push(
-            '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}$catParam',
-          );
-          // 카테고리 필터 초기화: 새로 추가한 재료가 보이도록
-          if (mounted) {
-            ref.read(stockFilterProvider.notifier).clearCategory();
-          }
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          '재료 추가',
-          style: TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
-        ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 직접 입력
+          FloatingActionButton(
+            heroTag: 'text_fab',
+            onPressed: () async {
+              if (slots.isEmpty) return;
+              final slotIndex = tc.index == 0 ? 0 : tc.index - 1;
+              final slot = slots[slotIndex.clamp(0, slots.length - 1)];
+              final filter = ref.read(stockFilterProvider);
+              final catParam = filter.category != null
+                  ? '&category=${filter.category!.name}'
+                  : '';
+              await context.push(
+                '/stock/add?location=${slot.location.name}&containerIndex=${slot.index}$catParam',
+              );
+              if (mounted) {
+                ref.read(stockFilterProvider.notifier).clearCategory();
+              }
+            },
+            tooltip: '직접 입력',
+            child: const Icon(Icons.edit_note_rounded),
+          ),
+          const SizedBox(width: 12),
+          // 음성 입력
+          FloatingActionButton(
+            heroTag: 'voice_fab',
+            onPressed: () => context.push('/voice'),
+            tooltip: '음성으로 추가',
+            child: const Icon(Icons.mic_rounded),
+          ),
+          const SizedBox(width: 12),
+          // 사진 입력
+          FloatingActionButton(
+            heroTag: 'camera_fab',
+            onPressed: () => context.push('/camera'),
+            tooltip: '사진으로 추가',
+            child: const Icon(Icons.camera_alt_rounded),
+          ),
+        ],
       ),
     );
   }

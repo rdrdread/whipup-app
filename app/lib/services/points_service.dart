@@ -7,7 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 ///
 /// 적립 이벤트: 레시피 완료 +50P, 재고 추가 +10P, 앱 일별 오픈 +5P, 후기 작성 +50P
 abstract final class PointsService {
-  static const _storage = FlutterSecureStorage();
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
   static const _pointsKey = 'user_points';
   static const _reviewCountKey = 'user_review_count';
   static const _lastDailyOpenKey = 'user_last_daily_open';
@@ -20,6 +22,9 @@ abstract final class PointsService {
 
   /// 일별 앱 오픈 적립 포인트.
   static const int pointsPerDailyOpen = 5;
+
+  /// 요리 사진 등록 포인트.
+  static const int pointsPerPhoto = 30;
 
   /// 후기 1건당 기본 포인트.
   static const int pointsPerReview = 50;
@@ -105,6 +110,14 @@ abstract final class PointsService {
     await _storage.write(key: _lastDailyOpenKey, value: todayStr);
     final current = await getPoints();
     final next = current + pointsPerDailyOpen;
+    await _storage.write(key: _pointsKey, value: next.toString());
+    return next;
+  }
+
+  /// 요리 사진 등록 시 포인트 적립 (+30P).
+  static Future<int> addPhotoPoints() async {
+    final current = await getPoints();
+    final next = current + pointsPerPhoto;
     await _storage.write(key: _pointsKey, value: next.toString());
     return next;
   }

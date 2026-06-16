@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/providers/recipe_providers.dart';
 import 'package:whipup/theme/app_theme.dart';
+import 'package:whipup/widgets/common/twemoji_icon.dart';
 
 /// 요리명 기반 레시피 생성 화면.
 ///
@@ -75,7 +76,7 @@ class _QuickRecipeScreenState extends ConsumerState<QuickRecipeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(widget.emoji, style: const TextStyle(fontSize: 64)),
+            TwemojiIcon(widget.emoji, size: 64),
             const SizedBox(height: 24),
             Text(
               widget.dishName,

@@ -146,14 +146,6 @@ class MyScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1, thickness: 1, indent: 16),
                 _MenuRow(
-                  icon: Icons.mic_rounded,
-                  iconColor: AppTheme.iconSubtle,
-                  label: '음성 재료 입력',
-                  subtitle: '말로 재료를 추가해요',
-                  onTap: () => context.push('/stock/add'),
-                ),
-                const Divider(height: 1, thickness: 1, indent: 16),
-                _MenuRow(
                   icon: Icons.info_outline_rounded,
                   iconColor: AppTheme.iconSubtle,
                   label: '앱 정보',

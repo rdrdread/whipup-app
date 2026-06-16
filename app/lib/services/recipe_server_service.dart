@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
 import 'package:whipup/core/constants/app_constants.dart';
 import 'package:whipup/core/errors/app_error.dart';
 import 'package:whipup/core/result.dart';
@@ -13,6 +17,25 @@ abstract class RecipeServerService {
   Future<Result<Recipe, AppError>?> fetchByName(String dishName);
   Future<Recipe?> findSimilar(List<String> ingredients);
   Future<void> cacheRecipe(Recipe recipe, {List<String> ingredients = const []});
+  Future<bool> updateRecipe(Recipe recipe);
+}
+
+/// Dio 인스턴스 생성.
+///
+/// debug 빌드에서만 자체 서버 인증서 미스매치를 허용한다.
+/// release 빌드에서는 TLS 검증을 정상 수행한다.
+Dio _buildServerDio() {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 8),
+      receiveTimeout: const Duration(seconds: 12),
+    ),
+  );
+  if (kDebugMode) {
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () =>
+        HttpClient()..badCertificateCallback = (cert, host, port) => true;
+  }
+  return dio;
 }
 
 // ─── 실 백엔드 클라이언트 ──────────────────────────────────────────────────────
@@ -24,7 +47,7 @@ abstract class RecipeServerService {
 class WhipupRecipeApiClient implements RecipeServerService {
   static final _baseUrl = '${AppConstants.baseUrl}/v1';
 
-  const WhipupRecipeApiClient(this._dio);
+  WhipupRecipeApiClient([Dio? dio]) : _dio = dio ?? _buildServerDio();
   final Dio _dio;
 
   @override
@@ -78,6 +101,22 @@ class WhipupRecipeApiClient implements RecipeServerService {
       // 서버 캐시 실패는 무시 — 로컬 캐시가 primary
     }
   }
+
+  @override
+  Future<bool> updateRecipe(Recipe recipe) async {
+    try {
+      final response = await _dio.post(
+        '$_baseUrl/recipes',
+        data: {
+          'recipe_data': recipe.toJson(),
+          'ingredients': recipe.ingredients.map((i) => i.name).toList(),
+        },
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 // ─── 개발용 Mock 서버 ──────────────────────────────────────────────────────────
@@ -109,4 +148,7 @@ class MockRecipeServerService implements RecipeServerService {
     Recipe recipe, {
     List<String> ingredients = const [],
   }) async {}
+
+  @override
+  Future<bool> updateRecipe(Recipe recipe) async => true;
 }

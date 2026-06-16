@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:whipup/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,7 +58,11 @@ class _CameraScreenState extends State<CameraScreen>
       _lastCameraDescription = desc;
     } else if (state == AppLifecycleState.resumed) {
       final desc = _lastCameraDescription;
-      if (desc != null) _initCameraController(desc);
+      if (desc != null) {
+        _initCameraController(desc).catchError((e) {
+          debugPrint('카메라 재초기화 실패: $e');
+        });
+      }
     }
   }
 
@@ -78,8 +83,19 @@ class _CameraScreenState extends State<CameraScreen>
       enableAudio: false,
     );
     _controller = controller;
-    await controller.initialize();
-    if (mounted) setState(() => _isInitialized = true);
+    try {
+      await controller.initialize();
+      if (mounted) setState(() => _isInitialized = true);
+    } on CameraException catch (e) {
+      debugPrint('카메라 초기화 실패: ${e.code} ${e.description}');
+      if (mounted) {
+        _showError(
+          e.code == 'CameraAccessDenied'
+              ? '카메라 권한이 필요합니다. 설정에서 권한을 허용해 주세요.'
+              : '카메라를 열 수 없습니다: ${e.description}',
+        );
+      }
+    }
   }
 
   Future<void> _captureAndProcess() async {
@@ -116,7 +132,7 @@ class _CameraScreenState extends State<CameraScreen>
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.dangerRed),
     );
   }
 

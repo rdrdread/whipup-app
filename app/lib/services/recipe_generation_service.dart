@@ -50,6 +50,79 @@ class RecipeGenerationService {
     );
   }
 
+  /// 요리 영상 URL 기반 레시피를 AI로 추출한다.
+  ///
+  /// YouTube URL이면 Gemini가 영상을 직접 분석하고, 그 외 URL은 텍스트 컨텍스트로 처리한다.
+  /// 추출 완료 후 [Recipe.videoUrl]에 원본 URL이 설정되고, 단계 순서가 정규화된다.
+  Future<Result<Recipe, AppError>> generateFromVideoUrl(String videoUrl) async {
+    final prompt = _promptBuilder.buildVideoRecipePrompt(videoUrl);
+    final aiResult = await _gemini.generateFromVideoUrl(videoUrl, prompt);
+    final jsonText = aiResult.valueOrNull;
+    if (jsonText == null) {
+      return Result.failure(
+        aiResult.errorOrNull ?? AppError.parsing('AI 응답이 비어있습니다'),
+      );
+    }
+    final parseResult = await _parseRecipe(jsonText);
+    final recipe = parseResult.valueOrNull;
+    if (recipe == null) return parseResult;
+    final normalized = _normalizeVideoSteps(recipe.copyWith(videoUrl: videoUrl));
+    return Result.success(normalized);
+  }
+
+  /// 영상 기반 레시피의 조리 단계를 7단계 구조로 정규화한다.
+  ///
+  /// AI가 영상 순서대로 단계를 뒤섞어 반환할 경우를 대비해
+  /// prep→heat→base→main→season→finish→plate 순서로 재정렬하고,
+  /// 동일 phase의 여러 단계는 하나로 병합한다.
+  Recipe _normalizeVideoSteps(Recipe recipe) {
+    const phaseOrder = [
+      'prep', 'heat', 'base', 'main', 'season', 'finish', 'plate',
+    ];
+
+    // phase 별로 그룹화
+    final byPhase = <String, List<RecipeStep>>{};
+    for (final step in recipe.steps) {
+      byPhase.putIfAbsent(step.phase.name, () => []).add(step);
+    }
+
+    final normalized = <RecipeStep>[];
+    var stepNum = 1;
+
+    for (final phaseName in phaseOrder) {
+      final phaseSteps = byPhase[phaseName];
+      if (phaseSteps == null || phaseSteps.isEmpty) continue;
+
+      // 원래 step_number 순으로 정렬
+      phaseSteps.sort((a, b) => a.stepNumber.compareTo(b.stepNumber));
+
+      final RecipeStep merged;
+      if (phaseSteps.length == 1) {
+        merged = phaseSteps.first;
+      } else {
+        // 같은 phase의 여러 단계를 하나의 설명으로 병합
+        final desc = phaseSteps.map((s) => s.description).join(' ');
+        final tips = phaseSteps
+            .map((s) => s.tip)
+            .whereType<String>()
+            .toList();
+        final totalSecs = phaseSteps
+            .map((s) => s.durationSeconds ?? 0)
+            .reduce((a, b) => a + b);
+        merged = phaseSteps.first.copyWith(
+          description: desc,
+          tip: tips.isNotEmpty ? tips.join(' ') : null,
+          durationSeconds: totalSecs > 0 ? totalSecs : null,
+        );
+      }
+
+      normalized.add(merged.copyWith(stepNumber: stepNum++));
+    }
+
+    if (normalized.isEmpty) return recipe;
+    return recipe.copyWith(steps: normalized);
+  }
+
   /// 요리명 기반 레시피를 AI로 생성한다.
   Future<Result<Recipe, AppError>> generateByDishName(
     String dishName, {
@@ -102,8 +175,8 @@ class RecipeGenerationService {
       'title': json['title'],
       'description': json['description'],
       'recipeType': _mapRecipeType(json['recipe_type'] as String? ?? 'main'),
-      'servings': json['servings'] ?? 2,
-      'cookingTimeMinutes': json['cooking_time_minutes'] ?? 30,
+      'servings': (json['servings'] as num?)?.toInt() ?? 2,
+      'cookingTimeMinutes': (json['cooking_time_minutes'] as num?)?.toInt() ?? 30,
       'difficulty': _mapDifficulty(json['difficulty'] as String? ?? 'medium'),
       'ingredients': (json['ingredients'] as List<dynamic>? ?? [])
           .map(_normalizeIngredient)
@@ -132,13 +205,14 @@ class RecipeGenerationService {
   Map<String, dynamic> _normalizeStep(dynamic item) {
     final m = item as Map<String, dynamic>;
     return {
-      'stepNumber': m['step_number'] ?? 1,
+      'stepNumber': (m['step_number'] as num?)?.toInt() ?? 1,
       'phase': _mapCookingPhase(m['phase'] as String? ?? 'prep'),
       'description': m['description'] ?? '',
-      'durationSeconds': m['duration_seconds'],
+      'durationSeconds': (m['duration_seconds'] as num?)?.toInt(),
       'tip': m['tip'],
       'mediaUrl': m['media_url'],
       'mediaType': m['media_type'],
+      'videoTimestampSeconds': (m['video_timestamp_seconds'] as num?)?.toInt(),
     };
   }
 

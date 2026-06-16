@@ -90,7 +90,7 @@ class StockFilterNotifier extends _$StockFilterNotifier {
       // 같은 기준 재탭 시 오름차순/내림차순 토글
       state = state.copyWith(sortAscending: !state.sortAscending);
     } else {
-      state = state.copyWith(sortBy: sortBy, sortAscending: false);
+      state = state.copyWith(sortBy: sortBy, sortAscending: true);
     }
   }
 

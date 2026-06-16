@@ -3,6 +3,19 @@ import 'package:whipup/core/result.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 
+/// 요리 히스토리 항목 (완료된 레시피 + 완료 시각 + 사진 경로).
+class RecipeHistoryEntry {
+  const RecipeHistoryEntry({
+    required this.recipe,
+    required this.cookedAt,
+    this.photoPath,
+  });
+
+  final Recipe recipe;
+  final DateTime cookedAt;
+  final String? photoPath;
+}
+
 /// 레시피 저장소 추상 인터페이스.
 ///
 /// 캐시 우선순위: Local(Isar) → Server(Phase 2.0+) → AI(Gemini)
@@ -45,4 +58,20 @@ abstract class RecipeRepository {
     String dishName, {
     int servings = 2,
   });
+
+  /// 요리 영상 URL에서 레시피를 AI로 추출하고 캐시에 저장한다.
+  Future<Result<Recipe, AppError>> generateFromVideo(String videoUrl);
+
+  /// 레시피를 로컬 캐시 + 백엔드 서버에 업데이트한다.
+  Future<Result<Recipe, AppError>> updateRecipe(Recipe recipe);
+
+  /// 요리 완료 데이터(사진 경로, 완료 시각)를 업데이트한다.
+  Future<Result<void, AppError>> updateCompletionData(
+    String recipeId, {
+    String? photoPath,
+    DateTime? completedAt,
+  });
+
+  /// 완료된 요리 히스토리 목록 (최신순).
+  Future<Result<List<RecipeHistoryEntry>, AppError>> getHistory();
 }

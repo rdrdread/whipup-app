@@ -18,9 +18,6 @@ abstract final class AppTheme {
   /// Primary Container: Warm Light Gray
   static const Color primaryContainerColor = Color(0xFFE0D8D3);
 
-  /// Dark Mode Primary
-  static const Color primaryDarkColor = Color(0xFF8C7B74);
-
   /// 배경색: Graphite Warm Off-White
   static const Color backgroundColor = Color(0xFFF0EEEC);
 
@@ -74,6 +71,40 @@ abstract final class AppTheme {
 
   /// Primary 계열 그림자 (Graphite Warm)
   static const Color shadowPrimary = Color(0x40584D48);
+
+  // ─── 텍스트 강조 / 보더 ──────────────────────────────────────────────────
+
+  /// 최강 텍스트: near-black (온보딩 제목 등 최고 강조)
+  static const Color textStrong = Color(0xFF1A1A1A);
+
+  /// 비활성 보더: 10% 불투명 블랙 (선택 카드 테두리 등)
+  static const Color borderLight = Color(0x1A000000);
+
+  // ─── 레시피 타입 배지 ─────────────────────────────────────────────────────
+
+  static const Color badgeMainBg    = Color(0xFFE8F5E9);
+  static const Color badgeMainFg    = Color(0xFF2E7D32);
+  static const Color badgeSoupBg    = Color(0xFFE3F2FD);
+  static const Color badgeSoupFg    = Color(0xFF1565C0);
+  static const Color badgeSideBg    = Color(0xFFF1F8E9);
+  static const Color badgeSideFg    = Color(0xFF558B2F);
+  static const Color badgeDessertBg = Color(0xFFFCE4EC);
+  static const Color badgeDessertFg = Color(0xFFC62828);
+  static const Color badgeSnackBg   = Color(0xFFFFF8E1);
+  static const Color badgeSnackFg   = Color(0xFFF57F17);
+  static const Color badgeDrinkBg   = Color(0xFFE0F7FA);
+  static const Color badgeDrinkFg   = Color(0xFF00ACC1);
+  static const Color badgeSauceBg   = Color(0xFFF3E5F5);
+  static const Color badgeSauceFg   = Color(0xFF6A1B9A);
+
+  // ─── 칼럼 카테고리 배지 ───────────────────────────────────────────────────
+
+  static const Color badgeIngredientBg = Color(0xFFFFF3E0);
+  static const Color badgeIngredientFg = Color(0xFFEF6C00);
+  // science: badgeSoupBg / badgeSoupFg 재사용
+  // gardening: badgeMainBg / badgeMainFg 재사용
+  static const Color badgeSafetyBg = Color(0xFFFFEBEE);
+  static const Color badgeSafetyFg = Color(0xFFC62828);
 
   // ─── API 키 배너 ─────────────────────────────────────────────────────────
 
@@ -145,7 +176,7 @@ abstract final class AppTheme {
           // NavigationBar
           navigationBarSelectedLabelSchemeColor: SchemeColor.primary,
           navigationBarSelectedIconSchemeColor: SchemeColor.primary,
-          navigationBarIndicatorSchemeColor: SchemeColor.primaryContainer,
+          navigationBarIndicatorSchemeColor: SchemeColor.surface,
           navigationBarBackgroundSchemeColor: SchemeColor.surface,
           navigationBarElevation: 0,
           // TabBar
@@ -178,7 +209,7 @@ abstract final class AppTheme {
           surfaceTintColor: Colors.transparent,
           shadowColor: Colors.transparent,
           elevation: 0,
-          indicatorColor: const Color(0xFFFDE4DE), // flame orange 10% tint
+          indicatorColor: Colors.transparent,
           iconTheme: WidgetStateProperty.resolveWith<IconThemeData?>((states) {
             if (states.contains(WidgetState.selected)) {
               return const IconThemeData(color: flameOrange);
@@ -231,61 +262,6 @@ abstract final class AppTheme {
             borderSide: const BorderSide(color: Color(0xFFEF5350), width: 1.5),
           ),
         ),
-      );
-
-  /// 다크 테마 (static final로 캐시 — 최초 1회만 계산).
-  static final ThemeData dark = FlexThemeData.dark(
-        colors: const FlexSchemeColor(
-          primary: primaryDarkColor,
-          primaryContainer: primaryContainerColor,
-          secondary: Color(0xFFFF8A65),
-          secondaryContainer: Color(0xFF2A2A2A),
-          tertiary: Color(0xFFBCAAA4),
-          tertiaryContainer: Color(0xFF262626),
-          appBarColor: Color(0xFF1A0F0C),
-          error: Color(0xFFEF9A9A),
-        ),
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 13,
-        subThemesData: const FlexSubThemesData(
-          blendOnLevel: 20,
-          useTextTheme: true,
-          useM2StyleDividerInM3: true,
-          alignedDropdown: true,
-          useInputDecoratorThemeInDialogs: true,
-          cardRadius: 12.0,
-          elevatedButtonRadius: 12.0,
-          filledButtonRadius: 12.0,
-          outlinedButtonRadius: 12.0,
-          textButtonRadius: 8.0,
-          fabRadius: 16.0,
-          chipRadius: 20.0,
-          inputDecoratorRadius: 12.0,
-          inputDecoratorIsFilled: true,
-          dialogRadius: 20.0,
-          bottomSheetRadius: 20.0,
-          snackBarRadius: 8,
-          navigationBarSelectedLabelSchemeColor: SchemeColor.secondary,
-          navigationBarSelectedIconSchemeColor: SchemeColor.secondary,
-          navigationBarIndicatorSchemeColor: SchemeColor.secondaryContainer,
-          navigationBarBackgroundSchemeColor: SchemeColor.surface,
-          navigationBarElevation: 0,
-          tabBarIndicatorSchemeColor: SchemeColor.primary,
-          tabBarItemSchemeColor: SchemeColor.primary,
-          tabBarUnselectedItemSchemeColor: SchemeColor.onSurfaceVariant,
-        ),
-        keyColors: const FlexKeyColors(
-          useSecondary: true,
-          useTertiary: true,
-          keepPrimaryContainer: true,
-          keepSecondaryContainer: true,
-          keepTertiaryContainer: true,
-        ),
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        useMaterial3: true,
-        fontFamily: 'Pretendard',
-      ).copyWith(
-        textTheme: _buildTextTheme(Brightness.dark),
       );
 
   // ─── 헬퍼 ─────────────────────────────────────────────────────────────────

@@ -1,4 +1,7 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whipup/theme/app_theme.dart';
@@ -31,10 +34,25 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _controller.forward();
 
-    // 2초 후 온보딩(최초 실행) 또는 홈으로 이동
+    // 2초 후 로그인 상태에 따라 라우팅
     Future.delayed(const Duration(milliseconds: 2000), () async {
       if (!mounted) return;
-      const storage = FlutterSecureStorage();
+
+      // Windows에서는 Firebase 미사용 — 바로 홈으로 이동
+      if (Platform.isWindows) {
+        context.go('/home');
+        return;
+      }
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // ignore: use_build_context_synchronously
+        context.go('/login');
+        return;
+      }
+      const storage = FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      );
       final done = await storage.read(key: 'onboarding_done');
       if (!mounted) return;
       // ignore: use_build_context_synchronously
@@ -62,11 +80,11 @@ class _SplashScreenState extends State<SplashScreen>
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
+                  color: AppTheme.flameOrange,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryColor.withAlpha(0x4D),
+                      color: AppTheme.flameOrange.withAlpha(0x4D),
                       blurRadius: 32,
                       offset: Offset(0, 8),
                     ),

@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:whipup/models/recipe.dart';
 import 'package:whipup/models/stock_item.dart';
 import 'package:whipup/providers/isar_provider.dart';
-import 'package:whipup/repositories/recipe_repository.dart';
+import 'package:whipup/repositories/recipe_repository.dart'; // RecipeHistoryEntry 포함
 import 'package:whipup/repositories/impl/isar_recipe_repository.dart';
 import 'package:whipup/services/gemini_service.dart';
 import 'package:whipup/services/prompt_builder.dart';
@@ -20,7 +20,9 @@ part 'recipe_providers.g.dart';
 GeminiService geminiService(Ref ref) {
   return GeminiService(
     dio: Dio(BaseOptions(connectTimeout: const Duration(seconds: 30))),
-    storage: const FlutterSecureStorage(),
+    storage: const FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    ),
   );
 }
 
@@ -45,8 +47,7 @@ RecipeGenerationService recipeGenerationService(Ref ref) {
 
 /// RecipeServerService Provider.
 @riverpod
-RecipeServerService recipeServerService(Ref ref) =>
-    WhipupRecipeApiClient(Dio());
+RecipeServerService recipeServerService(Ref ref) => WhipupRecipeApiClient();
 
 /// RecipeRepository Provider (keepAlive).
 @Riverpod(keepAlive: true)
@@ -191,6 +192,14 @@ Future<List<Recipe>> cachedRecipes(Ref ref) async {
 Future<List<Recipe>> favoriteRecipes(Ref ref) async {
   final repository = await ref.watch(recipeRepositoryProvider.future);
   final result = await repository.getFavorites();
+  return result.valueOrNull ?? [];
+}
+
+/// 완료된 요리 히스토리 목록 (최신순).
+@riverpod
+Future<List<RecipeHistoryEntry>> cookingHistory(Ref ref) async {
+  final repository = await ref.watch(recipeRepositoryProvider.future);
+  final result = await repository.getHistory();
   return result.valueOrNull ?? [];
 }
 

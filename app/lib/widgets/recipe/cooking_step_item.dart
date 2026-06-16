@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:whipup/theme/app_theme.dart';
 import 'package:whipup/models/recipe.dart';
 
@@ -14,31 +14,67 @@ class CookingStepItem extends StatelessWidget {
     required this.step,
     this.isActive = false,
     this.isCooking = false,
+    this.isVideoSync = false,
   });
 
   final RecipeStep step;
 
-  /// 현재 진행 중인 단계 여부.
+  /// 현재 진행 중인 단계 여부 (사용자 수동 선택).
   final bool isActive;
 
   /// 조리 모드 (더 큰 폰트) 여부.
   final bool isCooking;
+
+  /// 영상 재생 위치와 동기화된 단계 여부 (플레임 오렌지 하이라이트).
+  final bool isVideoSync;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    final highlightColor = isVideoSync
+        ? AppTheme.flameOrange
+        : (isActive ? cs.primary : null);
+    final bgColor = isVideoSync
+        ? AppTheme.flameOrange.withValues(alpha: 0.08)
+        : (isActive ? cs.primaryContainer : AppTheme.cardColor);
+
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(isVideoSync ? 12 : 16, 16, 16, 16),
       decoration: BoxDecoration(
-        color: isActive ? cs.primaryContainer : AppTheme.cardColor,
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isActive ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
-          width: isActive ? 1.5 : 0.5,
+        border: Border(
+          left: BorderSide(
+            color: isVideoSync
+                ? AppTheme.flameOrange
+                : (isActive
+                    ? cs.primary
+                    : cs.outlineVariant.withValues(alpha: 0.5)),
+            width: isVideoSync ? 4 : (isActive ? 1.5 : 0.5),
+          ),
+          top: BorderSide(
+            color: isVideoSync
+                ? AppTheme.flameOrange.withValues(alpha: 0.3)
+                : cs.outlineVariant.withValues(alpha: 0.5),
+            width: isVideoSync ? 1 : 0.5,
+          ),
+          right: BorderSide(
+            color: isVideoSync
+                ? AppTheme.flameOrange.withValues(alpha: 0.3)
+                : cs.outlineVariant.withValues(alpha: 0.5),
+            width: isVideoSync ? 1 : 0.5,
+          ),
+          bottom: BorderSide(
+            color: isVideoSync
+                ? AppTheme.flameOrange.withValues(alpha: 0.3)
+                : cs.outlineVariant.withValues(alpha: 0.5),
+            width: isVideoSync ? 1 : 0.5,
+          ),
         ),
       ),
       child: Column(
@@ -53,7 +89,7 @@ class CookingStepItem extends StatelessWidget {
                 width: isCooking ? 52 : 40,
                 height: isCooking ? 52 : 40,
                 decoration: BoxDecoration(
-                  color: isActive ? cs.primary : AppTheme.surfaceHigh,
+                  color: highlightColor ?? AppTheme.surfaceHigh,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -61,11 +97,15 @@ class CookingStepItem extends StatelessWidget {
                     '${step.stepNumber}',
                     style: isCooking
                         ? tt.displaySmall?.copyWith(
-                            color: isActive ? cs.onPrimary : cs.onSurface,
+                            color: highlightColor != null
+                                ? Colors.white
+                                : cs.onSurface,
                             fontWeight: FontWeight.w700,
                           )
                         : tt.titleLarge?.copyWith(
-                            color: isActive ? cs.onPrimary : cs.onSurface,
+                            color: highlightColor != null
+                                ? Colors.white
+                                : cs.onSurface,
                             fontWeight: FontWeight.w700,
                           ),
                   ),
@@ -77,20 +117,46 @@ class CookingStepItem extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      step.phase.name,
-                      style: tt.labelSmall?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w600,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (highlightColor ?? cs.primary)
+                              .withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          step.phase.name,
+                          style: tt.labelSmall?.copyWith(
+                            color: highlightColor ?? cs.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (isVideoSync) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.flameOrange,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            '▶ 재생 중',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(
